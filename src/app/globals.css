@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+/* Custom global styles */
+html,
+body {
+  @apply bg-surface-100 text-gray-200 antialiased;
+  /* Apply user-defined font family and size variables set by ThemeProvider. */
+  font-family: var(--user-font-family, 'Inter'), sans-serif;
+  font-size: var(--user-font-size, 16px);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at top center, rgba(57, 255, 20, 0.14), transparent 24%),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: auto, 72px 72px, 72px 72px;
+  background-position: center top, center top, center top;
+  overflow-x: hidden;
+}
+
+a {
+  @apply text-accent-200 hover:text-accent-300 transition-colors;
+}
+
+::selection {
+  @apply bg-accent-300 text-surface-100;
+}
+
+/* Scrollbar styling for a subtle premium feel */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+*::-webkit-scrollbar-track {
+  @apply bg-surface-200;
+}
+*::-webkit-scrollbar-thumb {
+  @apply bg-accent-300 rounded-lg;
+}
+*::-webkit-scrollbar-thumb:hover {
+  @apply bg-accent-100;
+}
+
+@layer components {
+  .section-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-space {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-accent-100;
+    border: 1px solid rgba(57, 255, 20, 0.35);
+    background-color: rgba(57, 255, 20, 0.1);
+  }
+
+  .panel {
+    @apply rounded-[1.75rem] border backdrop-blur-md;
+    border-color: rgba(33, 41, 29, 0.9);
+    background-color: rgba(13, 17, 11, 0.82);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  }
+
+  .panel-muted {
+    @apply rounded-[1.5rem] border backdrop-blur-md;
+    border-color: rgba(33, 41, 29, 0.7);
+    background-color: rgba(13, 17, 11, 0.55);
+  }
+
+  .neon-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-accent-300/60 to-transparent;
+  }
+}
+
+/* ── Premium Navbar Animations ── */
+@keyframes logo-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba(57, 255, 20, 0.12), 0 0 50px rgba(57, 255, 20, 0.04); }
+  50% { box-shadow: 0 0 32px rgba(57, 255, 20, 0.28), 0 0 80px rgba(57, 255, 20, 0.1); }
+}
+
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba(57, 255, 20, 0.25), 0 0 50px rgba(57, 255, 20, 0.08); }
+  50% { box-shadow: 0 0 34px rgba(57, 255, 20, 0.48), 0 0 80px rgba(57, 255, 20, 0.14); }
+}
+
+@keyframes gradient-text-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes shimmer-sweep {
+  0%, 65% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
+}
+
+@keyframes pill-halo-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@layer utilities {
+  .logo-glow-pulse { animation: logo-glow 3s ease-in-out infinite; }
+  .cta-glow-pulse { animation: cta-glow 2.5s ease-in-out infinite; }
+
+  /* Animated gradient text for premium branding */
+  .brand-gradient-text {
+    background: linear-gradient(90deg, #fff 0%, #bcff9d 25%, #39ff14 50%, #bcff9d 75%, #fff 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-text-shift 6s ease-in-out infinite;
+  }
+
+  /* Button shimmer sweep — a light streak across CTA buttons */
+  .btn-shimmer-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shimmer-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    animation: shimmer-sweep 4s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Noise texture overlay for premium tactile feel */
+  .nav-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
+
+  /* 3D perspective wrapper for tilt effect */
+  .nav-perspective {
+    perspective: 800px;
+  }
+}

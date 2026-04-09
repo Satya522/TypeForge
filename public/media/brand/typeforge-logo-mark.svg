@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldTop" x1="108" y1="96" x2="404" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB11A"/>
+      <stop offset="0.48" stop-color="#FFD35A"/>
+      <stop offset="1" stop-color="#FFF2AE"/>
+    </linearGradient>
+    <linearGradient id="goldStem" x1="235" y1="176" x2="309" y2="402" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB223"/>
+      <stop offset="0.5" stop-color="#FF8D12"/>
+      <stop offset="1" stop-color="#FF5C0A"/>
+    </linearGradient>
+    <linearGradient id="goldBase" x1="160" y1="350" x2="334" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF5B09"/>
+      <stop offset="0.45" stop-color="#FF8A0C"/>
+      <stop offset="1" stop-color="#FFD14C"/>
+    </linearGradient>
+    <filter id="glow" x="54" y="52" width="404" height="408" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="20" result="effect1_foregroundBlur"/>
+    </filter>
+    <filter id="shadow" x="90" y="78" width="332" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="16"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.18 0 0 0 0 0.07 0 0 0 0 0.01 0 0 0 0.55 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+
+  <g opacity="0.32" filter="url(#glow)">
+    <path d="M128 128H390V178C390 186.837 382.837 194 374 194H138C129.163 194 122 186.837 122 178V134C122 130.686 124.686 128 128 128Z" fill="#FFB11A"/>
+    <path d="M226 194H302V300C302 330.465 284.249 358.144 256.593 370.808L225 385.268L226 194Z" fill="#FF7A00"/>
+    <path d="M158 386L225 354L355 386L248 425L158 386Z" fill="#FF8C0A"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M126 110H388C396.837 110 404 117.163 404 126V182C404 190.837 396.837 198 388 198H291.5V220H369C377.837 220 385 227.163 385 236V256C385 264.837 377.837 272 369 272H289V322C289 354.992 270.089 385.064 240.361 399.289L202 417.648V431L160 409V391.431L212.499 365.132C231.522 355.606 243.5 336.161 243.5 314.886V272H199C190.163 272 183 264.837 183 256V236C183 227.163 190.163 220 199 220H243.5V198H126C117.163 198 110 190.837 110 182V126C110 117.163 117.163 110 126 110Z" fill="url(#goldTop)"/>
+    <path d="M223 198H289V324.443C289 350.854 273.796 374.914 250.016 386.297L190 415V388.167L212.499 377.127C231.522 367.601 243.5 348.156 243.5 326.881V198H223Z" fill="url(#goldStem)"/>
+    <path d="M160 391.43L242.184 351L355 383.26L248.69 425.926L160 391.43Z" fill="url(#goldBase)"/>
+    <path d="M293 198H388C396.837 198 404 190.837 404 182V126C404 117.163 396.837 110 388 110H126" stroke="#FFF1A5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M343 330L367 337L344 347" stroke="#FFB11A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="381" cy="350" r="6" fill="#FF9B11"/>
+    <circle cx="398" cy="365" r="5" fill="#FF8B0E"/>
+    <circle cx="409" cy="345" r="4" fill="#FFD25A"/>
+    <circle cx="145" cy="134" r="3.5" fill="#FFB11A"/>
+    <circle cx="156" cy="128" r="2.5" fill="#FFD25A"/>
+    <circle cx="168" cy="141" r="2.5" fill="#FF8B0E"/>
+  </g>
+</svg>

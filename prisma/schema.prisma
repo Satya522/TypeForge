@@ -1,0 +1,313 @@
+// Prisma schema for TypeForge typing platform
+
+// Datasource and generator configuration
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ContentType {
+  TEXT
+  WORDS
+  SENTENCE
+  PARAGRAPH
+  NUMBER
+  PUNCTUATION
+  CODE
+  QUOTE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SessionType {
+  LESSON
+  PRACTICE
+  TEST
+}
+
+enum PreferredDuration {
+  S15
+  S30
+  S60
+  S120
+}
+
+// Users
+model User {
+  id            String      @id @default(cuid())
+  name          String?
+  email         String?     @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role        @default(USER)
+  username      String?     @unique
+  bio           String?
+  hashedPassword String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  lessonProgress UserLessonProgress[]
+  practiceSessions PracticeSession[]
+  achievements  UserAchievement[]
+  dailyStats    DailyStat[]
+  streakTracking StreakTracking?
+  settings      UserSettings?
+
+  // Indicates whether the user has an active premium subscription. When true,
+  // additional features such as advanced analytics, coding modes and multiplayer
+  // priorities become available. Subscription management (e.g. Stripe) must
+  // update this flag accordingly.
+  isPremium     Boolean      @default(false)
+}
+
+// NextAuth standard models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  oauth_token_secret String?
+  oauth_token       String?
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Typing course structure
+model LessonPath {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String?
+  order       Int
+  difficulty  Difficulty @default(EASY)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id                String          @id @default(cuid())
+  lessonPathId      String
+  title             String
+  slug              String          @unique
+  description       String?
+  order             Int
+  difficulty        Difficulty       @default(EASY)
+  estimatedTime     Int?            // seconds
+  targetKeys        String?
+  targetFingers     String?
+  instructions      String?
+  xpReward          Int             @default(0)
+  unlockLessonId    String?         // reference to previous lesson for unlocking
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  lessonPath        LessonPath      @relation(fields: [lessonPathId], references: [id], onDelete: Cascade)
+  unlockLesson      Lesson?         @relation("UnlockRelation", fields: [unlockLessonId], references: [id])
+  unlockedLessons   Lesson[]        @relation("UnlockRelation")
+  contentBlocks     LessonContentBlock[]
+  progress          UserLessonProgress[]
+}
+
+model LessonContentBlock {
+  id        String      @id @default(cuid())
+  lessonId  String
+  type      ContentType
+  content   String      @db.Text
+  order     Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  lesson    Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+// Practice content repository
+model PracticeContent {
+  id          String       @id @default(cuid())
+  type        ContentType
+  difficulty  Difficulty    @default(EASY)
+  content     String        @db.Text
+  categoryId  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  sessions    PracticeSession[]
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  practiceContents PracticeContent[]
+}
+
+// Results of practice or lesson sessions
+model PracticeSession {
+  id              String       @id @default(cuid())
+  userId          String
+  type            SessionType  @default(PRACTICE)
+  contentId       String?
+  customContent   String?      @db.Text
+  wpm             Float
+  rawWpm          Float
+  accuracy        Float
+  consistency     Float
+  totalErrors     Int
+  correctedErrors Int
+  uncorrectedErrors Int
+  sessionDuration Int          // seconds
+  correctChars    Int
+  incorrectChars  Int
+  sessionDate     DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content         PracticeContent? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+}
+
+// Tracking user progress in lessons
+model UserLessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  stars       Int       @default(0)
+  wpm         Float?
+  accuracy    Float?
+  attempts    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+// Achievements and user progress
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  xpReward    Int      @default(0)
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  achievedAt    DateTime    @default(now())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+// Daily aggregated statistics for analytics page
+model DailyStat {
+  id                   String    @id @default(cuid())
+  userId               String
+  date                 DateTime  @default(now())
+  lessonsCompleted     Int       @default(0)
+  practiceSessions     Int       @default(0)
+  totalTimePracticed   Int       @default(0)  // seconds
+  averageWpm           Float      @default(0)
+  averageAccuracy      Float      @default(0)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+// User settings and preferences
+model UserSettings {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  soundEnabled      Boolean           @default(true)
+  leaderboardVisible Boolean          @default(true)
+  dailyGoal         Int               @default(5)  // number of lessons/practice per day
+  preferredDuration PreferredDuration @default(S60)
+  reducedMotion     Boolean           @default(false)
+  keyboardLayout    String?           // reserved for future support
+
+  // Preferred language code (e.g. 'en', 'hi', 'es') for localized UI.
+  language          String?           @default("en")
+
+  // Preferred theme or color scheme. Users can choose from a set of
+  // available themes defined on the client. This does not reference a
+  // separate table to keep the schema simple.
+  theme             String?           @default("dark")
+  // Accent color allows users to pick a primary accent hue for UI elements.
+  accentColor       String?           @default("blue")
+  // Font family preference for the typing interface and headings.
+  fontFamily        String?           @default("Inter")
+  // Font size preference (in pixels) for body text. Useful for accessibility.
+  fontSize          Int?              @default(16)
+  // Whether to enable reminders and web push notifications.
+  notificationsEnabled Boolean        @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Tracking user streaks
+model StreakTracking {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastPracticeAt DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
