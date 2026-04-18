@@ -18,6 +18,8 @@ import {
   SquaresFour,
   UserCircle,
   CaretRight,
+  Trophy,
+  ChartLine,
 } from '@phosphor-icons/react';
 
 type NavUserActionsProps = {
@@ -30,6 +32,8 @@ type NavUserActionsProps = {
 const iconMap: Record<string, React.ElementType> = {
   Dashboard: SquaresFour,
   Profile: UserCircle,
+  Achievements: Trophy,
+  Analytics: ChartLine,
 };
 
 function getInitials(name?: string | null, email?: string | null) {

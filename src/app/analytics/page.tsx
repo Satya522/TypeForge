@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import { redirect } from 'next/navigation';
+import { Download, Sparkles } from 'lucide-react';
 
 export const metadata = {
   title: 'Analytics – TypeForge',
@@ -20,14 +21,14 @@ export default async function AnalyticsPage() {
   const userId = session.user.id;
   // fetch last 30 days stats
   const since = new Date();
-  since.setDate(since.getDate() - 29);
+  since.setDate(since.getDate() - 89);
   const stats = await prisma.dailyStat.findMany({
     where: { userId, date: { gte: since } },
     orderBy: { date: 'asc' },
   });
   // Fill missing dates
   const data: { date: string; wpm: number; accuracy: number; time: number; lessons: number; sessions: number }[] = [];
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 90; i++) {
     const d = new Date(since.getTime());
     d.setDate(d.getDate() + i);
     const key = d.toISOString().slice(0, 10);
@@ -41,10 +42,6 @@ export default async function AnalyticsPage() {
       sessions: stat ? stat.practiceSessions : 0,
     });
   }
-  // Compute totals
-  const totalTime = data.reduce((sum, d) => sum + d.time, 0);
-  const totalLessons = data.reduce((sum, d) => sum + d.lessons, 0);
-  const totalSessions = data.reduce((sum, d) => sum + d.sessions, 0);
 
   // For demonstration purposes, generate a simple heatmap of per-key errors.
   // In a real implementation this data would be aggregated from user sessions.
@@ -56,31 +53,32 @@ export default async function AnalyticsPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-24 pb-12 px-6 mx-auto max-w-6xl">
-        <h1 className="text-3xl font-bold text-gray-100 mb-6">Your Analytics</h1>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg bg-surface-200 p-4 border border-surface-300">
-            <p className="text-xs uppercase text-gray-400">Total Time Practiced</p>
-            <p className="text-2xl font-bold text-accent-200">{Math.round(totalTime / 60)} mins</p>
+      <main className="pt-28 pb-20 px-6 sm:px-10 lg:px-14 xl:px-20 w-full">
+        {/* Header */}
+        <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#39FF14]/20 bg-[#39FF14]/[0.05] px-3 py-1 mb-3">
+              <Sparkles className="h-3.5 w-3.5 text-[#39FF14]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#39FF14]">Performance metrics</span>
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-white mb-2">
+              Your Analytics
+            </h1>
+            <p className="text-gray-500 text-sm">Visualize your typing precision, speed trends, and session history over the last 30 days.</p>
           </div>
-          <div className="rounded-lg bg-surface-200 p-4 border border-surface-300">
-            <p className="text-xs uppercase text-gray-400">Lessons Completed</p>
-            <p className="text-2xl font-bold text-accent-200">{totalLessons}</p>
-          </div>
-          <div className="rounded-lg bg-surface-200 p-4 border border-surface-300">
-            <p className="text-xs uppercase text-gray-400">Practice Sessions</p>
-            <p className="text-2xl font-bold text-accent-200">{totalSessions}</p>
-          </div>
-        </div>
-        {/* Export analytics data as CSV */}
-        <div className="mt-4">
+          
+          {/* Export Button */}
           <a
             href="/api/analytics/export"
-            className="text-sm text-accent-200 underline hover:text-accent-100"
+            className="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-5 py-2.5 transition-all hover:bg-white/[0.05] hover:border-white/20 active:scale-95"
           >
-            Download CSV Report
+            <Download className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-300 group-hover:text-white transition-colors">
+              Export CSV
+            </span>
           </a>
         </div>
+
         <AnalyticsDashboard data={data} heatmapData={heatmapData} />
       </main>
       <Footer />

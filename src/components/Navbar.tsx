@@ -154,13 +154,13 @@ export default function Navbar() {
                 onMouseEnter={() => setIsNavHovered(true)}
                 onMouseLeave={() => { setIsNavHovered(false); setMousePos({ x: -200, y: -200 }); }}
                 className={cn(
-                  'relative nav-noise border-b transition-all duration-500 overflow-hidden',
+                  'relative nav-noise border-b transition-all duration-500',
                   isScrolled 
                     ? 'bg-[#060908]/80 backdrop-blur-2xl border-white/[0.05] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_30px_rgba(57,255,20,0.03)]' 
                     : 'bg-[#060908] border-transparent'
                 )}
               >
-                <div className="pointer-events-none absolute inset-0 z-0 opacity-50">
+                <div className="pointer-events-none absolute inset-0 z-0 opacity-50 overflow-hidden">
               {/* Living aurora light beams */}
               <NavAurora />
               {/* Mouse-following spotlight */}
@@ -225,20 +225,20 @@ export default function Navbar() {
               >
                 <Menu className="h-5 w-5" />
               </motion.button>
-            </div>
+            </div> {/* Closes Content Row */}
+          </div> {/* Closes navRef */}
 
-            <BrowseMegaMenu
-              firstItemRef={firstBrowseItemRef}
-              onClose={closeBrowseMenu}
-              onHoverEnd={scheduleBrowseMenuClose}
-              onHoverStart={openBrowseMenu}
-              open={isBrowseMenuOpen}
-              pathname={pathname}
-            />
-          </div>
-        </div>
+          <BrowseMegaMenu
+            firstItemRef={firstBrowseItemRef}
+            onClose={closeBrowseMenu}
+            onHoverEnd={scheduleBrowseMenuClose}
+            onHoverStart={openBrowseMenu}
+            open={isBrowseMenuOpen}
+            pathname={pathname}
+          />
+        </div> {/* Closes navShellRef */}
       </nav>
-        </div>
+    </div> {/* Closes Transition wrapper */}
       </header>
 
       {/* Browse overlay */}

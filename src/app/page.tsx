@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="flex flex-col overflow-hidden">
+      <main className="flex flex-col bg-[#030403]">
         <Hero />
         <QuickValueStrip />
         <LearningPathsPreview />

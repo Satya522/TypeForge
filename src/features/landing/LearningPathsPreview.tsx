@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Gauge, Keyboard, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Gauge, Keyboard, Sparkle, LockKey, CheckCircle } from '@phosphor-icons/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -19,6 +19,7 @@ const learningPaths = [
     progress: 35,
     icon: BookOpen,
     color: '#39ff14',
+    tag: 'STARTER',
   },
   {
     href: '/learn?view=home-row',
@@ -29,6 +30,7 @@ const learningPaths = [
     progress: 52,
     icon: Keyboard,
     color: '#4ade80',
+    tag: 'CORE',
   },
   {
     href: '/learn?track=speed',
@@ -39,6 +41,7 @@ const learningPaths = [
     progress: 64,
     icon: Gauge,
     color: '#34d399',
+    tag: 'SPEED',
   },
   {
     href: '/learn?level=advanced',
@@ -47,28 +50,32 @@ const learningPaths = [
     lessons: '16 lessons',
     hint: 'High-accuracy track',
     progress: 82,
-    icon: Sparkles,
-    color: '#bcff9d',
+    icon: Sparkle,
+    color: '#a855f7',
+    tag: 'ELITE',
   },
 ] as const;
 
-function AnimatedProgress({ value, color, inView }: { value: number; color: string; inView: boolean }) {
+function AnimatedProgressBar({ value, color, inView }: { value: number; color: string; inView: boolean }) {
   return (
-    <div className="relative mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.05]">
+    <div className="relative mt-4 h-1 w-full overflow-hidden rounded-full bg-white/[0.04]">
       <motion.div
         className="absolute inset-y-0 left-0 rounded-full"
-        style={{ background: `linear-gradient(90deg, ${color}88, ${color})` }}
+        style={{ background: `linear-gradient(90deg, ${color}60, ${color})` }}
         initial={{ width: '0%' }}
         animate={inView ? { width: `${value}%` } : { width: '0%' }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+        transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
       />
-      <motion.div
-        className="absolute inset-y-0 left-0 rounded-full blur-sm"
-        style={{ background: color }}
-        initial={{ width: '0%', opacity: 0 }}
-        animate={inView ? { width: `${value}%`, opacity: 0.4 } : { width: '0%', opacity: 0 }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-      />
+      {/* Shimmer */}
+      {inView && (
+        <motion.div
+          className="absolute inset-y-0 left-0 w-24 rounded-full blur-sm"
+          style={{ background: color }}
+          initial={{ x: '-100%', opacity: 0 }}
+          animate={{ x: `${value * 3}%`, opacity: [0, 0.5, 0] }}
+          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+        />
+      )}
     </div>
   );
 }
@@ -82,43 +89,43 @@ export default function LearningPathsPreview() {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: 'top 70%',
-        once: true,
+        trigger: sectionRef.current, start: 'top 70%', once: true,
         onEnter: () => setInView(true),
       });
       gsap.fromTo('.lp-heading', { y: 50, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
+        y: 0, opacity: 1, duration: 1, ease: 'power3.out',
         scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
       });
-      gsap.fromTo('.lp-card', { y: 60, opacity: 0, rotateY: 8 }, {
-        y: 0, opacity: 1, rotateY: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
-        scrollTrigger: { trigger: '.lp-card', start: 'top 85%', once: true },
+      gsap.fromTo('.lp-card', { y: 70, opacity: 0, scale: 0.93 }, {
+        y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out',
+        scrollTrigger: { trigger: '.lp-card', start: 'top 88%', once: true },
       });
     }, sectionRef);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 sm:py-28 lg:py-32">
-      {/* Background elements */}
+    <section ref={sectionRef} className="relative py-24 sm:py-32 lg:py-40">
+      {/* Background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-1/4 h-[400px] w-[400px] rounded-full bg-accent-300/[0.03] blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-emerald-500/[0.03] blur-[100px]" />
+        <div className="absolute left-0 top-1/4 h-[500px] w-[500px] rounded-full blur-[120px]" style={{ background: 'rgba(57,255,20,0.025)' }} />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full blur-[100px]" style={{ background: 'rgba(168,85,247,0.02)' }} />
       </div>
 
-      <div className="section-shell">
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-14 xl:px-20">
         {/* Header */}
-        <div className="lp-heading mx-auto mb-16 max-w-3xl text-center" style={{ opacity: 0 }}>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-300/20 bg-accent-300/[0.05] px-4 py-2">
-            <BookOpen className="h-3.5 w-3.5 text-accent-300" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-100">Learning Paths</span>
+        <div className="lp-heading mx-auto mb-20 max-w-3xl text-center" style={{ opacity: 0 }}>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#39FF14]/20 bg-[#39FF14]/[0.05] px-5 py-2">
+            <BookOpen className="h-3.5 w-3.5 text-[#39FF14]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#39FF14]/90">Learning Paths</span>
           </div>
-          <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
+          <h2 className="mb-6 text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
             A structured route for{' '}
-            <span className="bg-gradient-to-r from-accent-300 to-emerald-400 bg-clip-text text-transparent">every typing goal</span>
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #39FF14 0%, #86efac 60%, #39FF14 100%)' }}>
+              every typing goal
+            </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 lg:text-lg">
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-500 lg:text-lg">
             Move from fundamentals to faster, cleaner typing with tracks designed to build precision before raw speed.
           </p>
         </div>
@@ -128,92 +135,107 @@ export default function LearningPathsPreview() {
           {learningPaths.map((path, index) => {
             const Icon = path.icon;
             const isActive = activeIndex === index;
-
             return (
-              <motion.div
-                key={path.title}
-                className="lp-card"
-                style={{ opacity: 0 }}
-                onMouseEnter={() => setActiveIndex(index)}
-              >
-                <Link href={path.href} className="group relative block h-full">
+              <div key={path.title} className="lp-card" style={{ opacity: 0 }} onMouseEnter={() => setActiveIndex(index)}>
+                <Link href={path.href} className="group block h-full">
                   <motion.div
-                    className="relative h-full overflow-hidden rounded-2xl border border-white/[0.04] p-6 transition-colors duration-500"
-                    whileHover={{ y: -6, scale: 1.02 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className="relative h-full overflow-hidden rounded-2xl border p-6"
                     style={{
                       background: isActive
-                        ? `linear-gradient(135deg, rgba(57,255,20,0.04) 0%, transparent 60%)`
-                        : 'transparent',
+                        ? `linear-gradient(145deg, ${path.color}08 0%, transparent 60%)`
+                        : 'rgba(255,255,255,0.01)',
+                      transition: 'background 0.4s ease, border-color 0.4s ease, transform 0.3s ease',
                     }}
-                    animate={{ borderColor: isActive ? 'rgba(57,255,20,0.12)' : 'rgba(255,255,255,0.04)' }}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+                    animate={{ borderColor: isActive ? `${path.color}25` : 'rgba(255,255,255,0.05)' }}
                   >
                     {/* Top accent */}
                     <motion.div
-                      className="absolute inset-x-0 top-0 h-px"
-                      style={{ background: `linear-gradient(90deg, transparent, ${path.color}40, transparent)` }}
+                      className="absolute inset-x-0 top-0 h-[2px]"
+                      style={{ background: `linear-gradient(90deg, transparent, ${path.color}, transparent)` }}
                       animate={{ opacity: isActive ? 1 : 0 }}
-                      transition={{ duration: 0.4 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    {/* Ambient glow */}
+                    <motion.div
+                      className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full blur-3xl"
+                      style={{ background: path.color }}
+                      animate={{ opacity: isActive ? 0.06 : 0 }}
+                      transition={{ duration: 0.5 }}
                     />
 
-                    <div className="flex items-center justify-between">
+                    {/* Tag badge */}
+                    <div className="mb-6 flex items-center justify-between">
                       <motion.div
-                        animate={isActive ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
+                        className="flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-300"
+                        style={{
+                          borderColor: isActive ? `${path.color}30` : 'rgba(255,255,255,0.06)',
+                          background: isActive ? `${path.color}10` : 'rgba(255,255,255,0.03)',
+                        }}
+                        animate={isActive ? { rotate: [0, -6, 6, 0], scale: 1.1 } : { rotate: 0, scale: 1 }}
+                        transition={{ duration: 0.5 }}
                       >
-                        <Icon className="h-6 w-6 text-gray-500 transition-colors duration-300 group-hover:text-accent-300" />
+                        <Icon weight="duotone" className="h-5 w-5 transition-colors duration-400" style={{ color: isActive ? path.color : 'rgba(255,255,255,0.5)' }} />
                       </motion.div>
-                      <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-gray-600">
-                        {path.lessons}
+                      <span
+                        className="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300"
+                        style={{
+                          color: isActive ? path.color : '#444',
+                          background: isActive ? `${path.color}12` : 'rgba(255,255,255,0.02)',
+                          border: `1px solid ${isActive ? path.color + '20' : 'rgba(255,255,255,0.04)'}`,
+                        }}
+                      >
+                        {path.tag}
                       </span>
                     </div>
 
-                    <h3 className="mt-5 text-xl font-bold text-gray-200 transition-colors duration-300 group-hover:text-white">
+                    <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-700">{path.lessons}</div>
+                    <h3 className="mb-3 text-2xl font-black text-gray-200 transition-colors duration-300 group-hover:text-white">
                       {path.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                    <p className="text-sm leading-relaxed text-gray-600 transition-colors duration-300 group-hover:text-gray-400">
                       {path.description}
                     </p>
 
+                    {/* Progress */}
                     <div className="mt-6">
-                      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.15em]">
-                        <span className="text-gray-600">{path.hint}</span>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.15em]">
+                        <span className="text-gray-700">{path.hint}</span>
                         <motion.span
-                          className="font-semibold tabular-nums"
+                          className="font-black tabular-nums"
                           style={{ color: path.color }}
                           animate={inView ? { opacity: 1 } : { opacity: 0 }}
                         >
                           {path.progress}%
                         </motion.span>
                       </div>
-                      <AnimatedProgress value={path.progress} color={path.color} inView={inView} />
+                      <AnimatedProgressBar value={path.progress} color={path.color} inView={inView} />
                     </div>
 
-                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors duration-300 group-hover:text-accent-300">
+                    {/* CTA */}
+                    <div className="mt-6 flex items-center gap-2 text-[13px] font-bold text-gray-600 transition-all duration-300 group-hover:gap-3 group-hover:text-[#39FF14]">
                       Open path
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight weight="bold" className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </div>
                   </motion.div>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
-        {/* View all link */}
+        {/* View all */}
         <motion.div
-          className="mt-10 text-center"
+          className="mt-12 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
         >
-          <Link
-            href="/learn"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-accent-300"
-          >
+          <Link href="/learn" className="group inline-flex items-center gap-2 rounded-full border border-white/[0.06] bg-white/[0.02] px-6 py-3 text-sm font-semibold text-gray-500 transition-all hover:border-[#39FF14]/20 hover:bg-[#39FF14]/[0.04] hover:text-[#39FF14]">
             View all learning paths
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </div>

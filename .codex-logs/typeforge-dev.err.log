@@ -1,0 +1,590 @@
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+  [90m 9 |[0m } [36mfrom[0m [32m'lucide-react'[0m;
+  [90m10 |[0m [36mimport[0m [33mLetterGame[0m [36mfrom[0m [32m'@/components/LetterGame'[0m;
+[31m[1m>[0m [90m11 |[0m [36mimport[0m [33mNeonSprintGame[0m [36mfrom[0m [32m'@/components/NeonSprintGame'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m12 |[0m
+  [90m13 |[0m [36mconst[0m [33mGAMES[0m = [
+  [90m14 |[0m   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[browser] ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+   9 | } from 'lucide-react';
+  10 | import LetterGame from '@/components/LetterGame';
+> 11 | import NeonSprintGame from '@/components/NeonSprintGame';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |
+  13 | const GAMES = [
+  14 |   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+   9 | } from 'lucide-react';
+  10 | import LetterGame from '@/components/LetterGame';
+> 11 | import NeonSprintGame from '@/components/NeonSprintGame';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |
+  13 | const GAMES = [
+  14 |   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+[browser] Uncaught Error: ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+   9 | } from 'lucide-react';
+  10 | import LetterGame from '@/components/LetterGame';
+> 11 | import NeonSprintGame from '@/components/NeonSprintGame';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |
+  13 | const GAMES = [
+  14 |   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./src/app/games/GamesHubClient.tsx:11:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./src/app/games/GamesHubClient.tsx:11:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./src/app/games/GamesHubClient.tsx:11:1
+Module not found: Can't resolve '@/components/NeonSprintGame'
+   9 | } from 'lucide-react';
+  10 | import LetterGame from '@/components/LetterGame';
+> 11 | import NeonSprintGame from '@/components/NeonSprintGame';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |
+  13 | const GAMES = [
+  14 |   {
+
+Import map: aliased to relative './src/components/NeonSprintGame' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/app/games/GamesHubClient.tsx
+    ./src/app/games/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found 
+⨯ ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  [90m344 |[0m     setCurrentPrompt(prompt);
+  [90m345 |[0m   }, []);
+[31m[1m>[0m [90m346 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+
+[browser] ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  344 |     setCurrentPrompt(prompt);
+  345 |   }, []);
+> 346 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  344 |     setCurrentPrompt(prompt);
+  345 |   }, []);
+> 346 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] Uncaught Error: ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  344 |     setCurrentPrompt(prompt);
+  345 |   }, []);
+> 346 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/components/NeonSprintGame.tsx:346:1)
+    at <unknown> (Error: (./src/components/NeonSprintGame.tsx:346:1)
+[browser] ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  344 |     setCurrentPrompt(prompt);
+  345 |   }, []);
+> 346 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] ./src/components/NeonSprintGame.tsx:346:1
+Expected '}', got '<eof>'
+  344 |     setCurrentPrompt(prompt);
+  345 |   }, []);
+> 346 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] ./src/components/NeonSprintGame.tsx:679:1
+Expected '}', got '<eof>'
+  677 |     [completePrompt, engine, playSound, syncPerformance]
+  678 |   );
+> 679 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] ./src/components/NeonSprintGame.tsx:943:1
+Expected '}', got '<eof>'
+  941 |         }
+  942 |       }
+> 943 |
+      | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+[browser] ./src/components/NeonSprintGame.tsx:1191:1
+Expected '}', got '<eof>'
+  1189 |     return () => cancelAnimationFrame(engine.rafId);
+  1190 |   }, [engine, status]);
+> 1191 |
+       | ^
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/components/NeonSprintGame.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Client Component Browser]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/NeonSprintGame.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Client Component SSR]
+    ./src/app/games/GamesHubClient.tsx [Server Component]
+    ./src/app/games/page.tsx [Server Component] 
+^C^C

@@ -67,12 +67,18 @@ model User {
   dailyStats    DailyStat[]
   streakTracking StreakTracking?
   settings      UserSettings?
+  communityMessages CommunityMessage[] @relation("CommunityAuthor")
 
-  // Indicates whether the user has an active premium subscription. When true,
-  // additional features such as advanced analytics, coding modes and multiplayer
-  // priorities become available. Subscription management (e.g. Stripe) must
-  // update this flag accordingly.
-  isPremium     Boolean      @default(false)
+  // Gamification & Ranked Matchmaking
+  eloRating     Int          @default(1200)
+  rankTier      String       @default("Bronze") // Bronze, Silver, Gold, Platinum, Neon, Vantablack
+  
+  // Anti-Cheat & Moderation
+  isBanned      Boolean      @default(false)
+  banReason     String?
+
+  // Premium Access (Temporarily free for all)
+  isPremium     Boolean      @default(true) // Setting default to true temporarily
 }
 
 // NextAuth standard models
@@ -310,4 +316,58 @@ model StreakTracking {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ═══════════════════════════════════════════════
+//   Community Chat — Persistent Messages
+// ═══════════════════════════════════════════════
+
+model CommunityMessage {
+  id            String               @id @default(cuid())
+  channelId     String               // e.g. "general", "speed-runs"
+  type          String               @default("user") // "user" | "system"
+  subtype       String?              // "join" | "leave" | "milestone" | "race" | etc.
+  content       String               @db.Text
+  userName      String
+  userColor     String               @default("#39ff14")
+  userGradient  String               @default("linear-gradient(135deg, #39ff14, #00cc00)")
+
+  // If the sender was a logged-in user, link to User. Otherwise visitorId
+  // is the socket.id for guest identification within the session.
+  authorId      String?
+  author        User?                @relation("CommunityAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  visitorId     String?              // socket.id for guests
+
+  // Reply threading
+  replyToId     String?
+  replyToMessage CommunityMessage?   @relation("MessageReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies       CommunityMessage[]   @relation("MessageReply")
+
+  // State
+  pinned        Boolean              @default(false)
+  edited        Boolean              @default(false)
+  editedAt      DateTime?
+
+  reactions     CommunityReaction[]
+
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([channelId, createdAt])
+  @@index([authorId])
+}
+
+model CommunityReaction {
+  id        String           @id @default(cuid())
+  messageId String
+  emoji     String           // e.g. "🔥"
+  userName  String           // who reacted
+  userId    String?          // optional link to User
+
+  message   CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime         @default(now())
+
+  @@unique([messageId, emoji, userName])
+  @@index([messageId])
 }

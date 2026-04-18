@@ -20,12 +20,9 @@ html {
 }
 
 body {
-  background-image:
-    radial-gradient(circle at top center, rgba(57, 255, 20, 0.14), transparent 24%),
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: auto, 72px 72px, 72px 72px;
-  background-position: center top, center top, center top;
+  /* Extreme plain deep dark background with NO grid lines */
+  background-color: #030403;
+  background-image: radial-gradient(circle at top center, rgba(57, 255, 20, 0.08), transparent 40%);
   overflow-x: hidden;
 }
 

@@ -1,0 +1,43 @@
+
+> typeforge@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.101:3000
+- Environments: .env.local, .env
+✓ Ready in 896ms
+Creating turbopack project { dir: 'C:\\Users\\18112\\Desktop\\TypeForge', testMode: true }
+
+ GET / 200 in 3.2s (next.js: 841ms, application-code: 2.3s)
+ GET /games 200 in 652ms (next.js: 146ms, application-code: 506ms)
+ GET /api/auth/session 200 in 2.4s (next.js: 2.2s, application-code: 176ms)
+ GET /games 200 in 270ms (next.js: 11ms, application-code: 259ms)
+ GET /api/auth/session 200 in 89ms (next.js: 43ms, application-code: 46ms)
+✓ Compiled in 1108ms
+ GET /games 500 in 1039ms (next.js: 433ms, application-code: 606ms)
+ GET /games 500 in 100ms (next.js: 69ms, application-code: 31ms)
+ GET /games 500 in 111ms (next.js: 68ms, application-code: 44ms)
+✓ Compiled in 1252ms
+ GET /games 200 in 1452ms (next.js: 336ms, application-code: 1116ms)
+ GET /api/auth/session 200 in 233ms (next.js: 179ms, application-code: 54ms)
+ GET /games 200 in 283ms (next.js: 10ms, application-code: 274ms)
+ GET /api/auth/session 200 in 75ms (next.js: 47ms, application-code: 28ms)
+ GET /games 200 in 381ms (next.js: 12ms, application-code: 369ms)
+ GET /api/auth/session 200 in 147ms (next.js: 70ms, application-code: 78ms)
+ GET /games 200 in 431ms (next.js: 14ms, application-code: 417ms)
+ GET /api/auth/session 200 in 86ms (next.js: 46ms, application-code: 40ms)
+ GET /api/auth/session 200 in 146ms (next.js: 96ms, application-code: 51ms)
+✓ Compiled in 1557ms
+ GET /games 200 in 873ms (next.js: 410ms, application-code: 464ms)
+ GET /games 200 in 235ms (next.js: 13ms, application-code: 222ms)
+✓ Compiled in 1372ms
+ GET /games 200 in 555ms (next.js: 364ms, application-code: 191ms)
+ GET /games 200 in 164ms (next.js: 15ms, application-code: 148ms)
+ GET /games 200 in 1146ms (next.js: 9ms, application-code: 1137ms)
+✓ Compiled in 1258ms
+ GET /games 200 in 1545ms (next.js: 391ms, application-code: 1154ms)
+ GET /api/auth/session 200 in 514ms (next.js: 370ms, application-code: 144ms)
+ GET /api/auth/session 200 in 47ms (next.js: 7ms, application-code: 40ms)
+ GET /api/auth/session 200 in 69ms (next.js: 33ms, application-code: 36ms)
+ GET /api/auth/session 200 in 61ms (next.js: 32ms, application-code: 29ms)

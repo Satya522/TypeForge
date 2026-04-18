@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import LetterGame from '@/components/LetterGame';
+import GamesHubClient from './GamesHubClient';
 
 export const metadata = {
   title: 'Games – TypeForge',
@@ -11,10 +11,14 @@ export default function GamesPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-24 pb-12 px-6 mx-auto max-w-3xl">
-        <h1 className="text-3xl font-bold text-gray-100 mb-6">Typing Games</h1>
-        <p className="text-gray-400 mb-8">Play our mini‑games to improve your typing reflexes and have fun.</p>
-        <LetterGame />
+      <main className="pt-28 pb-20 px-6 mx-auto max-w-[1400px]">
+        <div className="mb-14">
+          <h1 className="text-4xl font-black text-white mb-3">Typing Games</h1>
+          <p className="text-gray-400 text-sm max-w-xl">
+            Play our mini‑games to improve your typing reflexes, master precision hacking, and climb the global leaderboards while having fun.
+          </p>
+        </div>
+        <GamesHubClient />
       </main>
       <Footer />
     </>
