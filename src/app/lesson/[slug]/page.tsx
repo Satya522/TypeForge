@@ -32,18 +32,18 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const blocks = lesson.contentBlocks.map((block) => ({ id: block.id, content: block.content }));
   // Completed page is client component because we need interactive engine
   return (
-    <div className="min-h-screen text-gray-200 selection:bg-accent-300/30 font-sans flex flex-col">
+    <>
       <Navbar />
-      <main className="flex-1 flex flex-col pt-[80px] sm:pt-[100px] max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8">
-        <MicroLessonClient 
-          blocks={blocks} 
-          lessonId={lesson.id} 
-          xpReward={xpReward} 
-          title={title}
-          instructions={instructions}
-          targetKeys={targetKeys}
-        />
-      </main>
-    </div>
+      <div className="pt-24 pb-12 px-6 mx-auto max-w-4xl">
+        <h1 className="text-3xl font-bold text-gray-100 mb-2">{title}</h1>
+        <p className="text-sm text-gray-400 mb-4">{instructions}</p>
+        {targetKeys && (
+          <p className="mb-4 text-xs uppercase text-accent-100">Target Keys: {targetKeys}</p>
+        )}
+        {/* MicroLessonClient steps through each content block sequentially */}
+        <MicroLessonClient blocks={blocks} lessonId={lesson.id} xpReward={xpReward} />
+      </div>
+      <Footer />
+    </>
   );
 }

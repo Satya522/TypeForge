@@ -1,11 +1,11 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Lock, CheckCircle2, ChevronRight, Zap, Star, Trophy, Target,
-  Flame, Sparkles, ArrowRight, Clock, Compass, Swords, BrainCircuit
+  Flame, Sparkles, ArrowRight, Clock, BookOpen, Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,7 +54,7 @@ const DIFFICULTY_META: Record<string, { label: string; color: string; glow: stri
     glow: 'rgba(52,211,153,0.15)',
     border: 'border-emerald-500/20',
     bg: 'bg-emerald-500/10',
-    icon: <Compass className="w-4 h-4" />,
+    icon: <BookOpen className="w-4 h-4" />,
   },
   MEDIUM: {
     label: 'Intermediate',
@@ -62,7 +62,7 @@ const DIFFICULTY_META: Record<string, { label: string; color: string; glow: stri
     glow: 'rgba(251,191,36,0.15)',
     border: 'border-amber-500/20',
     bg: 'bg-amber-500/10',
-    icon: <Swords className="w-4 h-4" />,
+    icon: <Zap className="w-4 h-4" />,
   },
   HARD: {
     label: 'Advanced',
@@ -70,17 +70,12 @@ const DIFFICULTY_META: Record<string, { label: string; color: string; glow: stri
     glow: 'rgba(244,63,94,0.15)',
     border: 'border-rose-500/20',
     bg: 'bg-rose-500/10',
-    icon: <BrainCircuit className="w-4 h-4" />,
+    icon: <Crown className="w-4 h-4" />,
   },
 };
 
 // ── Floating Particle ──
 function FloatingOrbs() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null;
-
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {[...Array(6)].map((_, i) => (

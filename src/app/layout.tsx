@@ -1,14 +1,11 @@
 import '@/app/globals.css';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import Providers from './providers';
-import Script from 'next/script';
 
 // Load Inter variable font with latin subset
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-// Load JetBrains Mono for the premium typing area
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'TypeForge',
@@ -29,15 +26,13 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} ${inter.className}`} suppressHydrationWarning>
+    <html lang="en" className={inter.className} suppressHydrationWarning>
       <head>
         {/* PWA primary meta tags */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0a0a0a" />
         {process.env.NODE_ENV !== 'production' && (
-          <Script
-            id="sw-cleanup-script"
-            strategy="afterInteractive"
+          <script
             dangerouslySetInnerHTML={{
               __html: `
                 if ('serviceWorker' in navigator) {

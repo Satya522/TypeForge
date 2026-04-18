@@ -30,9 +30,9 @@ export const browseColumns: BrowseColumnData[] = [
     title: 'Learn',
     links: [
       { href: '/learn', label: 'Learning Paths', description: 'Structured routes for every skill level' },
-      { href: '/learn/home-row', label: 'Home Row', description: 'Foundational drills for finger placement' },
-      { href: '/learn/beginner', label: 'Beginner Lessons', description: 'Start with rhythm, posture, and basics' },
-      { href: '/learn/advanced', label: 'Advanced Lessons', description: 'Push speed, flow, and precision further' },
+      { href: '/learn?view=home-row', label: 'Home Row', description: 'Foundational drills for finger placement' },
+      { href: '/learn?level=beginner', label: 'Beginner Lessons', description: 'Start with rhythm, posture, and basics' },
+      { href: '/learn?level=advanced', label: 'Advanced Lessons', description: 'Push speed, flow, and precision further' },
       { href: '/story-mode', label: 'Story Mode', description: 'Narrative-driven practice with progression' },
     ],
   },
@@ -65,18 +65,17 @@ export const browseColumns: BrowseColumnData[] = [
       { href: '/code-editor', label: 'Editor', description: 'Focused workspace for code typing' },
       { href: '/extension', label: 'Extension', description: 'Bring drills directly into your browser' },
       { href: '/languages', label: 'Languages', description: 'Switch layouts and script support' },
+      { href: '/posture', label: 'Posture', description: 'Improve ergonomics while you train' },
       { href: '/settings', label: 'Settings', description: 'Tune your profile, sound, and experience' },
       { href: '/ar', label: 'AR Lab', description: 'Explore experimental spatial practice ideas' },
+      { href: '/vr-lab', label: 'VR Lab', description: 'Immersive concepts for next-gen typing' },
     ],
   },
-
 ];
 
 export const userNavLinks: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/profile', label: 'Profile' },
-  { href: '/achievements', label: 'Achievements' },
-  { href: '/analytics', label: 'Analytics' },
 ];
 
 function normalizeNavPath(href: string) {
