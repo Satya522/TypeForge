@@ -15,6 +15,7 @@ import TerminalHackerGame from '@/components/TerminalHackerGame';
 import ZenGardenGame from '@/components/ZenGardenGame';
 import SyntaxShooterGame from '@/components/SyntaxShooterGame';
 import MemoryMatrixGame from '@/components/MemoryMatrixGame';
+import TypeRacerGame from '@/components/TypeRacerGame';
 
 const GAMES = [
   {
@@ -82,7 +83,7 @@ const GAMES = [
     title: 'Type Racer Pro',
     description: 'Compete in live drag races against other players using pure WPM velocity.',
     icon: Zap,
-    status: 'coming_soon',
+    status: 'online',
     color: 'text-blue-400',
     bg: 'bg-blue-400/10',
     border: 'hover:border-blue-400/30'
@@ -154,6 +155,8 @@ export default function GamesHubClient() {
             <SyntaxShooterGame />
           ) : activeGame === 'memory-matrix' ? (
             <MemoryMatrixGame />
+          ) : activeGame === 'type-racer' ? (
+            <TypeRacerGame />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center text-gray-500">
