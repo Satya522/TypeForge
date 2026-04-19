@@ -76,7 +76,7 @@ export default function MemoryMatrixGame() {
             startLevel(level);
             return 0;
           }
-          playSound("type");
+          playSound("normal");
           return c - 1;
         });
       }, 800);
@@ -127,7 +127,7 @@ export default function MemoryMatrixGame() {
     }
 
     if (lastChar === expectedChar) {
-      playSound("type");
+      playSound("normal");
       setTypedSequence(val);
       setScore(s => s + 50 + (level * 10));
 
