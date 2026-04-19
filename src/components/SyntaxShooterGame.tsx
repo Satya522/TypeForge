@@ -2,8 +2,9 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Crosshair, Shield, Zap, Skull, HeartPulse } from "lucide-react";
+import { Play, Crosshair, Zap, Skull, Activity, Timer } from "lucide-react";
 import { useMechanicalSound } from "@/hooks/useMechanicalSound";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SNIPPETS = [
   "const a = 1;", "() => {}", "display: flex;", "margin: 0;", "import React",
@@ -65,9 +66,9 @@ export default function SyntaxShooterGame() {
     return {
       id: Math.random().toString(36).substring(2, 9),
       text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)],
-      x: 10 + Math.random() * 80, // Spawn between 10% and 90% width
-      y: -10, // Start slightly above the screen
-      speed: 0.05 + Math.random() * 0.05 // Falling speed
+      x: 15 + Math.random() * 70, // Spawn between 15% and 85% width
+      y: -10, // Start above the screen
+      speed: 0.04 + Math.random() * 0.05 // Falling speed
     };
   }, []);
 
@@ -109,13 +110,13 @@ export default function SyntaxShooterGame() {
       } else {
         playSound('space');
         setStatus("playing");
-        setTargets([generateTarget(), generateTarget()]); // Start with 2 targets
+        setTargets([generateTarget(), generateTarget()]); 
         engine.current.lastSpawnTime = Date.now();
       }
     }
   }, [status, countdown, playSound, generateTarget]);
 
-  // Main Game Loop (Canvas & Logic)
+  // Main Game Loop
   useEffect(() => {
     if (status !== "playing") return;
 
@@ -131,8 +132,9 @@ export default function SyntaxShooterGame() {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       if (ctx && canvas) {
-        // Clear canvas cleanly (No ghosting, just pure dark red grid)
         ctx.clearRect(0, 0, eng.width, eng.height);
+        
+        ctx.globalCompositeOperation = 'lighter';
 
         // Render Laser Beams
         for (let i = eng.lasers.length - 1; i >= 0; i--) {
@@ -140,20 +142,29 @@ export default function SyntaxShooterGame() {
           ctx.beginPath();
           ctx.moveTo(l.x1, l.y1);
           ctx.lineTo(l.x2, l.y2);
-          ctx.lineWidth = l.alpha * 15;
-          ctx.strokeStyle = `rgba(245, 158, 11, ${l.alpha})`; // Amber
+          
+          // Outer glow
+          ctx.shadowBlur = 30;
+          ctx.shadowColor = `rgba(244, 63, 94, ${l.alpha})`;
+          ctx.lineWidth = 12 * l.alpha;
+          ctx.strokeStyle = `rgba(244, 63, 94, ${l.alpha * 0.8})`; // Rose
           ctx.lineCap = "round";
           ctx.stroke();
           
-          ctx.lineWidth = l.alpha * 5;
-          ctx.strokeStyle = `rgba(255, 255, 255, ${l.alpha})`; // White core
+          // Inner core
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = `rgba(255, 255, 255, ${l.alpha})`;
+          ctx.lineWidth = 4 * l.alpha;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${l.alpha})`; 
           ctx.stroke();
 
-          l.alpha -= 0.05 * (dt / 16);
+          ctx.shadowBlur = 0; // reset
+
+          l.alpha -= 0.04 * (dt / 16);
           if (l.alpha <= 0) eng.lasers.splice(i, 1);
         }
 
-        // Render Particles (Explosions)
+        // Render Particles
         for (let i = eng.particles.length - 1; i >= 0; i--) {
           const p = eng.particles[i];
           p.x += p.vx * (dt / 16);
@@ -162,15 +173,18 @@ export default function SyntaxShooterGame() {
           
           const alpha = Math.max(0, p.life / p.maxLife);
           ctx.beginPath();
-          ctx.arc(p.x, p.y, Math.random() * 3 + 1, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, Math.random() * 2 + 1, 0, Math.PI * 2);
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = `rgba(${p.color}, ${alpha})`;
           ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
           ctx.fill();
+          ctx.shadowBlur = 0;
 
           if (p.life <= 0) eng.particles.splice(i, 1);
         }
+        ctx.globalCompositeOperation = 'source-over';
       }
 
-      // Logic: Update targets falling
       setTargets(prev => {
         let newHealth = health;
         const nextTargets = prev.map(t => ({
@@ -178,14 +192,12 @@ export default function SyntaxShooterGame() {
           y: t.y + t.speed * (dt / 16)
         })).filter(t => {
           if (t.y > 105) {
-            // Target reached bottom
             newHealth -= 10;
             if (activeTargetId === t.id) {
               setActiveTargetId(null);
               setTypedTargetText("");
               setCombo(0);
             }
-            // Screen shake or damage flash could go here
             return false;
           }
           return true;
@@ -200,11 +212,10 @@ export default function SyntaxShooterGame() {
         return nextTargets;
       });
 
-      // Logic: Spawn new targets
       if (now - eng.lastSpawnTime > eng.spawnInterval) {
         setTargets(prev => [...prev, generateTarget()]);
         eng.lastSpawnTime = now;
-        eng.spawnInterval = Math.max(500, eng.spawnInterval - 20); // Get faster
+        eng.spawnInterval = Math.max(600, eng.spawnInterval - 30);
       }
 
       rafId = requestAnimationFrame(loop);
@@ -212,7 +223,6 @@ export default function SyntaxShooterGame() {
 
     rafId = requestAnimationFrame(loop);
     
-    // Timer
     const timerInterval = setInterval(() => {
       setTimeLeft(l => {
         if (l <= 1) {
@@ -229,7 +239,6 @@ export default function SyntaxShooterGame() {
     };
   }, [status, health, activeTargetId, playSound, generateTarget]);
 
-  // Keep focus
   useEffect(() => {
     if (status !== "playing") return;
     const focusTimer = setInterval(() => {
@@ -240,87 +249,80 @@ export default function SyntaxShooterGame() {
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (status !== "playing") return;
-    const val = e.target.value.toLowerCase();
-    const lastChar = val.slice(-1);
+    const val = e.target.value;
     
-    // Determine target
     let currentTarget = targets.find(t => t.id === activeTargetId);
     
-    // If no active target, try to lock onto one starting with the typed letter
     if (!currentTarget && val.length === 1) {
-      const possibleTargets = targets.filter(t => t.text.toLowerCase().startsWith(val));
+      const charTyped = val.toLowerCase();
+      const possibleTargets = targets.filter(t => t.text[0].toLowerCase() === charTyped);
       if (possibleTargets.length > 0) {
-        // Lock onto the lowest one (highest y)
+        // Lock onto lowest
         currentTarget = possibleTargets.reduce((prev, current) => (prev.y > current.y) ? prev : current);
         setActiveTargetId(currentTarget.id);
       } else {
-        // Missed initial lock-on
         playSound('error');
         setCombo(0);
         return;
       }
     }
 
-    if (!currentTarget) return; // Still no target
+    if (!currentTarget) return;
 
-    const expectedText = currentTarget.text.toLowerCase().substring(0, val.length);
+    // We only care about matching up to the length they've typed
+    const expectedMatch = currentTarget.text.substring(0, val.length);
     
-    if (val === expectedText) {
-      // Correct keystroke
+    // exact match ignoring case for letters, but preserving exactly what they type
+    if (val.toLowerCase() === expectedMatch.toLowerCase()) {
       playSound('type');
-      setTypedTargetText(val);
+      
+      // Keep exact casing of what they're trying to type from target
+      // Or just store the substring of the target string that matches
+      setTypedTargetText(currentTarget.text.substring(0, val.length));
 
-      if (val === currentTarget.text.toLowerCase()) {
-        // DESTROYED
+      if (val.toLowerCase() === currentTarget.text.toLowerCase()) {
         playSound('space');
         setCombo(c => c + 1);
-        setScore(s => s + 100 + combo * 10);
+        setScore(s => s + 100 + combo * 15);
         
-        // Visual effects
         if (containerRef.current) {
-           const rect = containerRef.current.getBoundingClientRect();
            const tx = (currentTarget.x / 100) * engine.current.width;
            const ty = (currentTarget.y / 100) * engine.current.height;
            
-           // Shoot Laser
            engine.current.lasers.push({
              x1: engine.current.width / 2,
-             y1: engine.current.height - 50,
+             y1: engine.current.height - 20,
              x2: tx,
              y2: ty,
              alpha: 1
            });
 
-           // Explosion Particles
-           for (let i=0; i<30; i++) {
+           for (let i=0; i<40; i++) {
                engine.current.particles.push({
                    x: tx, y: ty,
-                   vx: (Math.random() - 0.5) * 15,
-                   vy: (Math.random() - 0.5) * 15,
-                   life: 20 + Math.random() * 20,
-                   maxLife: 40,
-                   color: Math.random() > 0.5 ? "245, 158, 11" : "225, 29, 72" // Amber or Rose
+                   vx: (Math.random() - 0.5) * 20,
+                   vy: (Math.random() - 0.5) * 20,
+                   life: 20 + Math.random() * 30,
+                   maxLife: 50,
+                   color: Math.random() > 0.5 ? "245, 158, 11" : "244, 63, 94"
                });
            }
         }
 
-        // Cleanup
         setTargets(prev => prev.filter(t => t.id !== currentTarget!.id));
         setActiveTargetId(null);
         setTypedTargetText("");
       }
     } else {
-      // Wrong keystroke
       playSound('error');
       setCombo(0);
       try {
-         // Create a small misfire particle effect at the turret
          engine.current.particles.push({
              x: engine.current.width / 2,
-             y: engine.current.height - 50,
-             vx: (Math.random() - 0.5) * 5,
+             y: engine.current.height - 30,
+             vx: (Math.random() - 0.5) * 8,
              vy: -Math.random() * 10,
-             life: 10, maxLife: 10,
+             life: 15, maxLife: 15,
              color: "255, 0, 0"
          });
       } catch {}
@@ -329,29 +331,29 @@ export default function SyntaxShooterGame() {
 
   return (
     <div 
-      className="relative w-full h-full bg-[#0a0202] overflow-hidden flex flex-col items-center justify-center font-mono" 
+      className="relative w-full h-full bg-[#050204] overflow-hidden flex flex-col items-center justify-center font-mono selection:bg-rose-500/30" 
       onClick={() => inputRef.current?.focus()}
       ref={containerRef}
     >
-      {/* Dynamic Background Grid */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+      {/* Dynamic Immersive Background */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none"
            style={{
-             backgroundImage: `linear-gradient(rgba(225, 29, 72, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(225, 29, 72, 0.4) 1px, transparent 1px)`,
-             backgroundSize: '40px 40px',
-             transform: 'perspective(500px) rotateX(60deg) scale(2) translateY(-100px)',
+             backgroundImage: \`linear-gradient(rgba(244, 63, 94, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.2) 1px, transparent 1px)\`,
+             backgroundSize: '80px 80px',
+             transform: 'perspective(1000px) rotateX(75deg) scale(2.5) translateY(-20px)',
              transformOrigin: 'top center',
-             animation: 'gridMove 3s linear infinite'
+             animation: 'gridMove 4s linear infinite'
            }}>
       </div>
       <style>{`
         @keyframes gridMove {
           0% { background-position: 0 0; }
-          100% { background-position: 0 40px; }
+          100% { background-position: 0 80px; }
         }
       `}</style>
       
-      {/* Subdued Vignette Overlay */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#0a0202_80%)] pointer-events-none" />
+      {/* Deep Space / Heat Vignette */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom,_transparent_0%,_#050204_70%)] pointer-events-none" />
 
       {/* FX Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 z-10 pointer-events-none" />
@@ -365,135 +367,261 @@ export default function SyntaxShooterGame() {
           onChange={handleInput}
           autoFocus
           autoComplete="off"
+          spellCheck={false}
         />
       )}
 
-      {/* HUD Bar */}
+      {/* Premium HUD - Repositioned to avoid top-center 'X' overlap */}
       {status === "playing" && (
-        <div className="absolute top-6 left-0 right-0 px-8 flex justify-between items-start z-20 pointer-events-none">
-          {/* Health & Combo */}
-          <div className="flex flex-col gap-3 backdrop-blur-xl bg-black/40 border border-rose-500/20 px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(225,29,72,0.1)]">
-             <div className="flex items-center gap-3">
-               <HeartPulse className={`w-5 h-5 ${health < 30 ? 'text-red-500 animate-pulse' : 'text-rose-400'}`} />
-               <div className="w-32 h-2.5 bg-black/50 rounded-full overflow-hidden border border-rose-500/30">
-                 <div className="h-full bg-gradient-to-r from-rose-600 to-amber-400 transition-all duration-300" style={{ width: `${health}%` }} />
-               </div>
-             </div>
-             <div className="flex items-center gap-2">
-               <Zap className="w-4 h-4 text-amber-400" />
-               <span className="text-amber-400 font-black tracking-widest text-sm">COMBO x{combo}</span>
-             </div>
-          </div>
+        <div className="absolute top-6 left-8 right-8 flex justify-between items-start z-20 pointer-events-none">
+          
+          {/* Left Side: Health & Combo (Neon Glass) */}
+          <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex flex-col gap-4">
+            <div className="group relative bg-[#0a0204]/80 backdrop-blur-xl border border-rose-500/30 px-6 py-4 rounded-2xl shadow-[0_10px_30px_rgba(244,63,94,0.15)] flex flex-col gap-3">
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent rounded-2xl pointer-events-none" />
+              <div className="flex items-center gap-3">
+                <Activity className={`w-5 h-5 ${health <= 30 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_#f43f5e]' : 'text-rose-400/80'}`} />
+                <div className="w-40 h-2 bg-black/80 rounded-full overflow-hidden border border-rose-950/50 shadow-[inset_0_2px_5px_black]">
+                  <div className="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-amber-300 transition-all duration-300" style={{ width: \`\${health}%\` }} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-rose-500/80 font-black tracking-[0.2em] uppercase">System Integrity</span>
+                <span className="text-xs text-rose-300 font-bold tracking-widest">{health}%</span>
+              </div>
+            </div>
+            
+            <AnimatePresence>
+              {combo > 2 && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="bg-amber-500/10 backdrop-blur-md border border-amber-500/30 px-6 py-2 rounded-xl flex items-center justify-between"
+                >
+                  <span className="text-[10px] text-amber-500/80 font-black tracking-[0.3em] uppercase">Combo Multiplier</span>
+                  <div className="flex items-center gap-1 text-amber-400 font-black">
+                    <Zap className="w-4 h-4" /> x{combo}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-          {/* Time Limit */}
-          <div className="flex bg-black/60 backdrop-blur-2xl border border-rose-500/30 px-8 py-3 rounded-2xl items-center gap-4 shadow-[#e11d48_0_0_30px_-5px]">
-             <span className={`text-4xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-white'}`} style={{ textShadow: "0 0 20px rgba(225,29,72,0.4)" }}>
-               {timeLeft}s
-             </span>
-          </div>
+          {/* Right Side: Score & Timer */}
+          <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex gap-4 items-start">
+            
+            {/* Timer Bubble */}
+            <div className="bg-[#0a0204]/80 backdrop-blur-xl border border-rose-500/30 px-6 py-4 rounded-2xl flex items-center gap-4 shadow-[0_10px_30px_rgba(244,63,94,0.1)]">
+              <Timer className={`w-5 h-5 ${timeLeft <= 10 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_#f43f5e]' : 'text-rose-400/80'}`} />
+              <span className={`text-4xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.8)]' : 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]'}`}>
+                {timeLeft}<span className="text-lg text-rose-500/50">s</span>
+              </span>
+            </div>
 
-          {/* Score */}
-          <div className="flex flex-col items-end backdrop-blur-xl bg-black/40 border border-amber-500/20 px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(245,158,11,0.1)]">
-             <div className="text-[10px] text-amber-500 font-black tracking-[0.2em] uppercase mb-1">Total Score</div>
-             <div className="text-4xl font-black text-white" style={{ textShadow: "0 0 20px rgba(255,255,255,0.3)" }}>{score}</div>
-          </div>
+            {/* Score Panel */}
+            <div className="bg-[#0a0204]/80 backdrop-blur-xl border border-amber-500/30 px-8 py-4 rounded-2xl flex flex-col items-end shadow-[0_10px_30px_rgba(245,158,11,0.1)] min-w-[200px]">
+              <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-2xl pointer-events-none" />
+              <span className="text-[10px] text-amber-500/80 font-black tracking-[0.3em] uppercase mb-1">Total Score</span>
+              <span className="text-4xl font-black text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] tabular-nums">{score}</span>
+            </div>
+          </motion.div>
         </div>
       )}
 
-      {/* Floating Syntax Targets */}
+      {/* Premium Holographic Nodes */}
       {status === "playing" && targets.map(target => {
         const isActive = target.id === activeTargetId;
         return (
           <div 
             key={target.id}
-            className={`absolute z-20 flex flex-col items-center transition-transform duration-100 linear`}
+            className={`absolute z-20 transition-transform duration-100 ease-linear flex items-center justify-center`}
             style={{ 
-              left: `${target.x}%`, 
-              top: `${target.y}%`,
-              transform: 'translate(-50%, -50%)'
+              left: \`\${target.x}%\`, 
+              top: \`\${target.y}%\`,
+              transform: 'translate(-50%, -50%) perspective(500px) rotateX(10deg)'
             }}
           >
-            {isActive && (
-              <div className="absolute -inset-4 border border-rose-500/50 rounded-lg animate-[spin_4s_linear_infinite] shadow-[inset_0_0_15px_rgba(225,29,72,0.5)]">
-                 <div className="absolute top-0 left-1/2 w-2 h-2 bg-rose-400 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_#f43f5e]" />
-              </div>
-            )}
+            {/* Lock-on Target Ring (Sci-fi viewfinder) */}
+            <AnimatePresence>
+              {isActive && (
+                <motion.div 
+                  initial={{ scale: 1.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 180 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                  className="absolute -inset-8 z-0 pointer-events-none"
+                >
+                  <div className="absolute inset-0 border-2 border-dashed border-rose-500/40 rounded-full animate-[spin_10s_linear_infinite]" />
+                  <div className="absolute inset-2 border border-rose-400/20 rounded-full animate-[spin_5s_linear_infinite_reverse]" />
+                  
+                  {/* Corner Brackets */}
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-400" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-400" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-400" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-400" />
+                </motion.div>
+              )}
+            </AnimatePresence>
             
-            <div className={`px-4 py-2 rounded-md backdrop-blur-md border border-white/10 ${isActive ? 'bg-rose-950/80 shadow-[0_0_30px_rgba(225,29,72,0.4)]' : 'bg-black/80'}`}>
-               <div className="flex text-2xl font-black tracking-widest text-[#f59e0b]">
+            {/* Type Box */}
+            <motion.div 
+              layoutId={target.id}
+              className={`relative z-10 px-5 py-3 rounded-xl backdrop-blur-xl transition-all duration-300
+                         ${isActive 
+                           ? 'bg-rose-950/60 border border-amber-500/50 shadow-[0_0_40px_rgba(244,63,94,0.4)] scale-110' 
+                           : 'bg-[#0a0204]/80 border border-rose-500/20 shadow-lg'}`}
+            >
+               {isActive && <div className="absolute inset-0 bg-gradient-to-r from-rose-500/10 to-amber-500/10 rounded-xl" />}
+               
+               <div className="relative flex text-3xl font-black tracking-wider">
                  {target.text.split('').map((char, i) => {
                     const typed = isActive && i < typedTargetText.length;
+                    const isCurrent = isActive && i === typedTargetText.length;
                     return (
-                       <span key={i} className={typed ? 'text-white drop-shadow-[0_0_10px_white] opacity-20' : 'text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]'}>
+                       <span 
+                         key={i} 
+                         className={`transition-all duration-150 relative 
+                           ${typed ? 'text-amber-300 drop-shadow-[0_0_12px_rgba(253,230,138,0.8)] opacity-100' : 
+                             isActive ? 'text-rose-200/40' : 'text-rose-500/50'}
+                           ${isCurrent && isActive ? 'text-white drop-shadow-[0_0_15px_white] -translate-y-1 inline-block' : ''}
+                         `}
+                       >
                          {char}
+                         {isCurrent && isActive && (
+                           <motion.span layoutId="cursor" className="absolute -bottom-1 left-0 right-0 h-1 bg-amber-400 rounded-full shadow-[0_0_10px_#f59e0b]" />
+                         )}
                        </span>
                     )
                  })}
                </div>
-            </div>
-            {isActive && (
-               <Crosshair className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 text-rose-500/30 animate-pulse pointer-events-none" />
-            )}
+            </motion.div>
           </div>
         )
       })}
 
-      {/* The Sentry Turret */}
+      {/* The Cannon Mainframe (Sleek sci-fi launcher) */}
       {status === "playing" && (
-        <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-          <div className="w-48 h-32 bg-gradient-to-t from-rose-950 to-black border-t-4 border-amber-500/50 rounded-t-full flex items-start justify-center pt-4 shadow-[0_-20px_60px_rgba(225,29,72,0.3)]">
-             {/* Gun Barrel Glow */}
-             <div className="w-12 h-12 rounded-full border-4 border-rose-500/50 bg-rose-900/40 shadow-[inset_0_0_20px_rgba(225,29,72,0.8)] flex items-center justify-center">
-                 <div className={`w-4 h-4 bg-white rounded-full transition-all duration-100 ${typedTargetText.length > 0 ? 'scale-150 shadow-[0_0_20px_#fff,0_0_40px_#f59e0b]' : 'shadow-[0_0_10px_#fff]'}`} />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center">
+          
+          {/* Laser Core */}
+          <div className="relative w-24 h-24 mb-[-40px]">
+            <div className="absolute inset-0 border-4 border-rose-500/20 rounded-full blur-[2px]" />
+            <div className="absolute inset-2 border-2 border-amber-500/40 rounded-full animate-[spin_3s_linear_infinite]" />
+            <div className="absolute inset-4 bg-gradient-to-b from-rose-800 to-black rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(244,63,94,0.5)]">
+               <div className={`w-6 h-6 rounded-full transition-all duration-150 ${typedTargetText.length > 0 ? 'bg-amber-100 shadow-[0_0_30px_#fcf6bd,0_0_60px_#f59e0b] scale-125' : 'bg-rose-500 shadow-[0_0_20px_#f43f5e]'}`} />
+            </div>
+          </div>
+
+          {/* Cannon Base */}
+          <div className="w-[400px] h-32 bg-black/80 backdrop-blur-2xl border-t border-rose-500/30 rounded-t-[100px] flex justify-center shadow-[0_-20px_80px_rgba(244,63,94,0.15)] relative overflow-hidden">
+             <div className="absolute top-0 w-64 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+             
+             {/* Decorative UI elements on the cannon */}
+             <div className="mt-12 flex items-center gap-12">
+               <div className="flex flex-col items-center">
+                 <div className="w-8 h-1 bg-rose-500/30 rounded-full mb-1" />
+                 <div className="w-4 h-1 bg-rose-500/20 rounded-full" />
+               </div>
+               <div className="text-rose-500/30 text-[10px] font-black tracking-[0.4em]">MAIN ENGINE</div>
+               <div className="flex flex-col items-center">
+                 <div className="w-8 h-1 bg-rose-500/30 rounded-full mb-1" />
+                 <div className="w-4 h-1 bg-rose-500/20 rounded-full" />
+               </div>
              </div>
           </div>
         </div>
       )}
 
-      {/* Start / Game Over Screens */}
-      {(status === "idle" || status === "gameover") && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0a0202]/80 backdrop-blur-md">
-          <div className="text-center bg-black/40 border border-rose-500/20 p-12 rounded-3xl shadow-[0_0_80px_rgba(225,29,72,0.15)] flex flex-col items-center">
-            {status === "idle" ? (
-              <>
-                <div className="w-24 h-24 mx-auto mb-6 bg-rose-500/10 border border-rose-500/30 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(225,29,72,0.2)]">
-                  <Crosshair className="w-12 h-12 text-rose-500" />
-                </div>
-                <h1 className="text-7xl font-black tracking-[0.2em] mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 to-amber-500 filter drop-shadow-[0_0_20px_rgba(225,29,72,0.4)]">
-                  SYNTAX<br/>SHOOTER
-                </h1>
-                <p className="text-gray-400 text-sm tracking-widest uppercase mb-12">Target Acquisition Protocol: OVERRIDE</p>
-                
-                <Button onClick={initGame} variant="primary" size="lg" className="w-72 h-16 bg-rose-600 hover:bg-rose-500 text-white font-black tracking-widest text-lg shadow-[0_0_40px_rgba(225,29,72,0.5)]">
-                  <Play className="w-6 h-6 mr-3 fill-current" /> ENGAGE
-                </Button>
-              </>
-            ) : (
-              <>
-                <Skull className="w-24 h-24 mx-auto mb-6 text-red-500 drop-shadow-[0_0_40px_rgba(239,68,68,0.5)]" />
-                <h2 className="text-5xl font-black text-rose-500 tracking-[0.2em] mb-8 drop-shadow-[0_0_20px_rgba(225,29,72,0.5)]">SYSTEM FAILURE</h2>
-                
-                <div className="flex gap-8 justify-center mb-12">
-                  <div className="bg-black/50 border border-white/5 px-8 py-6 rounded-2xl">
-                    <div className="text-gray-500 text-xs font-black tracking-widest uppercase mb-2">Final Score</div>
-                    <div className="text-5xl font-black text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">{score}</div>
+      {/* Premium Start / Game Over Screens using Framer Motion */}
+      <AnimatePresence>
+        {(status === "idle" || status === "gameover") && (
+          <motion.div 
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-[#050204]/60"
+          >
+            <motion.div 
+              initial={{ scale: 0.8, y: 50, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              className="text-center bg-black/40 border border-rose-500/20 p-16 rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 pointer-events-none" />
+              
+              {status === "idle" ? (
+                <>
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    className="w-28 h-28 mx-auto mb-8 relative flex items-center justify-center"
+                  >
+                    <div className="absolute inset-0 rounded-full border-2 border-dashed border-rose-500/40" />
+                    <div className="absolute inset-2 rounded-full border border-amber-500/30 rotate-45" />
+                    <Crosshair className="w-12 h-12 text-rose-400" />
+                  </motion.div>
+                  
+                  <h1 className="text-8xl font-black tracking-[0.1em] mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 via-rose-500 to-amber-500 filter drop-shadow-[0_0_30px_rgba(244,63,94,0.3)]">
+                    SYNTAX<br/>SHOOTER
+                  </h1>
+                  
+                  <p className="text-amber-500/60 text-sm font-black tracking-[0.4em] uppercase mb-12">Target Acquisition Protocol</p>
+                  
+                  <Button 
+                    onClick={initGame} 
+                    className="group relative w-80 h-20 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black tracking-widest text-2xl shadow-[0_0_40px_rgba(244,63,94,0.4)] rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105"
+                  >
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:duration-[1500ms]" />
+                    <Play className="w-8 h-8 mr-4 fill-current group-hover:scale-125 transition-transform duration-300" /> SYSTEM OVERRIDE
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", bounce: 0.5 }}
+                  >
+                    <Skull className="w-28 h-28 mx-auto mb-6 text-rose-500 filter drop-shadow-[0_0_40px_rgba(244,63,94,0.6)]" />
+                  </motion.div>
+                  
+                  <h2 className="text-6xl font-black text-white tracking-[0.2em] mb-12 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">SYSTEM OFFLINE</h2>
+                  
+                  <div className="flex gap-10 justify-center mb-12">
+                    <div className="bg-[#0a0204]/80 backdrop-blur-md border border-amber-500/20 px-10 py-8 rounded-3xl flex flex-col items-center">
+                      <div className="text-rose-400/60 text-xs font-black tracking-[0.3em] uppercase mb-3">Target Score</div>
+                      <div className="text-7xl font-black text-amber-500 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]">{score}</div>
+                    </div>
                   </div>
-                </div>
 
-                <Button onClick={initGame} variant="primary" size="lg" className="w-72 h-16 bg-amber-500 hover:bg-amber-400 text-black font-black tracking-widest text-xl shadow-[0_0_40px_rgba(245,158,11,0.5)]">
-                  RETRY
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+                  <Button 
+                    onClick={initGame} 
+                    className="w-80 h-20 bg-black/60 hover:bg-black border border-rose-500/50 text-rose-400 hover:text-rose-300 font-black tracking-[0.2em] text-xl shadow-[0_0_30px_rgba(244,63,94,0.2)] rounded-2xl hover:scale-105 transition-all duration-300"
+                  >
+                    REBOOT SEQUENCE
+                  </Button>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {status === "countdown" && (
-        <div className="z-50 text-[15rem] font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-400 to-amber-500 drop-shadow-[0_0_50px_rgba(225,29,72,0.8)] filter">
-          {countdown}
-        </div>
-      )}
+      <AnimatePresence>
+        {status === "countdown" && (
+          <motion.div 
+            key={countdown}
+            initial={{ scale: 2, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="absolute z-50 text-[20rem] font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-400 via-rose-500 to-amber-500 drop-shadow-[0_0_80px_rgba(244,63,94,0.8)] filter"
+          >
+            {countdown}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
