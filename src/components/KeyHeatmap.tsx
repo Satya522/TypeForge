@@ -29,7 +29,7 @@ export default function KeyHeatmap({ data }: { data: Record<string, number> }) {
     };
   };
   return (
-    <div className="flex flex-col gap-2 lg:gap-3 w-full bg-black/20 p-4 lg:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
+    <div className="flex flex-col gap-2 lg:gap-3 w-full max-w-3xl mx-auto bg-black/20 p-4 lg:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
       {rows.map((row, ri) => (
         <div key={ri} className="flex gap-2 lg:gap-3 justify-center w-full">
           {ri === 1 && <div className="flex-[0.5]" />}
@@ -42,7 +42,7 @@ export default function KeyHeatmap({ data }: { data: Record<string, number> }) {
             return (
               <div
                 key={key}
-                className="flex-1 min-w-[2rem] h-12 sm:h-14 lg:h-16 flex flex-col items-center justify-center rounded-xl font-bold shadow-md transition-all duration-300 hover:scale-105 border-b-4 border-r-2"
+                className="flex-1 min-w-[2rem] h-10 sm:h-12 lg:h-14 flex flex-col items-center justify-center rounded-xl font-bold shadow-md transition-all duration-300 hover:scale-[1.03] border-b-4 border-r-2"
                 style={{
                    ...style,
                    backgroundColor: style.backgroundColor || 'var(--tw-colors-gray-900, #111827)',
