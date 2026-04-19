@@ -13,6 +13,7 @@ import CyberDefendGame from '@/components/CyberDefendGame';
 import CodeBreakerGame from '@/components/CodeBreakerGame';
 import TerminalHackerGame from '@/components/TerminalHackerGame';
 import ZenGardenGame from '@/components/ZenGardenGame';
+import SyntaxShooterGame from '@/components/SyntaxShooterGame';
 
 const GAMES = [
   {
@@ -70,7 +71,7 @@ const GAMES = [
     title: 'Syntax Shooter',
     description: 'Target semicolons, brackets, and logical operators in an Asteroids-style shooter.',
     icon: Crosshair,
-    status: 'coming_soon',
+    status: 'online',
     color: 'text-amber-400',
     bg: 'bg-amber-400/10',
     border: 'hover:border-amber-400/30'
@@ -148,6 +149,8 @@ export default function GamesHubClient() {
             <TerminalHackerGame />
           ) : activeGame === 'zen-garden' ? (
             <ZenGardenGame />
+          ) : activeGame === 'syntax-shooter' ? (
+            <SyntaxShooterGame />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center text-gray-500">
