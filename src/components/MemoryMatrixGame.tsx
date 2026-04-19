@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BrainCircuit, Play, ShieldAlert, Zap, Skull, Shield, TriangleAlert, Hash } from "lucide-react";
+import { BrainCircuit, Play, ShieldAlert, Zap, Skull, Shield, AlertTriangle, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMechanicalSound } from "@/hooks/useMechanicalSound";
 
@@ -303,7 +303,7 @@ export default function MemoryMatrixGame() {
           >
             <div className="absolute inset-0 bg-pink-500/10 blur-[100px] w-full h-full rounded-full" />
             <span className="text-[10px] sm:text-xs text-pink-400/80 font-black tracking-[0.5em] uppercase mb-8 animate-pulse flex items-center gap-2">
-              <TriangleAlert className="w-4 h-4" /> Memorize Node Sequence
+              <AlertTriangle className="w-4 h-4" /> Memorize Node Sequence
             </span>
             <div className="text-6xl sm:text-8xl md:text-9xl font-black text-white tracking-[0.2em] drop-shadow-[0_0_30px_#e879f9] filter">
               {targetSequence}
