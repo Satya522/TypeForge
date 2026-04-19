@@ -376,7 +376,7 @@ export default function SyntaxShooterGame() {
              <div className="flex items-center gap-3">
                <HeartPulse className={`w-5 h-5 ${health < 30 ? 'text-red-500 animate-pulse' : 'text-rose-400'}`} />
                <div className="w-32 h-2.5 bg-black/50 rounded-full overflow-hidden border border-rose-500/30">
-                 <div className="h-full bg-gradient-to-r from-rose-600 to-amber-400 transition-all duration-300" style={{ width: \`\${health}%\` }} />
+                 <div className="h-full bg-gradient-to-r from-rose-600 to-amber-400 transition-all duration-300" style={{ width: `${health}%` }} />
                </div>
              </div>
              <div className="flex items-center gap-2">
@@ -408,8 +408,8 @@ export default function SyntaxShooterGame() {
             key={target.id}
             className={`absolute z-20 flex flex-col items-center transition-transform duration-100 linear`}
             style={{ 
-              left: \`\${target.x}%\`, 
-              top: \`\${target.y}%\`,
+              left: `${target.x}%`, 
+              top: `${target.y}%`,
               transform: 'translate(-50%, -50%)'
             }}
           >
