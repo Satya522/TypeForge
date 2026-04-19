@@ -66,9 +66,9 @@ export default function SyntaxShooterGame() {
     return {
       id: Math.random().toString(36).substring(2, 9),
       text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)],
-      x: 15 + Math.random() * 70, // Spawn between 15% and 85% width
+      x: 20 + Math.random() * 60, // Keep in safe middle horizontal zone
       y: -10, // Start above the screen
-      speed: 0.04 + Math.random() * 0.05 // Falling speed
+      speed: 0.04 + Math.random() * 0.04 // Falling speed slightly reduced
     };
   }, []);
 
@@ -143,23 +143,20 @@ export default function SyntaxShooterGame() {
           ctx.moveTo(l.x1, l.y1);
           ctx.lineTo(l.x2, l.y2);
           
-          // Outer glow
-          ctx.shadowBlur = 30;
+          ctx.shadowBlur = 40;
           ctx.shadowColor = `rgba(244, 63, 94, ${l.alpha})`;
-          ctx.lineWidth = 12 * l.alpha;
-          ctx.strokeStyle = `rgba(244, 63, 94, ${l.alpha * 0.8})`; // Rose
+          ctx.lineWidth = 14 * l.alpha;
+          ctx.strokeStyle = `rgba(244, 63, 94, ${l.alpha * 0.9})`; 
           ctx.lineCap = "round";
           ctx.stroke();
           
-          // Inner core
           ctx.shadowBlur = 10;
           ctx.shadowColor = `rgba(255, 255, 255, ${l.alpha})`;
           ctx.lineWidth = 4 * l.alpha;
           ctx.strokeStyle = `rgba(255, 255, 255, ${l.alpha})`; 
           ctx.stroke();
 
-          ctx.shadowBlur = 0; // reset
-
+          ctx.shadowBlur = 0; 
           l.alpha -= 0.04 * (dt / 16);
           if (l.alpha <= 0) eng.lasers.splice(i, 1);
         }
@@ -174,7 +171,7 @@ export default function SyntaxShooterGame() {
           const alpha = Math.max(0, p.life / p.maxLife);
           ctx.beginPath();
           ctx.arc(p.x, p.y, Math.random() * 2 + 1, 0, Math.PI * 2);
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 20;
           ctx.shadowColor = `rgba(${p.color}, ${alpha})`;
           ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
           ctx.fill();
@@ -257,7 +254,6 @@ export default function SyntaxShooterGame() {
       const charTyped = val.toLowerCase();
       const possibleTargets = targets.filter(t => t.text[0].toLowerCase() === charTyped);
       if (possibleTargets.length > 0) {
-        // Lock onto lowest
         currentTarget = possibleTargets.reduce((prev, current) => (prev.y > current.y) ? prev : current);
         setActiveTargetId(currentTarget.id);
       } else {
@@ -269,15 +265,10 @@ export default function SyntaxShooterGame() {
 
     if (!currentTarget) return;
 
-    // We only care about matching up to the length they've typed
     const expectedMatch = currentTarget.text.substring(0, val.length);
     
-    // exact match ignoring case for letters, but preserving exactly what they type
     if (val.toLowerCase() === expectedMatch.toLowerCase()) {
       playSound('type');
-      
-      // Keep exact casing of what they're trying to type from target
-      // Or just store the substring of the target string that matches
       setTypedTargetText(currentTarget.text.substring(0, val.length));
 
       if (val.toLowerCase() === currentTarget.text.toLowerCase()) {
@@ -291,7 +282,7 @@ export default function SyntaxShooterGame() {
            
            engine.current.lasers.push({
              x1: engine.current.width / 2,
-             y1: engine.current.height - 20,
+             y1: engine.current.height - 30,
              x2: tx,
              y2: ty,
              alpha: 1
@@ -335,25 +326,24 @@ export default function SyntaxShooterGame() {
       onClick={() => inputRef.current?.focus()}
       ref={containerRef}
     >
-      {/* Dynamic Immersive Background */}
+      {/* Background Deep Space Radar Grid */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none"
            style={{
              backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.2) 1px, transparent 1px)',
-             backgroundSize: '80px 80px',
-             transform: 'perspective(1000px) rotateX(75deg) scale(2.5) translateY(-20px)',
+             backgroundSize: '100px 100px',
+             transform: 'perspective(1200px) rotateX(70deg) scale(2.5) translateY(-50px)',
              transformOrigin: 'top center',
-             animation: 'gridMove 4s linear infinite'
+             animation: 'gridMove 5s linear infinite'
            }}>
       </div>
       <style>{`
         @keyframes gridMove {
           0% { background-position: 0 0; }
-          100% { background-position: 0 80px; }
+          100% { background-position: 0 100px; }
         }
       `}</style>
       
-      {/* Deep Space / Heat Vignette */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom,_transparent_0%,_#050204_70%)] pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom,_transparent_0%,_#050204_85%)] pointer-events-none" />
 
       {/* FX Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 z-10 pointer-events-none" />
@@ -371,22 +361,20 @@ export default function SyntaxShooterGame() {
         />
       )}
 
-      {/* Premium HUD - Repositioned to avoid top-center 'X' overlap */}
+      {/* Futuristic HUD */}
       {status === "playing" && (
         <div className="absolute top-6 left-8 right-8 flex justify-between items-start z-20 pointer-events-none">
           
-          {/* Left Side: Health & Combo (Neon Glass) */}
-          <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex flex-col gap-4">
-            <div className="group relative bg-[#0a0204]/80 backdrop-blur-xl border border-rose-500/30 px-6 py-4 rounded-2xl shadow-[0_10px_30px_rgba(244,63,94,0.15)] flex flex-col gap-3">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent rounded-2xl pointer-events-none" />
+          <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex flex-col gap-4">
+            <div className="group relative bg-[#0a0204]/60 backdrop-blur-3xl border border-rose-500/10 px-6 py-4 rounded-xl flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <Activity className={`w-5 h-5 ${health <= 30 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_#f43f5e]' : 'text-rose-400/80'}`} />
-                <div className="w-40 h-2 bg-black/80 rounded-full overflow-hidden border border-rose-950/50 shadow-[inset_0_2px_5px_black]">
-                  <div className="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-amber-300 transition-all duration-300" style={{ width: `${health}%` }} />
+                <div className="w-40 h-1.5 bg-black/80 rounded-full overflow-hidden border border-rose-950/50">
+                  <div className="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-amber-300 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.8)]" style={{ width: `${health}%` }} />
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-rose-500/80 font-black tracking-[0.2em] uppercase">System Integrity</span>
+                <span className="text-[10px] text-rose-500/60 font-black tracking-[0.2em] uppercase">System Integrity</span>
                 <span className="text-xs text-rose-300 font-bold tracking-widest">{health}%</span>
               </div>
             </div>
@@ -394,14 +382,14 @@ export default function SyntaxShooterGame() {
             <AnimatePresence>
               {combo > 2 && (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.8, x: -10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="bg-amber-500/10 backdrop-blur-md border border-amber-500/30 px-6 py-2 rounded-xl flex items-center justify-between"
+                  className="bg-amber-500/10 backdrop-blur-xl border-l-[3px] border-amber-400 px-4 py-2 rounded-r-xl flex items-center justify-between"
                 >
-                  <span className="text-[10px] text-amber-500/80 font-black tracking-[0.3em] uppercase">Combo Multiplier</span>
-                  <div className="flex items-center gap-1 text-amber-400 font-black">
-                    <Zap className="w-4 h-4" /> x{combo}
+                  <span className="text-[9px] text-amber-500/80 font-black tracking-[0.3em] uppercase">Combo</span>
+                  <div className="flex items-center gap-1 text-amber-400 font-black ml-4">
+                    <Zap className="w-4 h-4 fill-amber-400 drop-shadow-[0_0_10px_#f59e0b]" /> x{combo}
                   </div>
                 </motion.div>
               )}
@@ -409,72 +397,64 @@ export default function SyntaxShooterGame() {
           </motion.div>
 
           {/* Right Side: Score & Timer */}
-          <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex gap-4 items-start">
-            
-            {/* Timer Bubble */}
-            <div className="bg-[#0a0204]/80 backdrop-blur-xl border border-rose-500/30 px-6 py-4 rounded-2xl flex items-center gap-4 shadow-[0_10px_30px_rgba(244,63,94,0.1)]">
-              <Timer className={`w-5 h-5 ${timeLeft <= 10 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_#f43f5e]' : 'text-rose-400/80'}`} />
-              <span className={`text-4xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.8)]' : 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]'}`}>
-                {timeLeft}<span className="text-lg text-rose-500/50">s</span>
-              </span>
-            </div>
-
-            {/* Score Panel */}
-            <div className="bg-[#0a0204]/80 backdrop-blur-xl border border-amber-500/30 px-8 py-4 rounded-2xl flex flex-col items-end shadow-[0_10px_30px_rgba(245,158,11,0.1)] min-w-[200px]">
-              <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-2xl pointer-events-none" />
-              <span className="text-[10px] text-amber-500/80 font-black tracking-[0.3em] uppercase mb-1">Total Score</span>
-              <span className="text-4xl font-black text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] tabular-nums">{score}</span>
+          <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex flex-col items-end gap-3 pointer-events-none">
+            <div className="flex items-center gap-6 bg-[#0a0204]/60 backdrop-blur-3xl border border-rose-500/10 px-6 py-4 rounded-xl">
+               <div className="flex flex-col items-end border-r border-rose-500/20 pr-6">
+                 <span className="text-[10px] text-amber-500/60 font-black tracking-[0.3em] uppercase mb-1">Score</span>
+                 <span className="text-3xl font-black text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] tabular-nums">{score}</span>
+               </div>
+               <div className="flex flex-col items-center">
+                 <Timer className={`w-4 h-4 mb-1 ${timeLeft <= 10 ? 'text-rose-500 animate-pulse' : 'text-rose-400/60'}`} />
+                 <span className={`text-2xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.8)]' : 'text-white'}`}>
+                   {timeLeft}
+                 </span>
+               </div>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Premium Holographic Nodes */}
+      {/* Floating Glowing Typography Nodes (No background box, pure premium) */}
       {status === "playing" && targets.map(target => {
         const isActive = target.id === activeTargetId;
         return (
           <div 
             key={target.id}
-            className={`absolute z-20 transition-transform duration-100 ease-linear flex items-center justify-center`}
+            className="absolute z-20 transition-[top,left] duration-100 ease-linear flex items-center justify-center font-mono pointer-events-none"
             style={{ 
               left: `${target.x}%`, 
               top: `${target.y}%`,
-              transform: 'translate(-50%, -50%) perspective(500px) rotateX(10deg)'
+              transform: 'translate(-50%, -50%) perspective(1000px)'
             }}
           >
-            {/* Lock-on Target Ring (Sci-fi viewfinder) */}
+            {/* Target Reticle Lock */}
             <AnimatePresence>
               {isActive && (
                 <motion.div 
-                  initial={{ scale: 1.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1, rotate: 180 }}
-                  exit={{ scale: 0.5, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="absolute -inset-8 z-0 pointer-events-none"
+                  initial={{ scale: 1.5, opacity: 0, rotate: -45 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="absolute -inset-6 z-0 pointer-events-none flex items-center justify-center"
                 >
-                  <div className="absolute inset-0 border-2 border-dashed border-rose-500/40 rounded-full animate-[spin_10s_linear_infinite]" />
-                  <div className="absolute inset-2 border border-rose-400/20 rounded-full animate-[spin_5s_linear_infinite_reverse]" />
-                  
-                  {/* Corner Brackets */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-400" />
-                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-400" />
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-400" />
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-400" />
+                  {/* Hexagon style high-tech brackets */}
+                  <svg className="w-full h-full absolute inset-0 text-amber-500/40 drop-shadow-[0_0_8px_#f59e0b] fill-none stroke-current stroke-2" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M 0 20 L 0 0 L 20 0" />
+                    <path d="M 80 0 L 100 0 L 100 20" />
+                    <path d="M 100 80 L 100 100 L 80 100" />
+                    <path d="M 20 100 L 0 100 L 0 80" />
+                  </svg>
+                  <div className="absolute top-1/2 left-[-20px] w-2 h-px bg-amber-400" />
+                  <div className="absolute top-1/2 right-[-20px] w-2 h-px bg-amber-400" />
                 </motion.div>
               )}
             </AnimatePresence>
             
-            {/* Type Box */}
             <motion.div 
               layoutId={target.id}
-              className={`relative z-10 px-5 py-3 rounded-xl backdrop-blur-xl transition-all duration-300
-                         ${isActive 
-                           ? 'bg-rose-950/60 border border-amber-500/50 shadow-[0_0_40px_rgba(244,63,94,0.4)] scale-110' 
-                           : 'bg-[#0a0204]/80 border border-rose-500/20 shadow-lg'}`}
+              className={`relative z-10 p-4 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'} whitespace-nowrap`}
             >
-               {isActive && <div className="absolute inset-0 bg-gradient-to-r from-rose-500/10 to-amber-500/10 rounded-xl" />}
-               
-               <div className="relative flex text-3xl font-black tracking-wider">
+               <div className="relative flex text-2xl font-black tracking-widest uppercase">
                  {target.text.split('').map((char, i) => {
                     const typed = isActive && i < typedTargetText.length;
                     const isCurrent = isActive && i === typedTargetText.length;
@@ -482,14 +462,15 @@ export default function SyntaxShooterGame() {
                        <span 
                          key={i} 
                          className={`transition-all duration-150 relative 
-                           ${typed ? 'text-amber-300 drop-shadow-[0_0_12px_rgba(253,230,138,0.8)] opacity-100' : 
-                             isActive ? 'text-rose-200/40' : 'text-rose-500/50'}
-                           ${isCurrent && isActive ? 'text-white drop-shadow-[0_0_15px_white] -translate-y-1 inline-block' : ''}
+                           ${typed ? 'text-amber-300 opacity-20 drop-shadow-none' : 
+                             isActive ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]' : 
+                             'text-rose-500 drop-shadow-[0_0_10px_rgba(225,29,72,0.8)]'}
+                           ${isCurrent && isActive ? 'text-amber-300 drop-shadow-[0_0_20px_#f59e0b] -translate-y-1 inline-block' : ''}
                          `}
                        >
-                         {char}
+                         {char === ' ' ? '\u00A0' : char}
                          {isCurrent && isActive && (
-                           <motion.span layoutId="cursor" className="absolute -bottom-1 left-0 right-0 h-1 bg-amber-400 rounded-full shadow-[0_0_10px_#f59e0b]" />
+                           <motion.span layoutId="cursor" className="absolute -bottom-2 left-0 right-0 h-[3px] bg-amber-400 rounded-full shadow-[0_0_12px_#f59e0b]" />
                          )}
                        </span>
                     )
@@ -500,40 +481,44 @@ export default function SyntaxShooterGame() {
         )
       })}
 
-      {/* The Cannon Mainframe (Sleek sci-fi launcher) */}
+      {/* Cyberpunk Mainframe Cannon at the bottom */}
       {status === "playing" && (
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center">
           
-          {/* Laser Core */}
-          <div className="relative w-24 h-24 mb-[-40px]">
-            <div className="absolute inset-0 border-4 border-rose-500/20 rounded-full blur-[2px]" />
-            <div className="absolute inset-2 border-2 border-amber-500/40 rounded-full animate-[spin_3s_linear_infinite]" />
-            <div className="absolute inset-4 bg-gradient-to-b from-rose-800 to-black rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(244,63,94,0.5)]">
-               <div className={`w-6 h-6 rounded-full transition-all duration-150 ${typedTargetText.length > 0 ? 'bg-amber-100 shadow-[0_0_30px_#fcf6bd,0_0_60px_#f59e0b] scale-125' : 'bg-rose-500 shadow-[0_0_20px_#f43f5e]'}`} />
-            </div>
+          {/* Holographic Aim Line */}
+          <div className="w-[1px] h-40 bg-gradient-to-t from-rose-500/50 to-transparent absolute bottom-12 filter drop-shadow-[0_0_10px_#f43f5e]" />
+
+          {/* Cannon Core Orb */}
+          <div className="relative w-20 h-20 mb-[-30px] z-20">
+             <div className="absolute inset-1 border-2 border-dashed border-amber-500/60 rounded-full animate-[spin_4s_linear_infinite]" />
+             <div className="absolute inset-0 border border-rose-500/40 rounded-full bg-[#050204]/80 backdrop-blur-sm shadow-[0_0_40px_rgba(244,63,94,0.4)_inset] flex items-center justify-center">
+                <div className={`w-5 h-5 rounded-full transition-all duration-75 ${typedTargetText.length > 0 ? 'bg-amber-100 shadow-[0_0_30px_#fcd34d,0_0_60px_#f59e0b] scale-150' : 'bg-rose-500 shadow-[0_0_20px_#f43f5e]'}`} />
+             </div>
           </div>
 
-          {/* Cannon Base */}
-          <div className="w-[400px] h-32 bg-black/80 backdrop-blur-2xl border-t border-rose-500/30 rounded-t-[100px] flex justify-center shadow-[0_-20px_80px_rgba(244,63,94,0.15)] relative overflow-hidden">
-             <div className="absolute top-0 w-64 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+          {/* Cannon Turret Wings Platform */}
+          <div className="flex items-end shadow-[0_-20px_100px_rgba(244,63,94,0.3)] pointer-events-none filter drop-shadow-[0_0_10px_rgba(0,0,0,1)]">
+             <div className="w-20 h-10 bg-gradient-to-tr from-black to-rose-950/60 border-t border-r border-rose-500/40 rounded-tr-[40px]" />
              
-             {/* Decorative UI elements on the cannon */}
-             <div className="mt-12 flex items-center gap-12">
-               <div className="flex flex-col items-center">
-                 <div className="w-8 h-1 bg-rose-500/30 rounded-full mb-1" />
-                 <div className="w-4 h-1 bg-rose-500/20 rounded-full" />
-               </div>
-               <div className="text-rose-500/30 text-[10px] font-black tracking-[0.4em]">MAIN ENGINE</div>
-               <div className="flex flex-col items-center">
-                 <div className="w-8 h-1 bg-rose-500/30 rounded-full mb-1" />
-                 <div className="w-4 h-1 bg-rose-500/20 rounded-full" />
-               </div>
+             <div className="w-[320px] h-20 bg-[#020101] border-t border-rose-500/50 rounded-t-[30px] flex justify-center items-end pb-4 relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-amber-400 shadow-[0_0_10px_#f59e0b]" />
+                
+                {/* Vents glowing */}
+                <div className="flex gap-3">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="w-10 h-[3px] bg-rose-500/20 rounded-full overflow-hidden">
+                      <div className="h-full bg-rose-500 w-1/2 animate-[pulse_1s_infinite] shadow-[0_0_10px_#f43f5e]" style={{ animationDelay: `${i * 0.1}s` }} />
+                    </div>
+                  ))}
+                </div>
              </div>
+
+             <div className="w-20 h-10 bg-gradient-to-tl from-black to-rose-950/60 border-t border-l border-rose-500/40 rounded-tl-[40px]" />
           </div>
         </div>
       )}
 
-      {/* Premium Start / Game Over Screens using Framer Motion */}
+      {/* Start / Game Over Screens (Untouched structurally, already fully responsive) */}
       <AnimatePresence>
         {(status === "idle" || status === "gameover") && (
           <motion.div 
@@ -548,7 +533,7 @@ export default function SyntaxShooterGame() {
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className="text-center bg-black/40 border border-rose-500/20 p-6 md:p-10 lg:p-14 w-[90%] max-w-3xl rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 pointer-events-none rounded-[40px]" />
               
               {status === "idle" ? (
                 <>
@@ -607,7 +592,6 @@ export default function SyntaxShooterGame() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <AnimatePresence>
         {status === "countdown" && (
           <motion.div 
