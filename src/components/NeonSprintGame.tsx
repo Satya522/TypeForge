@@ -160,7 +160,7 @@ export default function NeonSprintGame() {
   useEffect(() => {
     if (status === "countdown") {
       if (countdown > 0) {
-        playSound("type");
+        playSound("normal");
         const t = setTimeout(() => setCountdown(c => c - 1), 800);
         return () => clearTimeout(t);
       } else {
@@ -212,7 +212,7 @@ export default function NeonSprintGame() {
     }
 
     setTyped(val);
-    playSound("type");
+    playSound("normal");
 
     // Word completed
     if (val === currentWord) {

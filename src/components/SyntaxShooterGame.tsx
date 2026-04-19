@@ -114,7 +114,7 @@ export default function SyntaxShooterGame() {
   useEffect(() => {
     if (status === "countdown") {
       if (countdown > 0) {
-        playSound('type');
+        playSound('normal');
         const t = setTimeout(() => setCountdown(c => c - 1), 800);
         return () => clearTimeout(t);
       } else {
@@ -282,7 +282,7 @@ export default function SyntaxShooterGame() {
     const expectedMatch = currentTarget.text.substring(0, val.length);
     
     if (val.toLowerCase() === expectedMatch.toLowerCase()) {
-      playSound('type');
+      playSound('normal');
       setTypedTargetText(currentTarget.text.substring(0, val.length));
 
       if (val.toLowerCase() === currentTarget.text.toLowerCase()) {

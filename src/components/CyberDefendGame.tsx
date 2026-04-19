@@ -392,7 +392,7 @@ export default function CyberDefendGame() {
   useEffect(() => {
     if (status !== "countdown") return;
     if (countdown > 0) {
-      playSound("type");
+      playSound("normal");
       const t = setTimeout(() => setCountdown(c => c - 1), 800);
       return () => clearTimeout(t);
     } else {
@@ -461,7 +461,7 @@ export default function CyberDefendGame() {
         target.typed = val.length;
         eng.typed = val;
         setTyped(val);
-        playSound("type");
+        playSound("normal");
       } else {
         // Wrong key
         playSound("fail");
@@ -483,7 +483,7 @@ export default function CyberDefendGame() {
         target.typed = val.length;
         eng.typed = val;
         setTyped(val);
-        playSound("type");
+        playSound("normal");
 
         // Check if word completed
         if (val === target.word) {
