@@ -23,6 +23,7 @@ interface TargetNode {
   x: number; // 0 to 100 percentage
   y: number; // 0 to 100 percentage
   speed: number;
+  hue: string;
 }
 
 interface Particle {
@@ -62,13 +63,22 @@ export default function SyntaxShooterGame() {
     height: 600
   });
 
-  const generateTarget = useCallback((): TargetNode => {
+  const generateTarget = useCallback((existing: TargetNode[] = []): TargetNode => {
+    let safeX = 15 + Math.random() * 70;
+    for (let i = 0; i < 15; i++) {
+       // Avoid overlapping with anything in the upper 35% of the screen within 25% horizontal space
+       if (!existing.find(t => t.y < 35 && Math.abs(t.x - safeX) < 25)) break;
+       safeX = 15 + Math.random() * 70;
+    }
+    const hues = ['text-cyan-400', 'text-emerald-400', 'text-fuchsia-400', 'text-indigo-400', 'text-rose-300', 'text-blue-400'];
+    
     return {
       id: Math.random().toString(36).substring(2, 9),
       text: SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)],
-      x: 20 + Math.random() * 60, // Keep in safe middle horizontal zone
+      x: safeX,
       y: -10, // Start above the screen
-      speed: 0.04 + Math.random() * 0.04 // Falling speed slightly reduced
+      speed: 0.03 + Math.random() * 0.04, // Falling speed slightly reduced
+      hue: hues[Math.floor(Math.random() * hues.length)]
     };
   }, []);
 
@@ -110,7 +120,11 @@ export default function SyntaxShooterGame() {
       } else {
         playSound('space');
         setStatus("playing");
-        setTargets([generateTarget(), generateTarget()]); 
+        setTargets(prev => {
+          const first = generateTarget([]);
+          const second = generateTarget([first]);
+          return [first, second];
+        }); 
         engine.current.lastSpawnTime = Date.now();
       }
     }
@@ -210,7 +224,7 @@ export default function SyntaxShooterGame() {
       });
 
       if (now - eng.lastSpawnTime > eng.spawnInterval) {
-        setTargets(prev => [...prev, generateTarget()]);
+        setTargets(prev => [...prev, generateTarget(prev)]);
         eng.lastSpawnTime = now;
         eng.spawnInterval = Math.max(600, eng.spawnInterval - 30);
       }
@@ -445,31 +459,32 @@ export default function SyntaxShooterGame() {
                     <path d="M 20 100 L 0 100 L 0 80" />
                   </svg>
                   <div className="absolute top-1/2 left-[-20px] w-2 h-px bg-amber-400" />
-                  <div className="absolute top-1/2 right-[-20px] w-2 h-px bg-amber-400" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            <motion.div 
-              layoutId={target.id}
-              className={`relative z-10 p-4 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'} whitespace-nowrap`}
-            >
-               <div className="relative flex text-2xl font-black tracking-widest uppercase">
-                 {target.text.split('').map((char, i) => {
-                    const typed = isActive && i < typedTargetText.length;
-                    const isCurrent = isActive && i === typedTargetText.length;
-                    return (
-                       <span 
-                         key={i} 
-                         className={`transition-all duration-150 relative 
-                           ${typed ? 'text-amber-300 opacity-20 drop-shadow-none' : 
-                             isActive ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]' : 
-                             'text-rose-500 drop-shadow-[0_0_10px_rgba(225,29,72,0.8)]'}
-                           ${isCurrent && isActive ? 'text-amber-300 drop-shadow-[0_0_20px_#f59e0b] -translate-y-1 inline-block' : ''}
-                         `}
-                       >
-                         {char === ' ' ? '\u00A0' : char}
-                         {isCurrent && isActive && (
+            <div className="absolute top-1/2 right-[-20px] w-2 h-px bg-amber-400" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      <motion.div 
+        layoutId={target.id}
+        className={`relative z-10 px-2 py-1 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'} whitespace-nowrap`}
+      >
+         <div className="relative flex text-xl md:text-[22px] font-black tracking-wider bg-black/40 px-2 py-1 rounded shadow-black drop-shadow-[0_2px_4px_rgba(0,0,0,1)] hover:z-30">
+           {target.text.split('').map((char, i) => {
+              const typed = isActive && i < typedTargetText.length;
+              const isCurrent = isActive && i === typedTargetText.length;
+              return (
+                 <span 
+                   key={i} 
+                   className={`transition-all duration-150 relative 
+                     ${typed ? 'text-white opacity-20 drop-shadow-none' : 
+                       isActive ? 'text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.9)]' : 
+                       `${target.hue} opacity-90`}
+                     ${isCurrent && isActive ? 'text-amber-300 drop-shadow-[0_0_15px_#f59e0b] -translate-y-1 inline-block z-10' : ''}
+                   `}
+                   style={(!isActive && !typed) ? { textShadow: `0 0 10px currentColor` } : {}}
+                 >
+                   {char === ' ' ? '\u00A0' : char}
+                   {isCurrent && isActive && (
                            <motion.span layoutId="cursor" className="absolute -bottom-2 left-0 right-0 h-[3px] bg-amber-400 rounded-full shadow-[0_0_12px_#f59e0b]" />
                          )}
                        </span>
