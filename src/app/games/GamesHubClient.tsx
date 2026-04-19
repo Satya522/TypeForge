@@ -194,52 +194,44 @@ export default function GamesHubClient() {
             transition={{ delay: idx * 0.05 }}
             onClick={() => isOnline ? setActiveGame(game.id) : null}
             className={`
-              relative flex flex-col p-0 rounded-2xl transition-all duration-300 min-h-[320px]
-              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border border-white/10 overflow-hidden group hover:-translate-y-2 hover:shadow-[0_20px_50px_-20px_rgba(255,255,255,0.1)] ' + game.border : 'bg-black/40 border border-white/5 opacity-70 select-none overflow-hidden'}
+              relative flex flex-col p-6 rounded-2xl border transition-all duration-300
+              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border-white/10 overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(57,255,20,0.15)] ' + game.border : 'bg-black/40 border-white/5 opacity-70 select-none'}
             `}
           >
-             {/* Background Image / Banner */}
-             <div className="absolute inset-0 z-0">
-               <img src={game.image} alt={game.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 scale-100 group-hover:scale-105" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-               {/* Vignette/Gradient overlay to make text readable */}
-               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D0B] via-[#0A0D0B]/80 to-transparent" />
-             </div>
+            {/* Online Pulse */}
+            {isOnline && (
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#39FF14]`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 bg-[#39FF14]`} />
+                </span>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-[#39FF14]">Live</span>
+              </div>
+            )}
+            
+            {!isOnline && (
+              <div className="absolute top-4 right-4 text-[9px] uppercase tracking-widest font-bold text-gray-500">
+                Coming Soon
+              </div>
+            )}
 
-             {/* Online Pulse */}
-             {isOnline && (
-               <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/60 px-2 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                 <span className="relative flex h-2 w-2">
-                   <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#39FF14]`} />
-                   <span className={`relative inline-flex rounded-full h-2 w-2 bg-[#39FF14]`} />
-                 </span>
-                 <span className="text-[9px] uppercase tracking-widest font-bold text-[#39FF14]">Live</span>
-               </div>
-             )}
-             
-             {!isOnline && (
-               <div className="absolute top-4 right-4 z-20 text-[9px] uppercase tracking-widest font-bold text-gray-500 bg-black/60 px-2 py-1 rounded-full border border-white/5 backdrop-blur-md">
-                 Coming Soon
-               </div>
-             )}
+            <div className={`mb-5 w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
+               {game.image ? (
+                  <img src={game.image} alt={game.title} className="w-10 h-10 object-contain drop-shadow-md" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+               ) : null}
+               <Icon className={`w-6 h-6 ${game.image ? 'hidden' : ''}`} />
+            </div>
 
-             {/* Content */}
-             <div className="relative z-10 p-6 flex flex-col h-full mt-auto pt-32">
-                 <div className={`mb-3 w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/10 ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''}`}>
-                   <Icon className="w-5 h-5" />
-                 </div>
-
-                 <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">{game.title}</h3>
-                 <p className="text-sm text-gray-300 leading-relaxed drop-shadow-md">
-                   {game.description}
-                 </p>
-                 
-                 {isOnline && (
-                   <div className="mt-4 pt-4 border-t border-white/10 text-[11px] uppercase tracking-[0.2em] font-bold text-gray-400 group-hover:text-white transition-colors flex items-center gap-2 w-full justify-between">
-                     <span>Play Module</span>
-                     <Gamepad2 className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                   </div>
-                 )}
-             </div>
+            <h3 className="text-xl font-bold text-white mb-2">{game.title}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed flex-1">
+              {game.description}
+            </p>
+            
+            {isOnline && (
+              <div className="mt-6 text-[11px] uppercase tracking-[0.2em] font-bold text-gray-500 group-hover:text-white transition-colors flex items-center gap-2">
+                Play Now <Gamepad2 className="w-3.5 h-3.5" />
+              </div>
+            )}
           </motion.div>
         );
       })}
