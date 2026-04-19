@@ -194,8 +194,8 @@ export default function GamesHubClient() {
             transition={{ delay: idx * 0.05 }}
             onClick={() => isOnline ? setActiveGame(game.id) : null}
             className={`
-              relative flex flex-col p-6 rounded-2xl border transition-all duration-300
-              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border-white/10 overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(57,255,20,0.15)] ' + game.border : 'bg-black/40 border-white/5 opacity-70 select-none'}
+              relative flex flex-col p-6 rounded-2xl border transition-all duration-300 backdrop-blur-sm
+              ${isOnline ? 'cursor-pointer bg-black/40 border-white/5 overflow-hidden group hover:-translate-y-1 hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.8)] hover:bg-black/60 ' + game.border : 'bg-black/40 border-white/5 opacity-60 select-none'}
             `}
           >
             {/* Online Pulse */}
