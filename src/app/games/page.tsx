@@ -1,12 +1,26 @@
-import type { Metadata } from "next";
-import GamesHubClient from "./GamesHubClient";
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import GamesHubClient from './GamesHubClient';
 
-export const metadata: Metadata = {
-  title: "Typing Games – TypeForge",
-  description:
-    "6 premium typing games — Speed Typing, Word Rain, Terminal Hacker, Bomb Defuse, Ghost Racer, and Word Scramble. Sharpen reflexes and have fun.",
+export const metadata = {
+  title: 'Games – TypeForge',
+  description: 'Typing mini‑games to sharpen your skills.',
 };
 
 export default function GamesPage() {
-  return <GamesHubClient />;
+  return (
+    <>
+      <Navbar />
+      <main className="pt-28 pb-20 px-6 mx-auto max-w-[1400px]">
+        <div className="mb-14">
+          <h1 className="text-4xl font-black text-white mb-3">Typing Games</h1>
+          <p className="text-gray-400 text-sm max-w-xl">
+            Play our mini‑games to improve your typing reflexes, master precision hacking, and climb the global leaderboards while having fun.
+          </p>
+        </div>
+        <GamesHubClient />
+      </main>
+      <Footer />
+    </>
+  );
 }

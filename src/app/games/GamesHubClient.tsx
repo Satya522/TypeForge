@@ -1,305 +1,218 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import dynamic from "next/dynamic";
-
-const WordRainGame   = dynamic(() => import("@/components/games/WordRainGame"),       { ssr: false });
-const TerminalHacker = dynamic(() => import("@/components/games/TerminalHackerGame"), { ssr: false });
-const BombDefuse     = dynamic(() => import("@/components/games/BombDefuseGame"),     { ssr: false });
-const GhostRacer     = dynamic(() => import("@/components/games/GhostRacerGame"),     { ssr: false });
-const WordScramble   = dynamic(() => import("@/components/games/WordScrambleGame"),   { ssr: false });
-const SpeedTyping    = dynamic(() => import("@/components/games/SpeedTypingGame"),    { ssr: false });
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  CloudLightning, Gauge, ShieldAlert, Terminal, Leaf, 
+  Crosshair, Zap, BrainCircuit, Headphones, Command,
+  Gamepad2, X
+} from 'lucide-react';
+import LetterGame from '@/components/LetterGame';
+import NeonSprintGame from '@/components/NeonSprintGame';
+import CyberDefendGame from '@/components/CyberDefendGame';
+import CodeBreakerGame from '@/components/CodeBreakerGame';
+import TerminalHackerGame from '@/components/TerminalHackerGame';
+import ZenGardenGame from '@/components/ZenGardenGame';
 
 const GAMES = [
   {
-    id: "speed-typing",
-    name: "Speed Typing",
-    emoji: "⚡",
-    tagline: "Race against the clock",
-    description: "Type words as fast as possible. Difficulty scales automatically through 5 levels — Easy to Legend.",
-    color: "#39ff14",
-    glow: "rgba(57,255,20,0.25)",
-    tags: ["Reflex", "Solo", "Levels"],
-    component: SpeedTyping,
+    id: 'letter-rain',
+    title: 'Letter Rain',
+    description: 'Typing reflex minigame. Letters fall fast, destroy them by typing the correct keys.',
+    icon: CloudLightning,
+    status: 'online',
+    color: 'text-[#39FF14]',
+    bg: 'bg-[#39FF14]/10',
+    border: 'hover:border-[#39FF14]/30'
   },
   {
-    id: "word-rain",
-    name: "Word Rain",
-    emoji: "🌧️",
-    tagline: "Destroy falling words",
-    description: "Words fall from the sky — type them before they hit the ground. Miss 3 and it's game over. Build combos!",
-    color: "#38bdf8",
-    glow: "rgba(56,189,248,0.25)",
-    tags: ["Action", "Combo", "Reflex"],
-    component: WordRainGame,
+    id: 'neon-sprint',
+    title: 'Neon Sprint',
+    description: 'Type consecutive phrases to fuel your synthwave motorcycle and race against the clock.',
+    icon: Gauge,
+    status: 'online',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-400/10',
+    border: 'hover:border-cyan-400/30'
   },
   {
-    id: "terminal-hacker",
-    name: "Terminal Hacker",
-    emoji: "💻",
-    tagline: "Breach the mainframe",
-    description: "Type hacking commands exactly as shown before the countdown ends. 10 escalating levels of cyber intensity.",
-    color: "#39ff14",
-    glow: "rgba(57,255,20,0.2)",
-    tags: ["Precision", "Hacker", "Timer"],
-    component: TerminalHacker,
+    id: 'cyber-defend',
+    title: 'Cyber Defend',
+    description: 'Stop incoming network attacks by typing their encrypted sequences accurately.',
+    icon: ShieldAlert,
+    status: 'online',
+    color: 'text-red-500',
+    bg: 'bg-red-500/10',
+    border: 'hover:border-red-500/30'
   },
   {
-    id: "bomb-defuse",
-    name: "Bomb Defuse",
-    emoji: "💣",
-    tagline: "Type or explode",
-    description: "Defuse bombs by typing the exact disarm codes under pressure. 5 escalating levels. One mistake is all it takes.",
-    color: "#ef4444",
-    glow: "rgba(239,68,68,0.2)",
-    tags: ["Pressure", "Accuracy", "Timer"],
-    component: BombDefuse,
+    id: 'code-breaker',
+    title: 'Code Breaker',
+    description: 'Reverse engineer scrambled strings of code. Precision is mandatory.',
+    icon: Terminal,
+    status: 'online',
+    color: 'text-purple-400',
+    bg: 'bg-purple-400/10',
+    border: 'hover:border-purple-400/30'
   },
   {
-    id: "ghost-racer",
-    name: "Ghost Racer",
-    emoji: "👻",
-    tagline: "Beat the ghost typist",
-    description: "Race against a ghost typing at 55 WPM. Complete the passage first to win. Choose from 5 different tracks.",
-    color: "#a855f7",
-    glow: "rgba(168,85,247,0.2)",
-    tags: ["Race", "WPM", "Ghost"],
-    component: GhostRacer,
+    id: 'zen-garden',
+    title: 'Zen Garden',
+    description: 'Relaxing environment with no timer. Focus purely on hitting 100% accuracy.',
+    icon: Leaf,
+    status: 'online',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-400/10',
+    border: 'hover:border-emerald-400/30'
   },
   {
-    id: "word-scramble",
-    name: "Word Scramble",
-    emoji: "🔀",
-    tagline: "Unscramble the chaos",
-    description: "Unscramble as many words as you can in 60 seconds. Build streaks for bonus points. 3 hints per round.",
-    color: "#f59e0b",
-    glow: "rgba(245,158,11,0.2)",
-    tags: ["Puzzle", "Streaks", "60s"],
-    component: WordScramble,
+    id: 'syntax-shooter',
+    title: 'Syntax Shooter',
+    description: 'Target semicolons, brackets, and logical operators in an Asteroids-style shooter.',
+    icon: Crosshair,
+    status: 'coming_soon',
+    color: 'text-amber-400',
+    bg: 'bg-amber-400/10',
+    border: 'hover:border-amber-400/30'
   },
+  {
+    id: 'type-racer',
+    title: 'Type Racer Pro',
+    description: 'Compete in live drag races against other players using pure WPM velocity.',
+    icon: Zap,
+    status: 'coming_soon',
+    color: 'text-blue-400',
+    bg: 'bg-blue-400/10',
+    border: 'hover:border-blue-400/30'
+  },
+  {
+    id: 'memory-matrix',
+    title: 'Memory Matrix',
+    description: 'A 10-character code flashes for a brief moment. Recall and type it quickly.',
+    icon: BrainCircuit,
+    status: 'coming_soon',
+    color: 'text-pink-400',
+    bg: 'bg-pink-400/10',
+    border: 'hover:border-pink-400/30'
+  },
+  {
+    id: 'rhythm-typer',
+    title: 'Rhythm Typer',
+    description: 'Sync your keystrokes to an energetic EDM beat. Get combo multipliers.',
+    icon: Headphones,
+    status: 'coming_soon',
+    color: 'text-fuchsia-400',
+    bg: 'bg-fuchsia-400/10',
+    border: 'hover:border-fuchsia-400/30'
+  },
+  {
+    id: 'terminal-hacker',
+    title: 'Terminal Hacker',
+    description: 'Simulated mainframe penetration. Execute bash commands fast enough to slip through.',
+    icon: Command,
+    status: 'online',
+    color: 'text-teal-400',
+    bg: 'bg-teal-400/10',
+    border: 'hover:border-teal-400/30'
+  }
 ];
 
 export default function GamesHubClient() {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const activeGame = GAMES.find((g) => g.id === activeId);
-  const GameComponent = activeGame?.component ?? null;
+  const [activeGame, setActiveGame] = useState<string | null>(null);
+
+  if (activeGame) {
+    return (
+      <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#030403] animate-in fade-in zoom-in-95 duration-500 overflow-hidden flex flex-col">
+        {/* Top Floating Nav (Center Auto-hiding) */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex opacity-30 hover:opacity-100 transition-opacity duration-300">
+          <button 
+            onClick={() => setActiveGame(null)}
+            className="pointer-events-auto flex items-center justify-center p-3 rounded-full bg-black/80 border border-white/10 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] text-gray-400 transition-all backdrop-blur-md group"
+            title="Exit to Hub"
+          >
+            <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+        </div>
+        
+        {/* Full Screen Game Container */}
+        <div className="flex-1 w-full h-full relative">
+          {activeGame === 'letter-rain' ? (
+            <LetterGame />
+          ) : activeGame === 'neon-sprint' ? (
+            <NeonSprintGame />
+          ) : activeGame === 'cyber-defend' ? (
+            <CyberDefendGame />
+          ) : activeGame === 'code-breaker' ? (
+            <CodeBreakerGame />
+          ) : activeGame === 'terminal-hacker' ? (
+            <TerminalHackerGame />
+          ) : activeGame === 'zen-garden' ? (
+            <ZenGardenGame />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Gamepad2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <h2 className="text-2xl text-white font-bold mb-2">Game Not Found</h2>
+                <p>This game is currently offline or still in development.</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Navbar />
-      <main
-        className="min-h-screen pt-20 pb-16"
-        style={{
-          background: "#050805",
-          backgroundImage:
-            "radial-gradient(ellipse at 50% 0%, rgba(57,255,20,0.04) 0%, transparent 60%)",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* ── Hero header ── */}
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {GAMES.map((game, idx) => {
+        const Icon = game.icon;
+        const isOnline = game.status === 'online';
+        return (
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            key={game.id}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-            className="pt-10 pb-8 text-center"
+            transition={{ delay: idx * 0.05 }}
+            onClick={() => isOnline ? setActiveGame(game.id) : null}
+            className={`
+              relative flex flex-col p-6 rounded-2xl border transition-all duration-300
+              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border-white/10 overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(57,255,20,0.15)] ' + game.border : 'bg-black/40 border-white/5 opacity-70 select-none'}
+            `}
           >
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-400/20 bg-green-400/[0.06] px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-green-400">
-                6 Typing Games
-              </span>
+            {/* Online Pulse */}
+            {isOnline && (
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#39FF14]`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 bg-[#39FF14]`} />
+                </span>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-[#39FF14]">Live</span>
+              </div>
+            )}
+            
+            {!isOnline && (
+              <div className="absolute top-4 right-4 text-[9px] uppercase tracking-widest font-bold text-gray-500">
+                Coming Soon
+              </div>
+            )}
+
+            <div className={`mb-5 w-12 h-12 rounded-xl flex items-center justify-center ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
+              <Icon className="w-6 h-6" />
             </div>
-            <h1 className="text-5xl font-black text-white mb-3 tracking-tight">
-              Game{" "}
-              <span
-                style={{
-                  background:
-                    "linear-gradient(135deg, #39ff14 0%, #00cc44 50%, #38bdf8 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Zone
-              </span>
-            </h1>
-            <p className="text-gray-400 text-base max-w-xl mx-auto leading-relaxed">
-              Premium typing games to sharpen your reflexes, accuracy, and speed.
-              Pick any game and play instantly — no setup required.
+
+            <h3 className="text-xl font-bold text-white mb-2">{game.title}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed flex-1">
+              {game.description}
             </p>
+            
+            {isOnline && (
+              <div className="mt-6 text-[11px] uppercase tracking-[0.2em] font-bold text-gray-500 group-hover:text-white transition-colors flex items-center gap-2">
+                Play Now <Gamepad2 className="w-3.5 h-3.5" />
+              </div>
+            )}
           </motion.div>
-
-          {/* ── Content area ── */}
-          <AnimatePresence mode="wait">
-            {/* ── Games Grid ── */}
-            {!activeId && (
-              <motion.div
-                key="grid"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.2 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-              >
-                {GAMES.map((game, i) => (
-                  <motion.div
-                    key={game.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: i * 0.07,
-                      duration: 0.45,
-                      ease: [0.23, 1, 0.32, 1],
-                    }}
-                    whileHover={{ y: -6, scale: 1.02 }}
-                    onClick={() => setActiveId(game.id)}
-                    className="relative cursor-pointer rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 overflow-hidden group transition-all duration-300"
-                    style={{ boxShadow: "0 4px 30px rgba(0,0,0,0.35)" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = `0 12px 60px ${game.glow}, 0 4px 20px rgba(0,0,0,0.5)`;
-                      (e.currentTarget as HTMLDivElement).style.borderColor = `${game.color}30`;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 30px rgba(0,0,0,0.35)";
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
-                    }}
-                  >
-                    {/* Ambient glow top-right */}
-                    <div
-                      className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"
-                      style={{ background: game.color }}
-                    />
-
-                    {/* Top accent line */}
-                    <div
-                      className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{
-                        background: `linear-gradient(90deg, transparent, ${game.color}80, transparent)`,
-                      }}
-                    />
-
-                    {/* Emoji */}
-                    <motion.span
-                      className="text-4xl mb-4 block"
-                      whileHover={{ scale: 1.25, rotate: 8 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    >
-                      {game.emoji}
-                    </motion.span>
-
-                    {/* Title + tagline */}
-                    <h2 className="text-base font-bold text-white mb-0.5">
-                      {game.name}
-                    </h2>
-                    <p className="text-[12px] font-semibold mb-3" style={{ color: game.color }}>
-                      {game.tagline}
-                    </p>
-
-                    {/* Description */}
-                    <p className="text-gray-500 text-[13px] leading-relaxed mb-4">
-                      {game.description}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5 mb-5">
-                      {game.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full border"
-                          style={{
-                            color: game.color,
-                            borderColor: `${game.color}25`,
-                            background: `${game.color}08`,
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* CTA */}
-                    <div
-                      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-black transition-all"
-                      style={{
-                        background: `linear-gradient(135deg, ${game.color}, ${game.color}bb)`,
-                        boxShadow: `0 0 20px ${game.glow}`,
-                      }}
-                    >
-                      ▶ Play Now
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-
-            {/* ── Active Game ── */}
-            {activeId && (
-              <motion.div
-                key="active"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-              >
-                {/* Top bar */}
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-4">
-                    <motion.button
-                      onClick={() => setActiveId(null)}
-                      whileHover={{ x: -4 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors font-medium"
-                    >
-                      ← All Games
-                    </motion.button>
-                    <div className="h-4 w-px bg-white/10" />
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-2xl">{activeGame?.emoji}</span>
-                      <div>
-                        <p className="text-white font-bold text-sm leading-tight">
-                          {activeGame?.name}
-                        </p>
-                        <p
-                          className="text-[11px] font-medium"
-                          style={{ color: activeGame?.color }}
-                        >
-                          {activeGame?.tagline}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick switch to other games */}
-                  <div className="hidden md:flex items-center gap-2">
-                    <span className="text-[10px] text-gray-600 uppercase tracking-widest mr-1">
-                      Switch:
-                    </span>
-                    {GAMES.filter((g) => g.id !== activeId).map((g) => (
-                      <motion.button
-                        key={g.id}
-                        onClick={() => setActiveId(g.id)}
-                        whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.92 }}
-                        title={g.name}
-                        className="w-9 h-9 rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center justify-center text-base hover:border-white/20 hover:bg-white/[0.06] transition-all"
-                      >
-                        {g.emoji}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Render game */}
-                {GameComponent && <GameComponent />}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </main>
-      <Footer />
-    </>
+        );
+      })}
+    </div>
   );
 }
