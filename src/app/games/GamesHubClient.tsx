@@ -14,6 +14,7 @@ import CodeBreakerGame from '@/components/CodeBreakerGame';
 import TerminalHackerGame from '@/components/TerminalHackerGame';
 import ZenGardenGame from '@/components/ZenGardenGame';
 import SyntaxShooterGame from '@/components/SyntaxShooterGame';
+import MemoryMatrixGame from '@/components/MemoryMatrixGame';
 
 const GAMES = [
   {
@@ -91,7 +92,7 @@ const GAMES = [
     title: 'Memory Matrix',
     description: 'A 10-character code flashes for a brief moment. Recall and type it quickly.',
     icon: BrainCircuit,
-    status: 'coming_soon',
+    status: 'online',
     color: 'text-pink-400',
     bg: 'bg-pink-400/10',
     border: 'hover:border-pink-400/30'
@@ -151,6 +152,8 @@ export default function GamesHubClient() {
             <ZenGardenGame />
           ) : activeGame === 'syntax-shooter' ? (
             <SyntaxShooterGame />
+          ) : activeGame === 'memory-matrix' ? (
+            <MemoryMatrixGame />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center text-gray-500">
