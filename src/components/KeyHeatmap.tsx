@@ -9,12 +9,11 @@ import React from 'react';
  * supports only a subset of characters for demonstration purposes.
  */
 export default function KeyHeatmap({ data }: { data: Record<string, number> }) {
-  // Define rows of a typical keyboard layout
   const rows = [
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
-    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   ];
   // Determine max value to normalize intensities
   const maxVal = Math.max(...Object.values(data), 0);
@@ -30,22 +29,40 @@ export default function KeyHeatmap({ data }: { data: Record<string, number> }) {
     };
   };
   return (
-    <div className="inline-flex flex-col gap-1">
+    <div className="flex flex-col gap-2 lg:gap-3 w-full bg-black/20 p-4 lg:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
       {rows.map((row, ri) => (
-        <div key={ri} className="flex gap-1 justify-center">
+        <div key={ri} className="flex gap-2 lg:gap-3 justify-center w-full">
+          {ri === 1 && <div className="flex-[0.5]" />}
+          {ri === 2 && <div className="flex-[1]" />}
+          {ri === 3 && <div className="flex-[1.5]" />}
+
           {row.map((key) => {
             const val = data[key] ?? 0;
             const style = getColor(val);
             return (
               <div
                 key={key}
-                className="w-8 h-8 flex items-center justify-center rounded-md text-xs text-gray-200 border"
-                style={style}
+                className="flex-1 min-w-[2rem] h-12 sm:h-14 lg:h-16 flex flex-col items-center justify-center rounded-xl font-bold shadow-md transition-all duration-300 hover:scale-105 border-b-4 border-r-2"
+                style={{
+                   ...style,
+                   backgroundColor: style.backgroundColor || 'var(--tw-colors-gray-900, #111827)',
+                   borderColor: style.borderColor || 'rgba(255,255,255,0.05)',
+                   color: val > 0 ? '#fff' : '#a3a3a3'
+                }}
               >
-                {key.toUpperCase()}
+                <span className="text-sm lg:text-xl uppercase">{key}</span>
+                {val > 0 ? (
+                   <span className="text-[9px] lg:text-[10px] opacity-70 mt-0.5 tracking-widest absolute bottom-1 hidden sm:block">
+                     {val}
+                   </span>
+                ) : null}
               </div>
             );
           })}
+
+          {ri === 1 && <div className="flex-[0.5]" />}
+          {ri === 2 && <div className="flex-[1.5]" />}
+          {ri === 3 && <div className="flex-[3.5]" />}
         </div>
       ))}
     </div>
