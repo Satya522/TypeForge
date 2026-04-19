@@ -546,7 +546,7 @@ export default function SyntaxShooterGame() {
               initial={{ scale: 0.8, y: 50, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="text-center bg-black/40 border border-rose-500/20 p-8 md:p-12 lg:p-16 w-[95%] max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative"
+              className="text-center bg-black/40 border border-rose-500/20 p-6 md:p-10 lg:p-14 w-[90%] max-w-3xl rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 pointer-events-none" />
               
@@ -555,18 +555,18 @@ export default function SyntaxShooterGame() {
                   <motion.div 
                     animate={{ rotate: 360 }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="w-28 h-28 mx-auto mb-8 relative flex items-center justify-center"
+                    className="w-20 h-20 md:w-28 md:h-28 mx-auto mb-6 relative flex items-center justify-center"
                   >
                     <div className="absolute inset-0 rounded-full border-2 border-dashed border-rose-500/40" />
                     <div className="absolute inset-2 rounded-full border border-amber-500/30 rotate-45" />
                     <Crosshair className="w-12 h-12 text-rose-400" />
                   </motion.div>
                   
-                  <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[0.1em] mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 via-rose-500 to-amber-500 filter drop-shadow-[0_0_30px_rgba(244,63,94,0.3)] leading-tight">
+                  <h1 className="text-4xl md:text-7xl font-black tracking-[0.1em] mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 via-rose-500 to-amber-500 filter drop-shadow-[0_0_30px_rgba(244,63,94,0.3)] leading-tight">
                     SYNTAX<br/>SHOOTER
                   </h1>
                   
-                  <p className="text-amber-500/60 text-sm font-black tracking-[0.4em] uppercase mb-12">Target Acquisition Protocol</p>
+                  <p className="text-amber-500/60 text-xs md:text-sm font-black tracking-[0.4em] uppercase mb-8 md:mb-12">Target Acquisition Protocol</p>
                   
                   <Button 
                     onClick={initGame} 
@@ -586,12 +586,12 @@ export default function SyntaxShooterGame() {
                     <Skull className="w-28 h-28 mx-auto mb-6 text-rose-500 filter drop-shadow-[0_0_40px_rgba(244,63,94,0.6)]" />
                   </motion.div>
                   
-                  <h2 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] mb-8 md:mb-12 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">SYSTEM OFFLINE</h2>
+                  <h2 className="text-3xl md:text-5xl font-black text-white tracking-[0.2em] mb-6 md:mb-10 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">SYSTEM OFFLINE</h2>
                   
                   <div className="flex gap-10 justify-center mb-12">
-                    <div className="bg-[#0a0204]/80 backdrop-blur-md border border-amber-500/20 px-10 py-8 rounded-3xl flex flex-col items-center">
-                      <div className="text-rose-400/60 text-xs font-black tracking-[0.3em] uppercase mb-3">Target Score</div>
-                      <div className="text-7xl font-black text-amber-500 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]">{score}</div>
+                    <div className="bg-[#0a0204]/80 backdrop-blur-md border border-amber-500/20 px-8 py-6 rounded-3xl flex flex-col items-center">
+                      <div className="text-rose-400/60 text-[10px] md:text-xs font-black tracking-[0.3em] uppercase mb-2">Target Score</div>
+                      <div className="text-6xl md:text-7xl font-black text-amber-500 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]">{score}</div>
                     </div>
                   </div>
 
