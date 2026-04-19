@@ -215,9 +215,9 @@ export default function GamesHubClient() {
               </div>
             )}
 
-            <div className={`mb-5 w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
+            <div className={`mb-5 w-14 h-14 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white/10 ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 group-hover:ring-current transition-all duration-300 shadow-lg' : ''}`}>
                {game.image ? (
-                  <img src={game.image} alt={game.title} className="w-10 h-10 object-contain drop-shadow-md" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                  <img src={game.image} alt={game.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
                ) : null}
                <Icon className={`w-6 h-6 ${game.image ? 'hidden' : ''}`} />
             </div>
