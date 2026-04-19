@@ -34,38 +34,38 @@ export function useMechanicalSound(enabled: boolean) {
     osc.detune.setValueAtTime(detune, now);
 
     if (type === 'normal') {
-      // Sharp, short thock
+      // Crisp, sharp "tic" sound (high pitch, extremely short decay)
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(40, now + 0.04);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1000, now);
-      gainNode.gain.setValueAtTime(0.2, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+      osc.frequency.setValueAtTime(1200, now); 
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.02);
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(800, now);
+      gainNode.gain.setValueAtTime(0.15, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
       osc.start(now);
-      osc.stop(now + 0.04);
+      osc.stop(now + 0.025);
     } else if (type === 'space') {
-      // Deeper thock for spacebar
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(120, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.07);
+      // Slightly deeper, louder "tic" or "clack" for spacebar
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(300, now + 0.03);
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(500, now);
+      gainNode.gain.setValueAtTime(0.2, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+      osc.start(now);
+      osc.stop(now + 0.035);
+    } else if (type === 'error') {
+      // Dull "thud" for errors
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.04);
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(800, now);
-      gainNode.gain.setValueAtTime(0.3, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
-      osc.start(now);
-      osc.stop(now + 0.07);
-    } else if (type === 'error') {
-      // Harsh click for errors
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(150, now);
-      osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(200, now);
       gainNode.gain.setValueAtTime(0.15, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
       osc.start(now);
-      osc.stop(now + 0.08);
+      osc.stop(now + 0.04);
     }
   }, [enabled]);
 

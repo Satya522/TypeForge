@@ -251,7 +251,15 @@ export default function NeonSprintGame() {
     let raf: number;
     const loop = () => {
       const eng = engine.current;
-      ctx.fillStyle = "rgba(4, 2, 10, 0.1)"; // Trail effect (Optimized Motion Blur for longer trails)
+      
+      // Clean decay for motion blur (fixes color accumulation artifacts)
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.fillRect(0, 0, eng.width, eng.height);
+      ctx.globalCompositeOperation = "source-over";
+
+      // Subtle base background color
+      ctx.fillStyle = "rgba(4, 2, 10, 0.8)";
       ctx.fillRect(0, 0, eng.width, eng.height);
 
       // Central Nebula Warp Hole Glow
@@ -368,85 +376,94 @@ export default function NeonSprintGame() {
       {status === "playing" && (
         <>
           {/* Top Info Bar */}
-          <div className="absolute top-8 w-full max-w-4xl px-8 flex justify-between items-center z-20">
-            <div className="flex flex-col">
-              <span className="text-gray-500 text-xs font-black tracking-widest uppercase mb-1">Target Velocity</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">{wpm}</span>
-                <span className="text-sm text-cyan-400 font-bold tracking-widest">WPM</span>
+          <div className="absolute top-8 w-full max-w-5xl px-8 flex justify-between items-start z-20">
+            <div className="flex flex-col items-start bg-white/[0.03] border border-white/[0.05] shadow-2xl backdrop-blur-xl rounded-2xl px-6 py-4">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-cyan-400/80 text-[10px] font-black tracking-[0.2em] uppercase">Target Velocity</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-4xl font-black text-white" style={{ textShadow: "0 0 20px rgba(255,255,255,0.3)" }}>{wpm}</span>
+                <span className="text-xs text-gray-500 font-bold tracking-widest">WPM</span>
               </div>
             </div>
             
-            <div className="flex bg-[#04020a]/80 backdrop-blur-md border border-cyan-500/30 px-6 py-2 rounded-xl items-center gap-3 shadow-[0_0_20px_rgba(0,255,255,0.1)]">
-              <Timer className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-cyan-400'}`} />
-              <span className={`text-2xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-red-500 drop-shadow-[0_0_10px_red]' : 'text-white'}`}>{timeLeft}s</span>
+            <div className="flex bg-black/60 backdrop-blur-2xl border border-cyan-500/20 px-8 py-3 rounded-2xl items-center gap-4 shadow-[0_10px_40px_rgba(0,255,255,0.1)]">
+              <Timer className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-cyan-400/80'}`} />
+              <span className={`text-3xl font-black tabular-nums tracking-widest ${timeLeft <= 10 ? 'text-red-500' : 'text-white'}`} style={{ textShadow: timeLeft <= 10 ? '0 0 20px rgba(239,68,68,0.5)' : '0 0 20px rgba(255,255,255,0.2)' }}>{timeLeft}s</span>
             </div>
 
-            <div className="flex flex-col text-right">
-              <span className="text-gray-500 text-xs font-black tracking-widest uppercase mb-1">Words Decrypted</span>
-              <span className="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">{wordsCompleted}</span>
+            <div className="flex flex-col items-end bg-white/[0.03] border border-white/[0.05] shadow-2xl backdrop-blur-xl rounded-2xl px-6 py-4">
+               <div className="flex items-center gap-2 mb-1">
+                <span className="text-purple-400/80 text-[10px] font-black tracking-[0.2em] uppercase">Decrypted</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-4xl font-black text-white" style={{ textShadow: "0 0 20px rgba(255,255,255,0.3)" }}>{wordsCompleted}</span>
+              </div>
             </div>
           </div>
 
           {/* Central Target Reticle */}
-          <div className="z-20 flex flex-col items-center justify-center mt-[-100px]">
+          <div className="z-20 flex flex-col items-center justify-center mt-[-80px]">
             {/* Speed Multiplier Badge */}
-            <div className={`mb-4 px-6 py-1.5 rounded-sm border bg-[#04020a]/80 backdrop-blur transition-all duration-300 ${combo > 10 ? 'border-[#39FF14] text-[#39FF14] shadow-[0_0_20px_rgba(57,255,20,0.4)]' : combo > 5 ? 'border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,255,255,0.2)]' : 'border-purple-500/50 text-purple-400'}`}>
-              <span className="text-xs font-black tracking-[0.4em] uppercase flex items-center gap-2">
-                <Zap className={`w-3 h-3 fill-current ${combo > 10 && 'animate-pulse'}`}/>
-                Mach {speedMultiplier.toFixed(1)}
+            <div className={`mb-6 px-4 py-1.5 rounded-full border bg-black/40 backdrop-blur-md transition-all duration-300 ${combo > 10 ? 'border-[#39FF14]/50 shadow-[0_0_30px_rgba(57,255,20,0.2)]' : combo > 5 ? 'border-cyan-400/40 shadow-[0_0_20px_rgba(0,255,255,0.15)]' : 'border-purple-500/20 shadow-lg'}`}>
+              <span className={`text-[10px] font-black tracking-[0.3em] uppercase flex items-center gap-2 ${combo > 10 ? 'text-[#39FF14]' : combo > 5 ? 'text-cyan-400' : 'text-purple-400'}`}>
+                <Zap className={`w-3.5 h-3.5 fill-current ${combo > 10 && 'animate-pulse'}`}/>
+                Slipstream Mach {speedMultiplier.toFixed(1)}
               </span>
             </div>
 
             {/* The Text Viewer */}
-            <div className="flex items-center gap-6 mt-4">
-              {/* Left Futuristic Bracket */}
-              <div className={`hidden sm:block w-8 h-[70px] border-l-4 border-y-4 rounded-l-xl transition-colors duration-300 ${combo > 10 ? 'border-[#39FF14]/50 shadow-[0_0_20px_rgba(57,255,20,0.3)]' : combo > 5 ? 'border-cyan-400/50 shadow-[0_0_15px_rgba(0,255,255,0.2)]' : 'border-purple-500/30'}`}></div>
+            <div className="relative flex items-center justify-center">
+              {/* Background HUD Box */}
+              <div className="absolute inset-0 -mx-12 -my-6 bg-gradient-to-r from-transparent via-cyan-900/10 to-transparent border-y border-cyan-500/10 rounded-[40px] opacity-50 blur-[2px]" />
+              
+              <div className={`hidden sm:block absolute -left-12 w-6 h-[80px] border-l-2 border-y-2 rounded-l-2xl transition-colors duration-300 ${combo > 10 ? 'border-[#39FF14]/40 shadow-[0_0_25px_rgba(57,255,20,0.2)]' : combo > 5 ? 'border-cyan-400/40 shadow-[0_0_20px_rgba(0,255,255,0.15)]' : 'border-purple-500/20'}`} />
 
-              <div className="relative">
-                {/* Ghost string */}
-                <div className="absolute inset-0 flex text-7xl font-black tracking-[0.14em] text-white/5 blur-[2px]">
-                  {currentWord.toUpperCase()}
-                </div>
-                
-                {/* Actual typing string */}
-                <div className="relative flex text-7xl font-black tracking-[0.14em] drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">
-                  {currentWord.split('').map((char, i) => {
-                    const isTyped = i < typed.length;
-                    const isCurrent = i === typed.length;
-                    
-                    return (
+              <div className="relative flex text-[5.5rem] font-black tracking-[0.1em] font-mono" style={{ textShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
+                {currentWord.split('').map((char, i) => {
+                  const isTyped = i < typed.length;
+                  const isCurrent = i === typed.length;
+                  
+                  return (
+                    <div key={i} className="relative flex flex-col items-center">
                       <span 
-                        key={i} 
                         className={`
-                          transition-all duration-100
-                          ${isTyped ? 'text-cyan-400 drop-shadow-[0_0_20px_rgba(0,255,255,0.8)]' : 'text-white/20'}
-                          ${isCurrent ? 'text-white animate-pulse border-b-8 border-cyan-400 scale-110 -translate-y-1' : 'border-b-8 border-transparent'}
+                          transition-all duration-150 z-10 px-1
+                          ${isTyped ? 'text-white' : 'text-gray-500/40'}
+                          ${isCurrent ? 'text-cyan-300 scale-110 -translate-y-2' : ''}
                         `}
+                        style={{ 
+                          textShadow: isTyped ? "0 0 30px rgba(255,255,255,0.5), 0 0 10px rgba(0,255,255,0.8)" : "none",
+                        }}
                       >
                         {char.toUpperCase()}
                       </span>
-                    );
-                  })}
-                </div>
+                      {/* Active letter underline */}
+                      {isCurrent && (
+                        <div className="absolute -bottom-2 w-full h-[6px] bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.8)] animate-pulse" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Right Futuristic Bracket */}
-              <div className={`hidden sm:block w-8 h-[70px] border-r-4 border-y-4 rounded-r-xl transition-colors duration-300 ${combo > 10 ? 'border-[#39FF14]/50 shadow-[0_0_20px_rgba(57,255,20,0.3)]' : combo > 5 ? 'border-cyan-400/50 shadow-[0_0_15px_rgba(0,255,255,0.2)]' : 'border-purple-500/30'}`}></div>
+              <div className={`hidden sm:block absolute -right-12 w-6 h-[80px] border-r-2 border-y-2 rounded-r-2xl transition-colors duration-300 ${combo > 10 ? 'border-[#39FF14]/40 shadow-[0_0_25px_rgba(57,255,20,0.2)]' : combo > 5 ? 'border-cyan-400/40 shadow-[0_0_20px_rgba(0,255,255,0.15)]' : 'border-purple-500/20'}`} />
             </div>
           </div>
 
           {/* Player Ship / Dashboard (CSS DOM Layer) */}
-          <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-[800px] h-[300px] pointer-events-none z-30 perspective-[1000px] flex justify-center items-end">
+          <div className="absolute bottom-0 inset-x-0 h-[220px] pointer-events-none z-30 perspective-[1000px] flex justify-center items-end opacity-80 mix-blend-screen">
              {/* Simple Glass Cockpit */}
-             <div className="w-[600px] h-[150px] relative">
+             <div className="w-[800px] h-[180px] relative flex justify-center">
                 {/* Dashboard Arch */}
-                <div className="absolute bottom-0 w-full h-[150px] border-t-4 border-cyan-400/50 bg-gradient-to-t from-[#04020a] to-[#04020a]/20 backdrop-blur-md rounded-t-[50%] shadow-[0_-20px_50px_rgba(0,255,255,0.15)] flex items-center justify-center">
+                <div className="absolute bottom-0 w-full h-[120px] rounded-t-[100px] bg-gradient-to-t from-[#04020a] to-[#04020a]/0 border-t border-cyan-500/20 shadow-[0_-30px_80px_rgba(0,255,255,0.05)] flex items-end justify-center pb-4">
                    {/* Center Console */}
-                   <div className="w-56 h-36 mt-12 border-t-[3px] border-x-[3px] border-cyan-500/30 bg-black/80 rounded-t-[2rem] flex flex-col items-center pt-5 shadow-[inset_0_15px_30px_rgba(0,0,0,1)] relative overflow-hidden">
-                      <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent"></div>
-                      <Activity className={`w-10 h-10 ${combo > 10 ? 'text-[#39FF14] animate-pulse drop-shadow-[0_0_15px_#39FF14]' : combo > 5 ? 'text-cyan-400 animate-[pulse_0.5s_ease-in-out_infinite] drop-shadow-[0_0_10px_cyan]' : 'text-purple-500 drop-shadow-[0_0_10px_purple]'}`} />
-                      <div className="mt-3 text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase">Reactor Core</div>
+                   <div className="w-64 h-24 bg-black/60 backdrop-blur-2xl border border-cyan-500/20 rounded-2xl flex flex-col items-center justify-center shadow-[inset_0_2px_20px_rgba(0,255,255,0.1)] relative">
+                      <div className="absolute top-0 w-32 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent"></div>
+                      <Activity className={`w-8 h-8 ${combo > 10 ? 'text-[#39FF14] animate-pulse drop-shadow-[0_0_15px_#39FF14]' : combo > 5 ? 'text-cyan-400 animate-[pulse_0.5s_ease-in-out_infinite] drop-shadow-[0_0_10px_cyan]' : 'text-purple-500 drop-shadow-[0_0_10px_purple]'}`} />
+                      <div className="mt-2 text-[9px] text-gray-500 font-bold tracking-[0.4em] uppercase">Reactor Core Node</div>
                    </div>
                 </div>
              </div>
