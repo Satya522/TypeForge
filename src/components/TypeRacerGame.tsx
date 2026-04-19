@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Flag, Ghost, ShieldAlert, CarFront, Trophy, Timer, Crosshair } from "lucide-react";
+import { Zap, Flag, Ghost, ShieldAlert, CarFront, Trophy, Timer, Crosshair, Skull } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMechanicalSound } from "@/hooks/useMechanicalSound";
 
