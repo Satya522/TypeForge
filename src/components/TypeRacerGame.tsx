@@ -60,7 +60,7 @@ export default function TypeRacerGame() {
             setStartTime(Date.now());
             return 0;
           }
-          playSound("type");
+          playSound("normal");
           return c - 1;
         });
       }, 1000);
@@ -121,11 +121,11 @@ export default function TypeRacerGame() {
         // Flash input background red slightly?
         return; // Reject bad input
       } else {
-        playSound('type');
+        playSound('normal');
       }
     } else {
        // Backspacing
-       playSound('type');
+       playSound('normal');
     }
 
     setTypedText(val);
