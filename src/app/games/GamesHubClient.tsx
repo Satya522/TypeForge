@@ -23,6 +23,7 @@ const GAMES = [
     title: 'Letter Rain',
     description: 'Typing reflex minigame. Letters fall fast, destroy them by typing the correct keys.',
     icon: CloudLightning,
+    image: '/media/games/letter%20rain.png',
     status: 'online',
     color: 'text-[#39FF14]',
     bg: 'bg-[#39FF14]/10',
@@ -33,6 +34,7 @@ const GAMES = [
     title: 'Neon Sprint',
     description: 'Type consecutive phrases to fuel your synthwave motorcycle and race against the clock.',
     icon: Gauge,
+    image: '/media/games/neon%20sprint.png',
     status: 'online',
     color: 'text-cyan-400',
     bg: 'bg-cyan-400/10',
@@ -43,6 +45,7 @@ const GAMES = [
     title: 'Cyber Defend',
     description: 'Stop incoming network attacks by typing their encrypted sequences accurately.',
     icon: ShieldAlert,
+    image: '/media/games/cyber%20defend.png',
     status: 'online',
     color: 'text-red-500',
     bg: 'bg-red-500/10',
@@ -53,6 +56,7 @@ const GAMES = [
     title: 'Code Breaker',
     description: 'Reverse engineer scrambled strings of code. Precision is mandatory.',
     icon: Terminal,
+    image: '/media/games/code%20breaker.png',
     status: 'online',
     color: 'text-purple-400',
     bg: 'bg-purple-400/10',
@@ -63,6 +67,7 @@ const GAMES = [
     title: 'Zen Garden',
     description: 'Relaxing environment with no timer. Focus purely on hitting 100% accuracy.',
     icon: Leaf,
+    image: '/media/games/zen%20garden.png',
     status: 'online',
     color: 'text-emerald-400',
     bg: 'bg-emerald-400/10',
@@ -73,6 +78,7 @@ const GAMES = [
     title: 'Syntax Shooter',
     description: 'Target semicolons, brackets, and logical operators in an Asteroids-style shooter.',
     icon: Crosshair,
+    image: '/media/games/syntax%20shooter.png',
     status: 'online',
     color: 'text-amber-400',
     bg: 'bg-amber-400/10',
@@ -83,6 +89,7 @@ const GAMES = [
     title: 'Type Racer Pro',
     description: 'Compete in live drag races against other players using pure WPM velocity.',
     icon: Zap,
+    image: '/media/games/type%20racer%20pro.png',
     status: 'online',
     color: 'text-blue-400',
     bg: 'bg-blue-400/10',
@@ -93,6 +100,7 @@ const GAMES = [
     title: 'Memory Matrix',
     description: 'A 10-character code flashes for a brief moment. Recall and type it quickly.',
     icon: BrainCircuit,
+    image: '/media/games/memory%20matrix.png',
     status: 'online',
     color: 'text-pink-400',
     bg: 'bg-pink-400/10',
@@ -103,6 +111,7 @@ const GAMES = [
     title: 'Rhythm Typer',
     description: 'Sync your keystrokes to an energetic EDM beat. Get combo multipliers.',
     icon: Headphones,
+    image: '/media/games/rhythm%20typer.png',
     status: 'coming_soon',
     color: 'text-fuchsia-400',
     bg: 'bg-fuchsia-400/10',
@@ -113,6 +122,7 @@ const GAMES = [
     title: 'Terminal Hacker',
     description: 'Simulated mainframe penetration. Execute bash commands fast enough to slip through.',
     icon: Command,
+    image: '/media/games/terminal%20haker.png',
     status: 'online',
     color: 'text-teal-400',
     bg: 'bg-teal-400/10',
@@ -184,41 +194,52 @@ export default function GamesHubClient() {
             transition={{ delay: idx * 0.05 }}
             onClick={() => isOnline ? setActiveGame(game.id) : null}
             className={`
-              relative flex flex-col p-6 rounded-2xl border transition-all duration-300
-              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border-white/10 overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(57,255,20,0.15)] ' + game.border : 'bg-black/40 border-white/5 opacity-70 select-none'}
+              relative flex flex-col p-0 rounded-2xl transition-all duration-300 min-h-[320px]
+              ${isOnline ? 'cursor-pointer bg-[#0A0D0B] border border-white/10 overflow-hidden group hover:-translate-y-2 hover:shadow-[0_20px_50px_-20px_rgba(255,255,255,0.1)] ' + game.border : 'bg-black/40 border border-white/5 opacity-70 select-none overflow-hidden'}
             `}
           >
-            {/* Online Pulse */}
-            {isOnline && (
-              <div className="absolute top-4 right-4 flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#39FF14]`} />
-                  <span className={`relative inline-flex rounded-full h-2 w-2 bg-[#39FF14]`} />
-                </span>
-                <span className="text-[9px] uppercase tracking-widest font-bold text-[#39FF14]">Live</span>
-              </div>
-            )}
-            
-            {!isOnline && (
-              <div className="absolute top-4 right-4 text-[9px] uppercase tracking-widest font-bold text-gray-500">
-                Coming Soon
-              </div>
-            )}
+             {/* Background Image / Banner */}
+             <div className="absolute inset-0 z-0">
+               <img src={game.image} alt={game.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 scale-100 group-hover:scale-105" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+               {/* Vignette/Gradient overlay to make text readable */}
+               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D0B] via-[#0A0D0B]/80 to-transparent" />
+             </div>
 
-            <div className={`mb-5 w-12 h-12 rounded-xl flex items-center justify-center ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
-              <Icon className="w-6 h-6" />
-            </div>
+             {/* Online Pulse */}
+             {isOnline && (
+               <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/60 px-2 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                 <span className="relative flex h-2 w-2">
+                   <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#39FF14]`} />
+                   <span className={`relative inline-flex rounded-full h-2 w-2 bg-[#39FF14]`} />
+                 </span>
+                 <span className="text-[9px] uppercase tracking-widest font-bold text-[#39FF14]">Live</span>
+               </div>
+             )}
+             
+             {!isOnline && (
+               <div className="absolute top-4 right-4 z-20 text-[9px] uppercase tracking-widest font-bold text-gray-500 bg-black/60 px-2 py-1 rounded-full border border-white/5 backdrop-blur-md">
+                 Coming Soon
+               </div>
+             )}
 
-            <h3 className="text-xl font-bold text-white mb-2">{game.title}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed flex-1">
-              {game.description}
-            </p>
-            
-            {isOnline && (
-              <div className="mt-6 text-[11px] uppercase tracking-[0.2em] font-bold text-gray-500 group-hover:text-white transition-colors flex items-center gap-2">
-                Play Now <Gamepad2 className="w-3.5 h-3.5" />
-              </div>
-            )}
+             {/* Content */}
+             <div className="relative z-10 p-6 flex flex-col h-full mt-auto pt-32">
+                 <div className={`mb-3 w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/10 ${game.bg} ${game.color} ${isOnline ? 'group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''}`}>
+                   <Icon className="w-5 h-5" />
+                 </div>
+
+                 <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">{game.title}</h3>
+                 <p className="text-sm text-gray-300 leading-relaxed drop-shadow-md">
+                   {game.description}
+                 </p>
+                 
+                 {isOnline && (
+                   <div className="mt-4 pt-4 border-t border-white/10 text-[11px] uppercase tracking-[0.2em] font-bold text-gray-400 group-hover:text-white transition-colors flex items-center gap-2 w-full justify-between">
+                     <span>Play Module</span>
+                     <Gamepad2 className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                   </div>
+                 )}
+             </div>
           </motion.div>
         );
       })}
