@@ -546,7 +546,7 @@ export default function SyntaxShooterGame() {
               initial={{ scale: 0.8, y: 50, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              className="text-center bg-black/40 border border-rose-500/20 p-16 rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative overflow-hidden"
+              className="text-center bg-black/40 border border-rose-500/20 p-8 md:p-12 lg:p-16 w-[95%] max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-[0_0_100px_rgba(244,63,94,0.1)] flex flex-col items-center relative"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 pointer-events-none" />
               
@@ -562,7 +562,7 @@ export default function SyntaxShooterGame() {
                     <Crosshair className="w-12 h-12 text-rose-400" />
                   </motion.div>
                   
-                  <h1 className="text-8xl font-black tracking-[0.1em] mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 via-rose-500 to-amber-500 filter drop-shadow-[0_0_30px_rgba(244,63,94,0.3)]">
+                  <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[0.1em] mb-4 text-transparent bg-clip-text bg-gradient-to-br from-rose-400 via-rose-500 to-amber-500 filter drop-shadow-[0_0_30px_rgba(244,63,94,0.3)] leading-tight">
                     SYNTAX<br/>SHOOTER
                   </h1>
                   
@@ -570,7 +570,7 @@ export default function SyntaxShooterGame() {
                   
                   <Button 
                     onClick={initGame} 
-                    className="group relative w-80 h-20 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black tracking-widest text-2xl shadow-[0_0_40px_rgba(244,63,94,0.4)] rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105"
+                    className="group relative w-64 md:w-80 h-16 md:h-20 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black tracking-widest text-xl md:text-2xl shadow-[0_0_40px_rgba(244,63,94,0.4)] rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shrink-0"
                   >
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:duration-[1500ms]" />
                     <Play className="w-8 h-8 mr-4 fill-current group-hover:scale-125 transition-transform duration-300" /> SYSTEM OVERRIDE
@@ -586,7 +586,7 @@ export default function SyntaxShooterGame() {
                     <Skull className="w-28 h-28 mx-auto mb-6 text-rose-500 filter drop-shadow-[0_0_40px_rgba(244,63,94,0.6)]" />
                   </motion.div>
                   
-                  <h2 className="text-6xl font-black text-white tracking-[0.2em] mb-12 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">SYSTEM OFFLINE</h2>
+                  <h2 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] mb-8 md:mb-12 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">SYSTEM OFFLINE</h2>
                   
                   <div className="flex gap-10 justify-center mb-12">
                     <div className="bg-[#0a0204]/80 backdrop-blur-md border border-amber-500/20 px-10 py-8 rounded-3xl flex flex-col items-center">
