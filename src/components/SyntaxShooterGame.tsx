@@ -338,7 +338,7 @@ export default function SyntaxShooterGame() {
       {/* Dynamic Immersive Background */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none"
            style={{
-             backgroundImage: \`linear-gradient(rgba(244, 63, 94, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.2) 1px, transparent 1px)\`,
+             backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.2) 1px, transparent 1px)',
              backgroundSize: '80px 80px',
              transform: 'perspective(1000px) rotateX(75deg) scale(2.5) translateY(-20px)',
              transformOrigin: 'top center',
@@ -382,7 +382,7 @@ export default function SyntaxShooterGame() {
               <div className="flex items-center gap-3">
                 <Activity className={`w-5 h-5 ${health <= 30 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_#f43f5e]' : 'text-rose-400/80'}`} />
                 <div className="w-40 h-2 bg-black/80 rounded-full overflow-hidden border border-rose-950/50 shadow-[inset_0_2px_5px_black]">
-                  <div className="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-amber-300 transition-all duration-300" style={{ width: \`\${health}%\` }} />
+                  <div className="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-amber-300 transition-all duration-300" style={{ width: `${health}%` }} />
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -437,8 +437,8 @@ export default function SyntaxShooterGame() {
             key={target.id}
             className={`absolute z-20 transition-transform duration-100 ease-linear flex items-center justify-center`}
             style={{ 
-              left: \`\${target.x}%\`, 
-              top: \`\${target.y}%\`,
+              left: `${target.x}%`, 
+              top: `${target.y}%`,
               transform: 'translate(-50%, -50%) perspective(500px) rotateX(10deg)'
             }}
           >
