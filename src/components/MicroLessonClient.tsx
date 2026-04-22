@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTypingEngine } from '@/hooks/useTypingEngine';
 import TypingArea from '@/components/TypingArea';
 import SessionMetrics from '@/components/SessionMetrics';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { mergeTypingTelemetryPayloads, type TypingTelemetryPayload } from '@/lib/typingTelemetry';
 
 interface MicroLessonClientProps {
   blocks: { id: string; content: string }[];
@@ -36,6 +37,7 @@ export default function MicroLessonClient({ blocks, lessonId, xpReward }: MicroL
     elapsedMs,
     correctChars,
     typedChars,
+    getTelemetrySnapshot,
   } = useTypingEngine(current.content);
 
   // Aggregated metrics across blocks
@@ -45,6 +47,8 @@ export default function MicroLessonClient({ blocks, lessonId, xpReward }: MicroL
     errors: 0,
     time: 0,
   });
+  const telemetryBlocksRef = useRef<TypingTelemetryPayload[]>([]);
+  const handledFinishRef = useRef<string | null>(null);
 
   // Start listening for key presses
   useEffect(() => {
@@ -58,7 +62,17 @@ export default function MicroLessonClient({ blocks, lessonId, xpReward }: MicroL
 
   // When a block is finished, accumulate metrics and move to next or save overall result
   useEffect(() => {
+    const finishToken = `${lessonId}:${blockIndex}:${finished ? 'done' : 'idle'}`;
+    if (!finished || handledFinishRef.current === finishToken) {
+      return;
+    }
+    handledFinishRef.current = finishToken;
+
     if (finished) {
+      const currentTelemetry = getTelemetrySnapshot();
+      if (currentTelemetry) {
+        telemetryBlocksRef.current.push(currentTelemetry);
+      }
       // accumulate metrics for this block
       setAgg((prev) => ({
         correct: prev.correct + correctChars,
@@ -96,6 +110,7 @@ export default function MicroLessonClient({ blocks, lessonId, xpReward }: MicroL
                 accuracy: totalAcc,
                 errors: totalErrors,
                 duration: totalTime,
+                telemetry: mergeTypingTelemetryPayloads(telemetryBlocksRef.current),
               }),
             });
             const data = await res.json();
@@ -112,15 +127,21 @@ export default function MicroLessonClient({ blocks, lessonId, xpReward }: MicroL
         saveResult();
       }
     }
-  }, [finished]);
+  }, [finished, getTelemetrySnapshot, correctChars, typedChars, errors, elapsedMs, blockIndex, blocks.length, agg.correct, agg.errors, agg.time, agg.typed, lessonId, xpReward, restart]);
 
   // When blockIndex changes, restart engine and scroll to top
   useEffect(() => {
     // ensure engine resets typed content for new block
     restart();
+    handledFinishRef.current = null;
     // Scroll to top of window for new block to keep caret visible
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [blockIndex]);
+
+  useEffect(() => {
+    telemetryBlocksRef.current = [];
+    handledFinishRef.current = null;
+  }, [lessonId]);
 
   // Compute aggregated progress across blocks for progress bar
   const overallProgress = (blockIndex / blocks.length) * 100 + progress / blocks.length;

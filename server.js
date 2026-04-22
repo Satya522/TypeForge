@@ -18,11 +18,41 @@ const prisma = new PrismaClient();
 
 const PORT = 3001;
 const httpServer = createServer();
+const DEFAULT_ALLOWED_ORIGINS = [
+  process.env.NEXTAUTH_URL,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+].filter(Boolean);
+const ALLOWED_ORIGINS = new Set([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...(process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+
+  try {
+    return ALLOWED_ORIGINS.has(new URL(origin).origin);
+  } catch {
+    return false;
+  }
+}
+
 const io = new Server(httpServer, {
   cors: {
-    origin: '*', // Allows connecting from any production domain
+    origin(origin, callback) {
+      callback(null, isAllowedOrigin(origin));
+    },
+    credentials: true,
     methods: ['GET', 'POST'],
   },
+  allowRequest(req, callback) {
+    callback(null, isAllowedOrigin(req.headers.origin));
+  },
+  maxHttpBufferSize: 100_000,
   pingTimeout: 60000,
   pingInterval: 25000,
 });
@@ -40,20 +70,20 @@ if (process.env.REDIS_URL) {
 
 // Global Rate Limiter
 const rateLimits = new Map();
-function checkRateLimit(socketId) {
+function checkRateLimit(key, limit = 5, windowMs = 1000) {
   const now = Date.now();
-  if (!rateLimits.has(socketId)) {
-    rateLimits.set(socketId, { count: 1, lastTime: now });
+  if (!rateLimits.has(key)) {
+    rateLimits.set(key, { count: 1, lastTime: now });
     return false;
   }
-  const limit = rateLimits.get(socketId);
-  if (now - limit.lastTime > 1000) {
-    limit.count = 1;
-    limit.lastTime = now;
+  const bucket = rateLimits.get(key);
+  if (now - bucket.lastTime > windowMs) {
+    bucket.count = 1;
+    bucket.lastTime = now;
     return false;
   }
-  limit.count += 1;
-  return limit.count > 5;
+  bucket.count += 1;
+  return bucket.count > limit;
 }
 
 // ELO Helper
@@ -98,6 +128,15 @@ CHANNELS.forEach(async (ch) => {
       orderBy: { createdAt: 'desc' },
       take: 100,
       include: {
+        author: {
+          select: {
+            avatarUrl: true,
+            image: true,
+            name: true,
+            nickname: true,
+            username: true,
+          },
+        },
         reactions: true,
         replyToMessage: { select: { id: true, userName: true, content: true } }
       }
@@ -109,7 +148,8 @@ CHANNELS.forEach(async (ch) => {
       type: m.type,
       subtype: m.subtype || undefined,
       userId: m.visitorId || m.authorId || undefined,
-      userName: m.userName,
+      userName: m.author ? getDisplayName(m.author, m.userName) : m.userName,
+      avatarUrl: m.author ? resolveAvatarUrl(m.author) : null,
       userColor: m.userColor,
       userGradient: m.userGradient,
       content: m.content,
@@ -178,6 +218,46 @@ const RACE_SENTENCES = [
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+const CHANNEL_IDS = new Set(CHANNELS.map((channel) => channel.id));
+const USER_STATUS_VALUES = new Set(['online', 'idle', 'dnd', 'invisible']);
+const REACTION_VALUES = new Set(['🔥', '⚡', '💯', '🎯', '🏆', '😂', '👏', '👀']);
+
+function isValidChannel(channelId) {
+  return CHANNEL_IDS.has(channelId);
+}
+
+function sanitizeText(input, maxLength = 2000) {
+  if (typeof input !== 'string') return '';
+
+  return input
+    .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, maxLength);
+}
+
+function sanitizeName(input) {
+  const cleaned = sanitizeText(input, 32)
+    .replace(/[^\p{L}\p{N}_\-\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return cleaned || null;
+}
+
+function getDisplayName(user, fallback = 'Typist') {
+  const nickname = sanitizeName(user?.nickname || '');
+  if (nickname) return nickname;
+
+  const username = sanitizeName(user?.username || '');
+  if (username) return username;
+
+  const name = sanitizeName(user?.name || '');
+  return name || fallback;
+}
+
+function resolveAvatarUrl(user) {
+  return user?.avatarUrl || user?.image || null;
+}
 
 function getUserBadges(wpm) {
   return BADGES.filter((b) => wpm >= b.minWpm);
@@ -194,6 +274,64 @@ function broadcastOnlineUsers() {
   CHANNELS.forEach((ch) => {
     ch.memberCount = io.sockets.adapter.rooms.get(ch.id)?.size || 0;
   });
+
+  emitCommunityMeta();
+}
+
+function buildCommunityMeta() {
+  const typingByChannel = Object.fromEntries(
+    CHANNELS.map((channel) => [
+      channel.id,
+      Array.from(typingUsers.get(channel.id) || [])
+        .map((id) => onlineUsers.get(id))
+        .filter(Boolean)
+        .map((user) => ({ name: user.name, color: user.color })),
+    ])
+  );
+
+  const activeRaceSummaries = Array.from(activeRaces.values()).map((race) => ({
+    id: race.id,
+    channelId: race.channelId,
+    channelName: CHANNELS.find((channel) => channel.id === race.channelId)?.name || race.channelId,
+    participantCount: race.players.length,
+    status: race.status,
+    players: race.players.map((player) => ({
+      id: player.id,
+      name: player.name,
+      color: player.color,
+      wpm: player.wpm,
+      accuracy: player.accuracy,
+      progress: player.progress,
+      finished: player.finished,
+    })),
+  }));
+
+  const activeRaidSummaries = Array.from(activeRaids.values()).map((raid) => ({
+    id: raid.id,
+    channelId: raid.channelId,
+    bossName: raid.bossName,
+    participantCount: raid.players.size,
+    status: raid.status,
+    players: Array.from(raid.players.values()).map((player) => ({
+      name: player.name,
+      color: player.color,
+    })),
+  }));
+
+  return {
+    typingByChannel,
+    activeRaces: activeRaceSummaries,
+    activeRaids: activeRaidSummaries,
+  };
+}
+
+function emitCommunityMeta(target = io) {
+  target.emit('community:meta', buildCommunityMeta());
+}
+
+function emitCommunityMessage(message) {
+  io.to(message.channelId).emit('message:new', message);
+  io.emit('community:message', message);
 }
 
 /* ═══════════════════════════════════════════════
@@ -203,14 +341,17 @@ io.on('connection', (socket) => {
   console.log(`🟢 Connected: ${socket.id}`);
 
   /* ── User Join ── */
-  socket.on('user:join', (data) => {
+  socket.on('user:join', async (data = {}) => {
     let authName = undefined;
     let authId = undefined;
     
     // Parse JWT if provided to prevent impersonation
     if (data?.token && process.env.NEXTAUTH_SECRET) {
       try {
-        const decoded = jwt.verify(data.token, process.env.NEXTAUTH_SECRET);
+        const decoded = jwt.verify(data.token, process.env.NEXTAUTH_SECRET, {
+          audience: 'typeforge-community-socket',
+          issuer: 'typeforge-app',
+        });
         authId = decoded.sub;
         authName = decoded.name;
       } catch (err) {
@@ -218,11 +359,45 @@ io.on('connection', (socket) => {
       }
     }
 
+    let dbUser = null;
+    if (authId) {
+      dbUser = await prisma.user.findUnique({
+        where: { id: authId },
+        select: {
+          avatarUrl: true,
+          eloRating: true,
+          handle: true,
+          id: true,
+          image: true,
+          isBanned: true,
+          isPremium: true,
+          name: true,
+          nickname: true,
+          practiceSessions: {
+            orderBy: { sessionDate: 'desc' },
+            take: 1,
+            select: { accuracy: true, wpm: true },
+          },
+          rankTier: true,
+          username: true,
+        },
+      }).catch((error) => {
+        console.error('Socket user lookup failed:', error);
+        return null;
+      });
+
+      if (!dbUser || dbUser.isBanned) {
+        socket.emit('error', 'Account access restricted.');
+        socket.disconnect(true);
+        return;
+      }
+    }
+
     const isGuest = !authId;
     // Guest names are forcefully prefixed unless overridden by secure auth
-    let finalName = authName;
+    let finalName = sanitizeName(getDisplayName(dbUser, authName || data?.name || ''));
     if (!finalName) {
-      const requested = data?.name || '';
+      const requested = sanitizeName(data?.name || '');
       if (requested && !requested.toLowerCase().startsWith('guest')) {
           finalName = `Guest_${requested.replace(/[^a-zA-Z0-9_]/g, '').slice(0,10)}`;
       } else {
@@ -234,7 +409,8 @@ io.on('connection', (socket) => {
       id: authId || socket.id,
       name: finalName,
       isGuest,
-      avatar: data?.avatar || null,
+      avatar: !isGuest ? resolveAvatarUrl(dbUser) : data?.avatar || null,
+      handle: dbUser?.handle || null,
       color: data?.color || pickRandom(NEON_COLORS),
       gradient: data?.gradient || pickRandom(AVATAR_GRADIENTS),
       status: 'online',       // online | idle | dnd | invisible
@@ -251,19 +427,14 @@ io.on('connection', (socket) => {
     };
     
     // Fetch real ELO and Rank if logged in
-    if (!isGuest) {
-      prisma.user.findUnique({ where: { id: user.id } }).then(dbUser => {
-        if (dbUser) {
-          user.rankTier = dbUser.rankTier;
-          user.isPremium = dbUser.isPremium;
-          user.level = Math.floor(dbUser.eloRating / 100);
-          user.badges = getUserBadges(user.wpm); // Add specific ones based on rank later
-          onlineUsers.set(socket.id, user);
-          socket.emit('user:profile', user);
-          broadcastOnlineUsers();
-        }
-      }).catch(console.error);
+    if (!isGuest && dbUser) {
+      user.rankTier = dbUser.rankTier;
+      user.isPremium = dbUser.isPremium;
+      user.level = Math.floor(dbUser.eloRating / 100);
+      user.wpm = Math.round(dbUser.practiceSessions?.[0]?.wpm || user.wpm);
+      user.accuracy = Math.round(dbUser.practiceSessions?.[0]?.accuracy || user.accuracy);
     }
+
     user.badges = getUserBadges(user.wpm);
     onlineUsers.set(socket.id, user);
 
@@ -292,11 +463,15 @@ io.on('connection', (socket) => {
       userColor: user.color,
     };
     channelMessages.get('general')?.push(sysMsg);
-    io.to('general').emit('message:new', sysMsg);
+    emitCommunityMessage(sysMsg);
   });
 
   /* ── Channel Join ── */
   socket.on('channel:join', (channelId) => {
+    if (!isValidChannel(channelId)) {
+      socket.emit('error', 'Invalid channel.');
+      return;
+    }
     const user = onlineUsers.get(socket.id);
     
     // Leave all channel rooms
@@ -316,28 +491,40 @@ io.on('connection', (socket) => {
 
   /* ── Send Message ── */
   socket.on('message:send', (data) => {
-    if (checkRateLimit(socket.id)) {
+    if (checkRateLimit(`${socket.id}:message-send`, 12, 10_000)) {
       socket.emit('error', 'Rate limited. Please slow down.');
       return;
     }
 
     const user = onlineUsers.get(socket.id);
     if (!user) return;
+    const channelId = isValidChannel(data?.channelId) ? data.channelId : user.currentChannel || 'general';
+    const content = sanitizeText(data?.content, 2000);
+    if (!content) return;
+
+    const replyTo = data?.replyTo && typeof data.replyTo === 'object'
+      ? {
+          id: sanitizeText(data.replyTo.id, 64),
+          userName: sanitizeText(data.replyTo.userName, 50),
+          content: sanitizeText(data.replyTo.content, 240),
+        }
+      : null;
 
     const msg = {
       id: generateId(),
-      channelId: data.channelId,
+      channelId,
       type: 'user',
-      userId: socket.id,
+      userId: user.id,
       userName: user.name,
+      avatarUrl: user.avatar,
       userColor: user.color,
       userGradient: user.gradient,
       userBadges: user.badges,
       userLevel: user.level,
-      content: data.content,
+      content,
       timestamp: Date.now(),
       reactions: {},
-      replyTo: data.replyTo || null, // { id, userName, content }
+      replyTo,
       edited: false,
       pinned: false,
     };
@@ -348,7 +535,7 @@ io.on('connection', (socket) => {
       if (msgs.length > 300) msgs.splice(0, msgs.length - 300);
     }
 
-    io.to(data.channelId).emit('message:new', msg);
+    emitCommunityMessage(msg);
 
     // Persist to database
     prisma.communityMessage.create({
@@ -361,7 +548,7 @@ io.on('connection', (socket) => {
         userName: msg.userName,
         userColor: msg.userColor,
         userGradient: msg.userGradient,
-        visitorId: user.isGuest ? socket.id : null,
+        visitorId: user.isGuest ? user.id : null,
         authorId: !user.isGuest ? user.id : null,
         replyToId: msg.replyTo?.id || null,
         pinned: msg.pinned,
@@ -369,13 +556,14 @@ io.on('connection', (socket) => {
     }).catch(e => console.error("DB Save Error:", e));
 
     // Stop typing
-    const typing = typingUsers.get(data.channelId);
+    const typing = typingUsers.get(channelId);
     if (typing) {
       typing.delete(socket.id);
-      io.to(data.channelId).emit('typing:update', {
-        channelId: data.channelId,
+      io.to(channelId).emit('typing:update', {
+        channelId,
         users: Array.from(typing).map((id) => onlineUsers.get(id)).filter(Boolean).map(u => ({ name: u.name, color: u.color })),
       });
+      emitCommunityMeta();
     }
 
     // Milestone achievements
@@ -385,42 +573,52 @@ io.on('connection', (socket) => {
     if ([10, 50, 100, 500].includes(totalUserMsgs)) {
       const milestone = {
         id: generateId(),
-        channelId: data.channelId,
+        channelId,
         type: 'system',
         subtype: 'milestone',
         content: `🎉 ${user.name} just sent their ${totalUserMsgs}th message!`,
         timestamp: Date.now(),
       };
-      channelMessages.get(data.channelId)?.push(milestone);
-      io.to(data.channelId).emit('message:new', milestone);
-      io.to(data.channelId).emit('confetti:burst', { userId: socket.id, userName: user.name });
+      channelMessages.get(channelId)?.push(milestone);
+      emitCommunityMessage(milestone);
+      io.to(channelId).emit('confetti:burst', { userId: socket.id, userName: user.name });
     }
   });
 
   /* ── Edit Message ── */
   socket.on('message:edit', (data) => {
+    if (checkRateLimit(`${socket.id}:message-edit`, 10, 10_000)) {
+      socket.emit('error', 'Too many edit attempts.');
+      return;
+    }
     const { messageId, channelId, newContent } = data;
+    if (!isValidChannel(channelId)) return;
+    const sanitizedContent = sanitizeText(newContent, 2000);
+    if (!sanitizedContent) return;
+    const actorId = onlineUsers.get(socket.id)?.id;
     const msgs = channelMessages.get(channelId);
     if (!msgs) return;
-    const msg = msgs.find(m => m.id === messageId && m.userId === socket.id);
+    const msg = msgs.find(m => m.id === messageId && m.userId === actorId);
     if (!msg) return;
-    msg.content = newContent;
+    msg.content = sanitizedContent;
     msg.edited = true;
     msg.editedAt = Date.now();
-    io.to(channelId).emit('message:edited', { messageId, channelId, content: newContent, editedAt: msg.editedAt });
+    io.to(channelId).emit('message:edited', { messageId, channelId, content: sanitizedContent, editedAt: msg.editedAt });
     
     prisma.communityMessage.update({
       where: { id: messageId },
-      data: { content: newContent, edited: true, editedAt: new Date(msg.editedAt) }
+      data: { content: sanitizedContent, edited: true, editedAt: new Date(msg.editedAt) }
     }).catch(e => console.error(e));
   });
 
   /* ── Delete Message ── */
   socket.on('message:delete', (data) => {
     const { messageId, channelId } = data;
+    if (!isValidChannel(channelId)) return;
+    const actorId = onlineUsers.get(socket.id)?.id;
     const msgs = channelMessages.get(channelId);
     if (!msgs) return;
-    const idx = msgs.findIndex(m => m.id === messageId && m.userId === socket.id);
+    const idx = msgs.findIndex(m => m.id === messageId && m.userId === actorId);
     if (idx >= 0) {
       msgs.splice(idx, 1);
       io.to(channelId).emit('message:deleted', { messageId, channelId });
@@ -431,6 +629,7 @@ io.on('connection', (socket) => {
   /* ── Pin/Unpin Message ── */
   socket.on('message:pin', (data) => {
     const { messageId, channelId } = data;
+    if (!isValidChannel(channelId)) return;
     const msgs = channelMessages.get(channelId);
     if (!msgs) return;
     const msg = msgs.find(m => m.id === messageId);
@@ -459,6 +658,7 @@ io.on('connection', (socket) => {
   /* ── Reactions ── */
   socket.on('message:react', (data) => {
     const { messageId, channelId, emoji } = data;
+    if (!isValidChannel(channelId) || !REACTION_VALUES.has(emoji)) return;
     const user = onlineUsers.get(socket.id);
     if (!user) return;
 
@@ -489,6 +689,7 @@ io.on('connection', (socket) => {
 
   /* ── Typing ── */
   socket.on('typing:start', (channelId) => {
+    if (!isValidChannel(channelId)) return;
     if (!typingUsers.has(channelId)) typingUsers.set(channelId, new Set());
     typingUsers.get(channelId).add(socket.id);
     const users = Array.from(typingUsers.get(channelId))
@@ -496,14 +697,17 @@ io.on('connection', (socket) => {
       .filter(u => u.id !== socket.id)
       .map(u => ({ name: u.name, color: u.color }));
     io.to(channelId).emit('typing:update', { channelId, users });
+    emitCommunityMeta();
   });
 
   socket.on('typing:stop', (channelId) => {
+    if (!isValidChannel(channelId)) return;
     const typing = typingUsers.get(channelId);
     if (typing) {
       typing.delete(socket.id);
       const users = Array.from(typing).map((id) => onlineUsers.get(id)).filter(Boolean).map(u => ({ name: u.name, color: u.color }));
       io.to(channelId).emit('typing:update', { channelId, users });
+      emitCommunityMeta();
     }
   });
 
@@ -512,10 +716,10 @@ io.on('connection', (socket) => {
     const user = onlineUsers.get(socket.id);
     if (user) {
       if (typeof data === 'string') {
-        user.status = data;
+        if (USER_STATUS_VALUES.has(data)) user.status = data;
       } else {
-        if (data.status) user.status = data.status;
-        if (data.statusText !== undefined) user.statusText = data.statusText;
+        if (data.status && USER_STATUS_VALUES.has(data.status)) user.status = data.status;
+        if (data.statusText !== undefined) user.statusText = sanitizeText(data.statusText, 80);
       }
       broadcastOnlineUsers();
     }
@@ -525,6 +729,8 @@ io.on('connection', (socket) => {
   socket.on('race:create', (data) => {
     const user = onlineUsers.get(socket.id);
     if (!user) return;
+    const channelId = isValidChannel(data?.channelId) ? data.channelId : 'challenges';
+    const maxPlayers = Math.min(4, Math.max(2, Number(data?.maxPlayers) || 4));
 
     const race = {
       id: generateId(),
@@ -533,9 +739,10 @@ io.on('connection', (socket) => {
       creatorColor: user.color,
       sentence: pickRandom(RACE_SENTENCES),
       status: 'waiting',  // waiting | countdown | racing | finished
-      maxPlayers: data?.maxPlayers || 5,
+      maxPlayers,
       players: [{
         id: socket.id,
+        accountId: user.isGuest ? null : user.id,
         name: user.name,
         color: user.color,
         gradient: user.gradient,
@@ -546,11 +753,12 @@ io.on('connection', (socket) => {
       }],
       createdAt: Date.now(),
       startedAt: null,
-      channelId: data?.channelId || 'challenges',
+      channelId,
     };
 
     activeRaces.set(race.id, race);
     io.to(race.channelId).emit('race:created', race);
+    emitCommunityMeta();
 
     // System message
     const msg = {
@@ -563,7 +771,7 @@ io.on('connection', (socket) => {
       raceId: race.id,
     };
     channelMessages.get(race.channelId)?.push(msg);
-    io.to(race.channelId).emit('message:new', msg);
+    emitCommunityMessage(msg);
   });
 
   socket.on('race:join', (raceId) => {
@@ -575,6 +783,7 @@ io.on('connection', (socket) => {
 
     race.players.push({
       id: socket.id,
+      accountId: user.isGuest ? null : user.id,
       name: user.name,
       color: user.color,
       gradient: user.gradient,
@@ -585,6 +794,7 @@ io.on('connection', (socket) => {
     });
 
     io.to(race.channelId).emit('race:updated', race);
+    emitCommunityMeta();
   });
 
   socket.on('race:start', (raceId) => {
@@ -593,11 +803,13 @@ io.on('connection', (socket) => {
 
     race.status = 'countdown';
     io.to(race.channelId).emit('race:countdown', { raceId, seconds: 3 });
+    emitCommunityMeta();
 
     setTimeout(() => {
       race.status = 'racing';
       race.startedAt = Date.now();
       io.to(race.channelId).emit('race:started', race);
+      emitCommunityMeta();
     }, 3000);
   });
 
@@ -609,17 +821,21 @@ io.on('connection', (socket) => {
     const player = race.players.find(p => p.id === socket.id);
     if (!player || player.finished) return;
 
-    player.progress = progress;
-    player.wpm = wpm;
+    player.progress = Math.max(0, Math.min(100, Number(progress) || 0));
+    player.wpm = Math.max(0, Math.min(300, Number(wpm) || 0));
 
     // 🛡️ ANTI-CHEAT SYSTEM 🛡️
-    if (intervals && intervals.length > 5) {
-      const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-      const variance = intervals.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / intervals.length;
+    if (Array.isArray(intervals) && intervals.length > 5) {
+      const normalizedIntervals = intervals
+        .filter((value) => Number.isFinite(value))
+        .slice(0, 120)
+        .map((value) => Number(value));
+      const avg = normalizedIntervals.reduce((a, b) => a + b, 0) / normalizedIntervals.length;
+      const variance = normalizedIntervals.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / normalizedIntervals.length;
       const stdDev = Math.sqrt(variance);
 
       // Inhuman consistency or impossible speed
-      if ((stdDev < 5 && wpm > 120) || wpm > 280) {
+      if ((stdDev < 5 && player.wpm > 120) || player.wpm > 280) {
         player.isCheater = true;
         const user = onlineUsers.get(socket.id);
         if (user && !user.isGuest) {
@@ -631,12 +847,13 @@ io.on('connection', (socket) => {
       }
     }
 
-    if (progress >= 100) {
+    if (player.progress >= 100) {
       player.finished = true;
       player.finishTime = Date.now() - race.startedAt;
     }
 
     io.to(race.channelId).emit('race:progress', { raceId, players: race.players });
+    emitCommunityMeta();
 
     // Check if all active (non-cheating) finished
     const validPlayers = race.players.filter(p => !p.isCheater);
@@ -644,6 +861,7 @@ io.on('connection', (socket) => {
       race.status = 'finished';
       const sorted = [...validPlayers].sort((a, b) => (a.finishTime || Infinity) - (b.finishTime || Infinity));
       io.to(race.channelId).emit('race:finished', { raceId, results: sorted });
+      emitCommunityMeta();
       
       if (sorted.length > 0) {
         io.to(race.channelId).emit('confetti:burst', { userId: sorted[0].id, userName: sorted[0].name });
@@ -657,7 +875,7 @@ io.on('connection', (socket) => {
           timestamp: Date.now(),
         };
         channelMessages.get(race.channelId)?.push(resultMsg);
-        io.to(race.channelId).emit('message:new', resultMsg);
+        emitCommunityMessage(resultMsg);
       }
 
       // ELO Update Logic (Ranked Matchmaking effect)
@@ -665,12 +883,14 @@ io.on('connection', (socket) => {
         const winner = sorted[0];
         const losers = sorted.slice(1);
         
-        prisma.user.findUnique({ where: { id: winner.id } }).then(async (dbWinner) => {
+        if (!winner.accountId) return;
+        prisma.user.findUnique({ where: { id: winner.accountId } }).then(async (dbWinner) => {
           if (!dbWinner) return;
           let eloGain = 0;
 
           for (const loser of losers) {
-            const dbLoser = await prisma.user.findUnique({ where: { id: loser.id } });
+            if (!loser.accountId) continue;
+            const dbLoser = await prisma.user.findUnique({ where: { id: loser.accountId } });
             if (dbLoser) {
               // Simplified ELO transfer
               const K = 32;
@@ -680,7 +900,7 @@ io.on('connection', (socket) => {
 
               const newLoserElo = Math.max(0, dbLoser.eloRating - gain);
               await prisma.user.update({
-                where: { id: loser.id },
+                where: { id: loser.accountId },
                 data: { eloRating: newLoserElo, rankTier: getRankTier(newLoserElo) }
               });
             }
@@ -688,12 +908,12 @@ io.on('connection', (socket) => {
 
           const newWinnerElo = dbWinner.eloRating + eloGain;
           await prisma.user.update({
-            where: { id: winner.id },
+            where: { id: winner.accountId },
             data: { eloRating: newWinnerElo, rankTier: getRankTier(newWinnerElo) }
           });
           
           // Notify the room of ELO gain
-          io.to(race.channelId).emit('message:new', {
+          emitCommunityMessage({
             id: generateId(), channelId: race.channelId, type: 'system', subtype: 'milestone',
             content: `🏆 ${winner.name} earned +${eloGain} ELO and is now Ranked ${getRankTier(newWinnerElo)}!`,
             timestamp: Date.now()
@@ -701,7 +921,10 @@ io.on('connection', (socket) => {
         }).catch(console.error);
       }
 
-      setTimeout(() => activeRaces.delete(raceId), 30000);
+      setTimeout(() => {
+        activeRaces.delete(raceId);
+        emitCommunityMeta();
+      }, 30000);
     }
   });
 
@@ -710,19 +933,21 @@ io.on('connection', (socket) => {
     if (!race || race.creatorId !== socket.id) return;
     activeRaces.delete(raceId);
     io.to(race.channelId).emit('race:cancelled', { raceId });
+    emitCommunityMeta();
   });
 
   /* ═══ BOSS RAIDS (CO-OP TYPING) ═══ */
   socket.on('raid:create', (data) => {
     const user = onlineUsers.get(socket.id);
     if (!user) return;
+    const channelId = isValidChannel(data?.channelId) ? data.channelId : 'general';
 
     const bossThemes = ['Cyber Daemon', 'Neon Leviathan', 'Null Pointer Virus', 'Ransomware Elite'];
     const bName = pickRandom(bossThemes);
 
     const raid = {
       id: generateId(),
-      channelId: data?.channelId || 'general',
+      channelId,
       creatorId: socket.id,
       bossName: bName,
       maxHp: 2000, 
@@ -738,6 +963,7 @@ io.on('connection', (socket) => {
 
     activeRaids.set(raid.id, raid);
     io.to(raid.channelId).emit('raid:created', { ...raid, players: Array.from(raid.players.values()) });
+    emitCommunityMeta();
 
     // Broadcast system message
     const msg = {
@@ -750,17 +976,19 @@ io.on('connection', (socket) => {
       raidId: raid.id,
     };
     channelMessages.get(raid.channelId)?.push(msg);
-    io.to(raid.channelId).emit('message:new', msg);
+    emitCommunityMessage(msg);
   });
 
   socket.on('raid:join', (raidId) => {
     const user = onlineUsers.get(socket.id);
     const raid = activeRaids.get(raidId);
     if (!user || !raid || raid.status !== 'waiting') return;
+    if (raid.players.size >= 4) return;
 
     if (!raid.players.has(socket.id)) {
       raid.players.set(socket.id, { name: user.name, color: user.color, damage: 0, dps: 0 });
       io.to(raid.channelId).emit('raid:updated', { ...raid, players: Array.from(raid.players.values()) });
+      emitCommunityMeta();
     }
   });
 
@@ -771,30 +999,40 @@ io.on('connection', (socket) => {
     raid.status = 'active';
     raid.startedAt = Date.now();
     io.to(raid.channelId).emit('raid:started', { ...raid, players: Array.from(raid.players.values()) });
+    emitCommunityMeta();
   });
 
   socket.on('raid:hit', (data) => {
+    if (checkRateLimit(`${socket.id}:raid-hit`, 25, 10_000)) {
+      socket.emit('error', 'Raid spam blocked. Slow down.');
+      return;
+    }
     const { raidId, damage } = data;
     const raid = activeRaids.get(raidId);
     if (!raid || raid.status !== 'active') return;
 
     const p = raid.players.get(socket.id);
     if (!p) return;
+    const normalizedDamage = Math.max(1, Math.min(500, Number(damage) || 0));
 
     // Apply Damage
-    p.damage += damage;
-    raid.hp = Math.max(0, raid.hp - damage);
+    p.damage += normalizedDamage;
+      raid.hp = Math.max(0, raid.hp - normalizedDamage);
 
     // Calculate DPS
     const elapsedSeconds = (Date.now() - raid.startedAt) / 1000;
     p.dps = Math.round(p.damage / Math.max(1, elapsedSeconds));
 
     io.to(raid.channelId).emit('raid:progress', {
+      id: raid.id,
       raidId: raid.id,
+      channelId: raid.channelId,
       hp: raid.hp,
       maxHp: raid.maxHp,
+      status: raid.status,
       players: Array.from(raid.players.values())
     });
+    emitCommunityMeta();
 
     // Check Defeat
     if (raid.hp <= 0) {
@@ -815,9 +1053,12 @@ io.on('connection', (socket) => {
         timestamp: Date.now(),
       };
       channelMessages.get(raid.channelId)?.push(msg);
-      io.to(raid.channelId).emit('message:new', msg);
+      emitCommunityMessage(msg);
 
-      setTimeout(() => activeRaids.delete(raid.id), 10000);
+      setTimeout(() => {
+        activeRaids.delete(raid.id);
+        emitCommunityMeta();
+      }, 10000);
     }
   });
 
@@ -825,11 +1066,19 @@ io.on('connection', (socket) => {
   socket.on('dm:send', (data) => {
     const user = onlineUsers.get(socket.id);
     if (!user) return;
+    if (checkRateLimit(`${socket.id}:dm-send`, 20, 60_000)) {
+      socket.emit('error', 'Too many direct messages.');
+      return;
+    }
     const { targetId, content } = data;
-    const target = onlineUsers.get(targetId);
+    const targetEntry = Array.from(onlineUsers.entries()).find(([, onlineUser]) => onlineUser.id === targetId);
+    const targetSocketId = targetEntry?.[0];
+    const target = targetEntry?.[1];
     if (!target) return;
+    const sanitizedContent = sanitizeText(content, 1000);
+    if (!sanitizedContent) return;
 
-    const convKey = [socket.id, targetId].sort().join(':');
+    const convKey = [socket.id, targetSocketId].sort().join(':');
     if (!dmConversations.has(convKey)) dmConversations.set(convKey, []);
 
     const msg = {
@@ -839,19 +1088,21 @@ io.on('connection', (socket) => {
       fromName: user.name,
       fromColor: user.color,
       fromGradient: user.gradient,
-      toId: targetId,
+      toId: target.id,
       toName: target.name,
-      content,
+      content: sanitizedContent,
       timestamp: Date.now(),
     };
 
     dmConversations.get(convKey).push(msg);
     socket.emit('dm:new', msg);
-    io.to(targetId).emit('dm:new', msg);
+    io.to(targetSocketId).emit('dm:new', msg);
   });
 
   socket.on('dm:history', (targetId) => {
-    const convKey = [socket.id, targetId].sort().join(':');
+    const targetEntry = Array.from(onlineUsers.entries()).find(([, onlineUser]) => onlineUser.id === targetId);
+    const targetSocketId = targetEntry?.[0];
+    const convKey = [socket.id, targetSocketId || targetId].sort().join(':');
     socket.emit('dm:history', {
       targetId,
       messages: (dmConversations.get(convKey) || []).slice(-100),
@@ -875,6 +1126,7 @@ io.on('connection', (socket) => {
       if (raid.players.has(socket.id)) {
         raid.players.delete(socket.id);
         io.to(raid.channelId).emit('raid:updated', { ...raid, players: Array.from(raid.players.values()) });
+        emitCommunityMeta();
         if (raid.players.size === 0) activeRaids.delete(raidId);
       }
     });
@@ -893,7 +1145,7 @@ io.on('connection', (socket) => {
         userColor: user.color,
       };
       channelMessages.get('general')?.push(sysMsg);
-      io.to('general').emit('message:new', sysMsg);
+      emitCommunityMessage(sysMsg);
     }
 
     console.log(`🔴 Disconnected: ${socket.id}`);

@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { getDisplayName } from '@/lib/profile';
 
 export const metadata = {
   title: 'Dashboard – TypeForge',
@@ -31,11 +32,20 @@ export default async function DashboardPage() {
   const totalLessonsCompleted = lessonProgress._count;
   const totalSessions = practiceSessions._count;
   const currentStreak = streak?.currentStreak ?? 0;
+  const displayName = getDisplayName(
+    {
+      email: session.user.email,
+      name: session.user.name,
+      nickname: session.user.nickname,
+      username: session.user.username,
+    },
+    'Typist'
+  )
   return (
     <>
       <Navbar />
       <main className="pt-24 pb-12 px-6 mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold text-gray-100 mb-6">Welcome back{session.user.name ? `, ${session.user.name}` : ''}!</h1>
+        <h1 className="text-3xl font-bold text-gray-100 mb-6">Welcome back{displayName ? `, ${displayName}` : ''}!</h1>
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           <div className="rounded-xl bg-surface-200 p-6 border border-surface-300 shadow-sm">
             <h3 className="text-sm uppercase text-gray-400">Current Streak</h3>

@@ -37,6 +37,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
     handleKey,
     restart,
     elapsedMs,
+    getTelemetrySnapshot,
   } = useTypingEngine(text, timeLimitSeconds ? timeLimitSeconds * 1000 : undefined);
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
             accuracy,
             errors,
             duration: elapsedMs,
+            telemetry: getTelemetrySnapshot(),
           }),
         });
         const data = await res.json();
@@ -89,7 +91,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
     };
 
     saveResult();
-  }, [finished, mode, wpm, rawWpm, accuracy, errors, elapsedMs]);
+  }, [finished, mode, wpm, rawWpm, accuracy, errors, elapsedMs, getTelemetrySnapshot]);
 
   // Compute the character the user needs to type right now
   const targetChar = !finished && currentIndex < text.length ? text[currentIndex] : '';

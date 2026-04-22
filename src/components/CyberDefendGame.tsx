@@ -157,7 +157,7 @@ export default function CyberDefendGame() {
   });
 
   /* ─── AUDIO ────────────────────────────────────────── */
-  const playSound = useCallback((type: "kill" | "hit" | "type" | "fail" | "wave" | "launch") => {
+  const playSound = useCallback((type: "kill" | "hit" | "type" | "normal" | "fail" | "wave" | "launch") => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -184,7 +184,7 @@ export default function CyberDefendGame() {
         gain.gain.setValueAtTime(0.12, now);
         gain.gain.linearRampToValueAtTime(0.001, now + 0.25);
         osc.start(now); osc.stop(now + 0.25);
-      } else if (type === "type") {
+      } else if (type === "type" || type === "normal") {
         osc.type = "sine";
         osc.frequency.setValueAtTime(500 + Math.random() * 300, now);
         gain.gain.setValueAtTime(0.015, now);

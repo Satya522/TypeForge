@@ -26,7 +26,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html lang="en" className={inter.className} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* PWA primary meta tags */}
         <link rel="manifest" href="/manifest.json" />
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           />
         )}
       </head>
-      <body className="min-h-screen flex flex-col bg-surface-100" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col bg-surface-100 dark" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -13,7 +13,7 @@ async function main() {
         name: 'Admin',
         email: adminEmail,
         role: 'ADMIN',
-        hashedPassword: '$2a$10$TmlyP1aP0B2Y2kPnAdEyn.V/8KbC4u92/RKA5kqGfQN6K.i33elKa', // password: admin123
+        hashedPassword: '$2b$12$P5Gtzim6KBctRdaJIex43.tXLc2xB.36r7JhF6eg/svvpXa0wDgM.', // password: admin123
         settings: {
           create: {
             leaderboardVisible: true,

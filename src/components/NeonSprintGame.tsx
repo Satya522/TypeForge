@@ -60,7 +60,7 @@ export default function NeonSprintGame() {
     height: 600
   });
 
-  const playSound = useCallback((type: "type" | "boost" | "fail" | "launch") => {
+  const playSound = useCallback((type: "type" | "normal" | "boost" | "fail" | "launch") => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -73,7 +73,7 @@ export default function NeonSprintGame() {
       gain.connect(ctx.destination);
       const now = ctx.currentTime;
 
-      if (type === "type") {
+      if (type === "type" || type === "normal") {
         osc.type = "sine";
         osc.frequency.setValueAtTime(600 + Math.random() * 200, now);
         gain.gain.setValueAtTime(0.02, now);

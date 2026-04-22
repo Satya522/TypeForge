@@ -1,12 +1,13 @@
 "use client";
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { Session } from 'next-auth';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Button } from '@/components/ui/button';
+import { Avatar } from '@/components/ui/avatar';
+import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { isNavPathActive, userNavLinks } from './nav-data';
 
@@ -32,12 +33,6 @@ const iconMap: Record<string, React.ElementType> = {
   Profile: UserCircle,
 };
 
-function getInitials(name?: string | null, email?: string | null) {
-  const source = name?.trim() || email?.trim() || 'P';
-  const parts = source.split(/\s+/).filter(Boolean);
-  return parts.slice(0, 2).map((p) => p[0]?.toUpperCase()).join('');
-}
-
 export default function NavUserActions({ onSignIn, onSignOut, pathname, session }: NavUserActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -45,10 +40,22 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
   const actionsRef = useRef<HTMLDivElement>(null);
 
   const displayName = useMemo(
-    () => session?.user?.name?.trim() || session?.user?.email?.split('@')[0] || 'Profile',
+    () =>
+      getDisplayName(
+        {
+          email: session?.user?.email,
+          name: session?.user?.name,
+          nickname: session?.user?.nickname,
+          username: session?.user?.username,
+        },
+        'Profile'
+      ),
     [session]
   );
-  const initials = useMemo(() => getInitials(session?.user?.name, session?.user?.email), [session]);
+  const avatarSrc = getResolvedAvatarUrl({
+    avatarUrl: session?.user?.avatarUrl,
+    image: session?.user?.image,
+  });
 
   /* GSAP entrance */
   useEffect(() => {
@@ -131,19 +138,13 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
           )}
         >
           {/* Avatar */}
-          {session.user?.image ? (
-            <Image
-              src={session.user.image}
-              alt={session.user.name ?? 'Profile photo'}
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-full ring-1 ring-white/10 object-cover"
-            />
-          ) : (
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-accent-300/30 to-accent-300/10 text-[11px] font-bold uppercase tracking-wider text-accent-100 ring-1 ring-accent-300/20">
-              {initials}
-            </span>
-          )}
+          <Avatar
+            src={avatarSrc}
+            name={displayName}
+            size={32}
+            className="ring-1 ring-white/10"
+            fallbackClassName="text-[11px] font-bold tracking-wider text-accent-100"
+          />
 
           {/* Name (only on xl) */}
           <span className="hidden min-w-0 xl:block">
@@ -176,19 +177,13 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
 
               {/* ── Profile header ── */}
               <div className="flex items-center gap-3 px-4 py-4">
-                {session.user?.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name ?? 'Profile photo'}
-                    width={42}
-                    height={42}
-                    className="h-[42px] w-[42px] rounded-full ring-2 ring-accent-300/20 object-cover"
-                  />
-                ) : (
-                  <span className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-300/25 to-accent-300/5 text-sm font-bold uppercase tracking-wider text-accent-100 ring-2 ring-accent-300/20">
-                    {initials}
-                  </span>
-                )}
+                <Avatar
+                  src={avatarSrc}
+                  name={displayName}
+                  size={42}
+                  className="ring-2 ring-accent-300/20"
+                  fallbackClassName="text-sm font-bold tracking-wider text-accent-100"
+                />
                 <div className="min-w-0">
                   <p className="truncate text-[13px] font-semibold text-white leading-tight">{displayName}</p>
                   {session.user?.email && (

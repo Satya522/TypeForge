@@ -1,17 +1,6 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-/**
- * ThemeProvider exposes a simple context for storing and updating basic UI
- * preferences such as theme, accent color, font family and font size. The
- * provider writes these values to CSS custom properties on the `document`
- * element so that Tailwind and other styles can reference them via the
- * `var(--*)` syntax. Components can call `useTheme()` to read the current
- * settings or update them. This implementation stores values in
- * localStorage to persist between sessions on the client. Server-rendered
- * pages will fall back to default values until the client hydrates.
- */
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 export type ThemeSettings = {
   theme: 'dark' | 'light';
@@ -24,23 +13,33 @@ export type ThemeSettings = {
 type ThemeContextType = {
   settings: ThemeSettings;
   updateSettings: (changes: Partial<ThemeSettings>) => void;
+  isLoaded: boolean;
 };
 
 const defaultSettings: ThemeSettings = {
   theme: 'dark',
-  accentColor: 'blue',
+  accentColor: 'green',
   fontFamily: 'Inter',
   fontSize: 16,
   notificationsEnabled: true,
 };
 
+const accentColors: Record<string, string> = {
+  green: '#7dff4d',
+  blue: '#60a5fa',
+  purple: '#8b5cf6',
+  orange: '#f59e0b',
+};
+
 const ThemeContext = createContext<ThemeContextType>({
   settings: defaultSettings,
   updateSettings: () => {},
+  isLoaded: false,
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<ThemeSettings>(defaultSettings);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -53,29 +52,37 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         // ignore parse errors
       }
     }
+    setIsLoaded(true);
   }, []);
 
-  // Persist settings to localStorage whenever they change
+  // Apply theme class and CSS variables immediately when settings change
   useEffect(() => {
-    localStorage.setItem('theme-settings', JSON.stringify(settings));
-  }, [settings]);
+    if (!isLoaded) return;
 
-  // Apply CSS variables for font and base size whenever settings change
-  useEffect(() => {
     const root = document.documentElement;
+
+    // Apply theme class - force remove/add
+    root.classList.remove('light', 'dark');
+    root.classList.add(settings.theme);
+
+    // Update color-scheme for browser UI
+    root.style.colorScheme = settings.theme;
+
+    // Apply CSS variables
     root.style.setProperty('--user-font-family', settings.fontFamily);
     root.style.setProperty('--user-font-size', `${settings.fontSize}px`);
-    // Additional variables could be set here for accent colors if using
-    // CSS custom properties for color tokens in Tailwind config.
-    // For example: root.style.setProperty('--accent-color', settings.accentColor);
-  }, [settings.fontFamily, settings.fontSize]);
+    root.style.setProperty('--accent-color', accentColors[settings.accentColor] || accentColors.green);
 
-  const updateSettings = (changes: Partial<ThemeSettings>) => {
+    // Persist to localStorage
+    localStorage.setItem('theme-settings', JSON.stringify(settings));
+  }, [settings, isLoaded]);
+
+  const updateSettings = useCallback((changes: Partial<ThemeSettings>) => {
     setSettings((prev) => ({ ...prev, ...changes }));
-  };
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ settings, updateSettings }}>
+    <ThemeContext.Provider value={{ settings, updateSettings, isLoaded }}>
       {children}
     </ThemeContext.Provider>
   );

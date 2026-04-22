@@ -13,10 +13,30 @@ import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+function getAuthErrorMessage(error?: string | null) {
+  if (!error) {
+    return 'Unable to sign in right now.';
+  }
+
+  if (error === 'CredentialsSignin' || error === 'Invalid credentials') {
+    return 'Email ya password match nahi hua.';
+  }
+
+  if (error.includes('Google or GitHub')) {
+    return 'Ye account social login se bana tha. Google ya GitHub button use karo.';
+  }
+
+  if (error.includes('restricted')) {
+    return 'Is account ka access restricted hai.';
+  }
+
+  return error;
+}
 
 function GoogleIcon() {
   return (
@@ -67,7 +87,7 @@ function LoginPageContent() {
       callbackUrl,
     });
     if (result?.error) {
-      toast.error(result.error);
+      toast.error(getAuthErrorMessage(result.error));
     } else {
       router.push(callbackUrl);
       router.refresh();
@@ -135,6 +155,10 @@ function LoginPageContent() {
                   {isSubmitting ? 'Signing in...' : 'Login'}
                 </Button>
               </form>
+              <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3 text-xs leading-6 text-gray-400">
+                Agar account pehle Google ya GitHub se bana tha, to credentials form `401` dega. Us case me neeche wale
+                social buttons use karo.
+              </div>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-b border-surface-300" />

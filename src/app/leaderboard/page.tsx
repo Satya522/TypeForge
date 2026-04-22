@@ -2,6 +2,9 @@ import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { ProfileHoverCard } from '@/components/profile';
+import { Avatar } from '@/components/ui/avatar';
+import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -63,7 +66,20 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
   });
   // fetch user details for each entry
   const userIds = leaderboard.map((entry) => entry.userId);
-  const users = await prisma.user.findMany({ where: { id: { in: userIds } } });
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: {
+      avatarUrl: true,
+      email: true,
+      handle: true,
+      id: true,
+      image: true,
+      name: true,
+      nickname: true,
+      rankTier: true,
+      username: true,
+    },
+  });
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   return (
     <>
@@ -93,7 +109,24 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
                 return (
                   <tr key={entry.userId} className="border-b border-surface-300">
                     <td className="py-2 text-gray-300">#{idx + 1}</td>
-                    <td className="py-2 text-gray-300">{user?.name || user?.email || 'User'}</td>
+                    <td className="py-2 text-gray-300">
+                      <ProfileHoverCard
+                        userId={user?.id}
+                        fallbackAvatarUrl={getResolvedAvatarUrl(user)}
+                        fallbackName={getDisplayName(user, 'User')}
+                      >
+                        <div className="inline-flex items-center gap-3">
+                          <Avatar
+                            src={getResolvedAvatarUrl(user)}
+                            name={getDisplayName(user, 'User')}
+                            size={28}
+                            className="ring-1 ring-white/10"
+                            fallbackClassName="text-[11px]"
+                          />
+                          <span>{getDisplayName(user, 'User')}</span>
+                        </div>
+                      </ProfileHoverCard>
+                    </td>
                     <td className="py-2 text-accent-200 font-semibold">{entry._max.wpm?.toFixed(0)}</td>
                     <td className="py-2 text-gray-300">{entry._avg.accuracy?.toFixed(1)}%</td>
                   </tr>

@@ -44,54 +44,91 @@ enum PreferredDuration {
   S30
   S60
   S120
+  S180
+  S240
+  S300
 }
 
 // Users
 model User {
-  id            String      @id @default(cuid())
-  name          String?
-  email         String?     @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role        @default(USER)
-  username      String?     @unique
-  bio           String?
-  hashedPassword String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  lessonProgress UserLessonProgress[]
-  practiceSessions PracticeSession[]
-  achievements  UserAchievement[]
-  dailyStats    DailyStat[]
-  streakTracking StreakTracking?
-  settings      UserSettings?
+  id                    String               @id @default(cuid())
+  name                  String?
+  email                 String?              @unique
+  emailVerified         DateTime?
+  image                 String?
+  avatarUrl             String?
+  nickname              String?
+  handle                String?              @unique
+  role                  Role                 @default(USER)
+  username              String?              @unique
+  bio                   String?
+  hashedPassword        String?
+  profileNudgeDismissed Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  accounts              Account[]
+  sessions              Session[]
+  lessonProgress        UserLessonProgress[]
+  practiceSessions      PracticeSession[]
+  achievements          UserAchievement[]
+  dailyStats            DailyStat[]
+  streakTracking        StreakTracking?
+  settings              UserSettings?
+  communityMessages     CommunityMessage[]   @relation("CommunityAuthor")
 
   // Indicates whether the user has an active premium subscription. When true,
   // additional features such as advanced analytics, coding modes and multiplayer
   // priorities become available. Subscription management (e.g. Stripe) must
   // update this flag accordingly.
-  isPremium     Boolean      @default(false)
+  isPremium Boolean @default(false)
+  eloRating Int     @default(1200)
+  rankTier  String  @default("Bronze")
+  isBanned  Boolean @default(false)
+  banReason String?
+
+  // Community relations
+  memberProfile            MemberProfile?
+  userBadges               UserBadge[]
+  challenges               Challenge[]               @relation("ChallengerRole")
+  challengedBy             Challenge[]               @relation("ChallengedRole")
+  wonChallenges            Challenge[]               @relation("WinnerRole")
+  perfChallenges           PerformanceChallenge[]    @relation("PerfChallengeInitiator")
+  perfChallengesReceived   PerformanceChallenge[]    @relation("PerfChallengeTarget")
+  coachingSessions         CoachingSession[]         @relation("CoachRole")
+  coachingAsStudent        CoachingSession[]         @relation("StudentRole")
+  questParticipations      QuestParticipation[]
+  drillRecommendations     DrillRecommendation[]
+  userRelationships        UserRelationship[]        @relation("UserRelationships")
+  targetRelationships      UserRelationship[]        @relation("TargetRelationships")
+  notifications            UserNotification[]
+  socialProfile            UserSocial?
+  sharedPerformances       SharedPerformance[]
+  squadMemberships         SquadMember[]
+  roomMemberships          CommunityRoomMembership[]
+  pinnedContent            PinnedCommunityContent[]
+  seasonalRanks            SeasonalRank[]
+  eventParticipations      EventParticipant[]
+  tournamentParticipations TournamentParticipant[]
+  activities               ActivityFeed[]
 }
 
 // NextAuth standard models
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?  @db.Text
-  session_state     String?
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
   oauth_token_secret String?
-  oauth_token       String?
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  oauth_token        String?
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -106,7 +143,7 @@ model Session {
 
 model VerificationToken {
   identifier String
-  token      String @unique
+  token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
@@ -126,26 +163,26 @@ model LessonPath {
 }
 
 model Lesson {
-  id                String          @id @default(cuid())
-  lessonPathId      String
-  title             String
-  slug              String          @unique
-  description       String?
-  order             Int
-  difficulty        Difficulty       @default(EASY)
-  estimatedTime     Int?            // seconds
-  targetKeys        String?
-  targetFingers     String?
-  instructions      String?
-  xpReward          Int             @default(0)
-  unlockLessonId    String?         // reference to previous lesson for unlocking
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  lessonPath        LessonPath      @relation(fields: [lessonPathId], references: [id], onDelete: Cascade)
-  unlockLesson      Lesson?         @relation("UnlockRelation", fields: [unlockLessonId], references: [id])
-  unlockedLessons   Lesson[]        @relation("UnlockRelation")
-  contentBlocks     LessonContentBlock[]
-  progress          UserLessonProgress[]
+  id              String               @id @default(cuid())
+  lessonPathId    String
+  title           String
+  slug            String               @unique
+  description     String?
+  order           Int
+  difficulty      Difficulty           @default(EASY)
+  estimatedTime   Int? // seconds
+  targetKeys      String?
+  targetFingers   String?
+  instructions    String?
+  xpReward        Int                  @default(0)
+  unlockLessonId  String? // reference to previous lesson for unlocking
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  lessonPath      LessonPath           @relation(fields: [lessonPathId], references: [id], onDelete: Cascade)
+  unlockLesson    Lesson?              @relation("UnlockRelation", fields: [unlockLessonId], references: [id])
+  unlockedLessons Lesson[]             @relation("UnlockRelation")
+  contentBlocks   LessonContentBlock[]
+  progress        UserLessonProgress[]
 }
 
 model LessonContentBlock {
@@ -161,49 +198,50 @@ model LessonContentBlock {
 
 // Practice content repository
 model PracticeContent {
-  id          String       @id @default(cuid())
-  type        ContentType
-  difficulty  Difficulty    @default(EASY)
-  content     String        @db.Text
-  categoryId  String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  sessions    PracticeSession[]
+  id         String            @id @default(cuid())
+  type       ContentType
+  difficulty Difficulty        @default(EASY)
+  content    String            @db.Text
+  categoryId String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  category   Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  sessions   PracticeSession[]
 }
 
 model Category {
-  id          String       @id @default(cuid())
-  name        String
-  slug        String       @unique
-  description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   practiceContents PracticeContent[]
 }
 
 // Results of practice or lesson sessions
 model PracticeSession {
-  id              String       @id @default(cuid())
-  userId          String
-  type            SessionType  @default(PRACTICE)
-  contentId       String?
-  customContent   String?      @db.Text
-  wpm             Float
-  rawWpm          Float
-  accuracy        Float
-  consistency     Float
-  totalErrors     Int
-  correctedErrors Int
+  id                String           @id @default(cuid())
+  userId            String
+  type              SessionType      @default(PRACTICE)
+  contentId         String?
+  customContent     String?          @db.Text
+  wpm               Float
+  rawWpm            Float
+  accuracy          Float
+  consistency       Float
+  totalErrors       Int
+  correctedErrors   Int
   uncorrectedErrors Int
-  sessionDuration Int          // seconds
-  correctChars    Int
-  incorrectChars  Int
-  sessionDate     DateTime      @default(now())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content         PracticeContent? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  sessionDuration   Int // seconds
+  correctChars      Int
+  incorrectChars    Int
+  typingTelemetry   Json?
+  sessionDate       DateTime         @default(now())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content           PracticeContent? @relation(fields: [contentId], references: [id], onDelete: SetNull)
 }
 
 // Tracking user progress in lessons
@@ -217,8 +255,8 @@ model UserLessonProgress {
   accuracy    Float?
   attempts    Int       @default(0)
   completedAt DateTime?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
@@ -227,14 +265,14 @@ model UserLessonProgress {
 
 // Achievements and user progress
 model Achievement {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String
-  xpReward    Int      @default(0)
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+  description      String
+  xpReward         Int               @default(0)
+  imageUrl         String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   userAchievements UserAchievement[]
 }
 
@@ -243,8 +281,8 @@ model UserAchievement {
   userId        String
   achievementId String
   achievedAt    DateTime    @default(now())
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
@@ -253,61 +291,971 @@ model UserAchievement {
 
 // Daily aggregated statistics for analytics page
 model DailyStat {
-  id                   String    @id @default(cuid())
-  userId               String
-  date                 DateTime  @default(now())
-  lessonsCompleted     Int       @default(0)
-  practiceSessions     Int       @default(0)
-  totalTimePracticed   Int       @default(0)  // seconds
-  averageWpm           Float      @default(0)
-  averageAccuracy      Float      @default(0)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(cuid())
+  userId             String
+  date               DateTime @default(now())
+  lessonsCompleted   Int      @default(0)
+  practiceSessions   Int      @default(0)
+  totalTimePracticed Int      @default(0) // seconds
+  averageWpm         Float    @default(0)
+  averageAccuracy    Float    @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
 }
 
 // User settings and preferences
 model UserSettings {
-  id                String            @id @default(cuid())
-  userId            String            @unique
-  soundEnabled      Boolean           @default(true)
-  leaderboardVisible Boolean          @default(true)
-  dailyGoal         Int               @default(5)  // number of lessons/practice per day
-  preferredDuration PreferredDuration @default(S60)
-  reducedMotion     Boolean           @default(false)
-  keyboardLayout    String?           // reserved for future support
+  id                 String            @id @default(cuid())
+  userId             String            @unique
+  soundEnabled       Boolean           @default(true)
+  leaderboardVisible Boolean           @default(true)
+  dailyGoal          Int               @default(5) // number of lessons/practice per day
+  preferredDuration  PreferredDuration @default(S60)
+  reducedMotion      Boolean           @default(false)
+  keyboardLayout     String? // reserved for future support
 
   // Preferred language code (e.g. 'en', 'hi', 'es') for localized UI.
-  language          String?           @default("en")
+  language String? @default("en")
 
   // Preferred theme or color scheme. Users can choose from a set of
   // available themes defined on the client. This does not reference a
   // separate table to keep the schema simple.
-  theme             String?           @default("dark")
+  theme                String?  @default("dark")
   // Accent color allows users to pick a primary accent hue for UI elements.
-  accentColor       String?           @default("blue")
+  accentColor          String?  @default("blue")
   // Font family preference for the typing interface and headings.
-  fontFamily        String?           @default("Inter")
+  fontFamily           String?  @default("Inter")
   // Font size preference (in pixels) for body text. Useful for accessibility.
-  fontSize          Int?              @default(16)
+  fontSize             Int?     @default(16)
   // Whether to enable reminders and web push notifications.
-  notificationsEnabled Boolean        @default(true)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationsEnabled Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Tracking user streaks
 model StreakTracking {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  currentStreak  Int      @default(0)
-  longestStreak  Int      @default(0)
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
   lastPracticeAt DateTime?
   lastLoginAt    DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model CommunityMessage {
+  id             String              @id @default(cuid())
+  channelId      String
+  type           String
+  subtype        String?
+  content        String              @db.Text
+  userName       String
+  userColor      String
+  userGradient   String?
+  authorId       String?
+  visitorId      String?
+  replyToId      String?
+  pinned         Boolean             @default(false)
+  edited         Boolean             @default(false)
+  editedAt       DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  author         User?               @relation("CommunityAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  replyToMessage CommunityMessage?   @relation("CommunityReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies        CommunityMessage[]  @relation("CommunityReplies")
+  reactions      CommunityReaction[]
+
+  @@index([channelId, createdAt])
+  @@index([authorId])
+  @@index([visitorId])
+}
+
+model CommunityReaction {
+  id        String           @id @default(cuid())
+  messageId String
+  emoji     String
+  userName  String
+  createdAt DateTime         @default(now())
+  message   CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, emoji, userName])
+  @@index([messageId])
+}
+
+// Community Rooms/Channels with enhanced metadata
+model CommunityRoom {
+  id             String       @id @default(cuid())
+  slug           String       @unique
+  name           String
+  description    String?
+  category       RoomCategory @default(GENERAL)
+  type           RoomType     @default(PUBLIC)
+  isPremium      Boolean      @default(false)
+  memberCount    Int          @default(0)
+  activityScore  Float        @default(0)
+  lastActivityAt DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Room features
+  allowRaces      Boolean @default(true)
+  allowRaids      Boolean @default(true)
+  allowChallenges Boolean @default(true)
+
+  // Relations
+  memberships   CommunityRoomMembership[]
+  pinnedContent PinnedCommunityContent[]
+
+  @@index([category, activityScore])
+  @@index([type, isPremium])
+}
+
+enum RoomCategory {
+  GENERAL
+  SPEED_RUNS
+  TIPS_TRICKS
+  SHOW_OFF
+  CODE_TYPING
+  CHALLENGES
+  OFF_TOPIC
+  SQUAD
+  COACHING
+  TOURNAMENT
+  LANGUAGE
+  LAYOUT
+}
+
+enum RoomType {
+  PUBLIC
+  PRIVATE
+  INVITE_ONLY
+  SQUAD_ONLY
+  PREMIUM
+}
+
+model CommunityRoomMembership {
+  id                   String   @id @default(cuid())
+  roomId               String
+  userId               String
+  role                 RoomRole @default(MEMBER)
+  joinedAt             DateTime @default(now())
+  lastReadAt           DateTime @default(now())
+  notificationsEnabled Boolean  @default(true)
+
+  room CommunityRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([userId])
+}
+
+enum RoomRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+  OWNER
+}
+
+model PinnedCommunityContent {
+  id        String     @id @default(cuid())
+  roomId    String
+  type      PinnedType
+  title     String
+  content   String?    @db.Text
+  url       String?
+  authorId  String
+  createdAt DateTime   @default(now())
+  expiresAt DateTime?
+
+  room   CommunityRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt])
+}
+
+enum PinnedType {
+  TIP
+  GUIDE
+  ANNOUNCEMENT
+  EVENT
+  CHALLENGE
+  RACE
+}
+
+// Squad/Clan System
+model Squad {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  tag         String  @unique // Short tag like [TYPE]
+  description String?
+  avatar      String?
+  banner      String?
+  color       String  @default("#39ff14")
+
+  // Squad stats
+  totalWpm    Float @default(0)
+  avgAccuracy Float @default(0)
+  memberCount Int   @default(0)
+  wins        Int   @default(0)
+  losses      Int   @default(0)
+
+  // Squad progression
+  level      Int @default(1)
+  xp         Int @default(0)
+  reputation Int @default(0)
+
+  // Settings
+  isRecruiting Boolean @default(true)
+  isPremium    Boolean @default(false)
+  minWpmReq    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  members           SquadMember[]
+  achievements      SquadAchievement[]
+  tournaments       SquadTournament[]
+  improvementQuests ImprovementQuest[]
+
+  @@index([reputation, level])
+}
+
+model SquadMember {
+  id       String    @id @default(cuid())
+  squadId  String
+  userId   String
+  role     SquadRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  // Member contribution
+  totalWpm          Float @default(0)
+  racesWon          Int   @default(0)
+  raidsCompleted    Int   @default(0)
+  contributionScore Int   @default(0)
+
+  // Squad-specific stats
+  squadWpm      Float @default(0)
+  squadAccuracy Float @default(0)
+
+  squad Squad @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, userId])
+  @@index([userId])
+}
+
+enum SquadRole {
+  MEMBER
+  CAPTAIN
+  OFFICER
+  LEADER
+}
+
+model SquadAchievement {
+  id          String   @id @default(cuid())
+  squadId     String
+  type        String
+  title       String
+  description String
+  unlockedAt  DateTime @default(now())
+
+  squad Squad @relation(fields: [squadId], references: [id], onDelete: Cascade)
+}
+
+// Tournament & Event System
+model Tournament {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  description String?
+  type        TournamentType
+  status      TournamentStatus @default(REGISTRATION)
+
+  // Schedule
+  startsAt           DateTime
+  endsAt             DateTime?
+  registrationEndsAt DateTime?
+
+  // Settings
+  maxParticipants Int?
+  minWpmReq       Int?
+  isPremium       Boolean @default(false)
+  isOfficial      Boolean @default(false)
+
+  // Prizes
+  prizePool String?
+  rewards   String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participants TournamentParticipant[]
+  matches      TournamentMatch[]
+  squads       SquadTournament[]
+}
+
+enum TournamentType {
+  SOLO_SPEED
+  SQUAD_SPEED
+  ACCURACY
+  ENDURANCE
+  CODE_TYPING
+  DAILY
+  WEEKLY
+  SEASONAL
+}
+
+enum TournamentStatus {
+  REGISTRATION
+  UPCOMING
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model TournamentParticipant {
+  id           String  @id @default(cuid())
+  tournamentId String
+  userId       String
+  seed         Int?
+  bestWpm      Float?
+  bestAccuracy Float?
+  rank         Int?
+  eliminated   Boolean @default(false)
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+}
+
+model TournamentMatch {
+  id           String @id @default(cuid())
+  tournamentId String
+  round        Int
+  matchNumber  Int
+
+  participant1Id String?
+  participant2Id String?
+  winnerId       String?
+
+  scheduledAt DateTime?
+  completedAt DateTime?
+
+  // Match results
+  p1Wpm      Float?
+  p1Accuracy Float?
+  p2Wpm      Float?
+  p2Accuracy Float?
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+}
+
+model SquadTournament {
+  id           String   @id @default(cuid())
+  squadId      String
+  tournamentId String
+  registeredAt DateTime @default(now())
+  rank         Int?
+
+  squad      Squad      @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, tournamentId])
+}
+
+// Live Events & Race Lobbies
+model LiveEvent {
+  id     String      @id @default(cuid())
+  type   EventType
+  status EventStatus @default(SCHEDULED)
+
+  title       String
+  description String?
+  hostId      String?
+
+  // Schedule
+  scheduledAt DateTime
+  startedAt   DateTime?
+  endedAt     DateTime?
+
+  // Participants
+  maxParticipants  Int?
+  participantCount Int  @default(0)
+
+  // Settings
+  isPremium  Boolean @default(false)
+  isOfficial Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participants EventParticipant[]
+}
+
+enum EventType {
+  RACE_LOBBY
+  BOSS_RAID
+  COACHING_SESSION
+  AMA
+  TOURNAMENT_MATCH
+  SQUAD_WAR
+  STREAK_CLUB
+}
+
+enum EventStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+model EventParticipant {
+  id       String   @id @default(cuid())
+  eventId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  // Performance
+  finalWpm      Float?
+  finalAccuracy Float?
+  rank          Int?
+  rewards       String?
+
+  event LiveEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+// User Social Features
+model UserSocial {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Typing Identity
+  archetype     String? // e.g., "Speed Demon", "Accuracy Monk"
+  signatureMode String? // e.g., "Sprint Master", "Marathon Runner"
+
+  // Social stats
+  reputation        Int @default(0)
+  contributionScore Int @default(0)
+  helpfulAnswers    Int @default(0)
+
+  // Preferences
+  showStatsPublic Boolean @default(true)
+  allowChallenges Boolean @default(true)
+  allowCoaching   Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Friend/Rival System
+model UserRelationship {
+  id        String           @id @default(cuid())
+  userId    String
+  targetId  String
+  type      RelationshipType
+  createdAt DateTime         @default(now())
+
+  // For rival tracking
+  lastComparedAt DateTime?
+  userWins       Int       @default(0)
+  targetWins     Int       @default(0)
+
+  user   User @relation("UserRelationships", fields: [userId], references: [id], onDelete: Cascade)
+  target User @relation("TargetRelationships", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetId])
+  @@index([userId, type])
+}
+
+enum RelationshipType {
+  FRIEND
+  RIVAL
+  MENTOR
+  STUDENT
+  SQUADMATE
+  BLOCKED
+}
+
+// Notifications System
+model UserNotification {
+  id      String           @id @default(cuid())
+  userId  String
+  type    NotificationType
+  title   String
+  content String?
+  data    String? // JSON string for extra data
+
+  read    Boolean @default(false)
+  clicked Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+}
+
+enum NotificationType {
+  RACE_INVITE
+  SQUAD_INVITE
+  CHALLENGE
+  FRIEND_REQUEST
+  RIVER_BEAT_YOUR_WPM
+  STREAK_ALERT
+  TOURNAMENT_START
+  EVENT_REMINDER
+  COACHING_AVAILABLE
+  ACHIEVEMENT_UNLOCKED
+  SQUAD_MESSAGE
+  MENTION
+  REPLY
+  SYSTEM
+}
+
+// Shared Performance Cards
+model SharedPerformance {
+  id     String    @id @default(cuid())
+  userId String
+  type   ShareType
+
+  // Performance data
+  wpm         Float
+  accuracy    Float
+  consistency Float?
+  duration    Int?
+
+  // Optional heatmap data
+  heatmapData String? @db.Text // JSON
+
+  // Context
+  caption String?
+  tags    String[]
+
+  // Engagement
+  likes    Int @default(0)
+  comments Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ShareType {
+  PB_FLEX
+  HEATMAP_SHARE
+  IMPROVEMENT_TIMELINE
+  RACE_RESULT
+  CHALLENGE_WIN
+  MILESTONE
+  STREAK_SHARE
+}
+
+// ==================== EXTENDED COMMUNITY FEATURES ====================
+
+// Member Profile - Premium Identity Card Data
+model MemberProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Typing Archetype/Player Class
+  archetype     String? // e.g., "Speed Demon", "Accuracy Monk", "Endurance Beast", "Code Master"
+  signatureMode String? // Preferred challenge type
+
+  // Performance snapshot for profile
+  currentWpm      Float @default(0)
+  currentAccuracy Float @default(0)
+  longestStreak   Int   @default(0)
+
+  // Badges and titles
+  badges         String[] @default([]) // JSON array of badge IDs
+  currentTitle   String? // e.g., "Rising Sprinter", "Consistency King"
+  seasonalTitles String[] @default([]) // Historical seasonal titles
+
+  // Identity and flair
+  bio               String? @db.Text
+  favoriteLayout    String? // Keyboard layout
+  favoriteLanguage  String? // Programming language or typing language
+  preferredGameMode String? // e.g., "Sprint", "Marathon", "Code"
+
+  // Momentum & Engagement
+  momentumMeter Int       @default(0) // 0-100, tracks recent activity
+  lastActiveAt  DateTime?
+
+  // Social metrics
+  followerCount  Int @default(0)
+  followingCount Int @default(0)
+
+  // Preferences
+  coachOpen  Boolean @default(false) // Willing to coach
+  mentorOpen Boolean @default(false) // Seeking mentorship
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Badge/Medal/Title System
+model Badge {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  description String?
+  icon        String? // URL or emoji
+  color       String? // Hex or tailwind class
+  category    BadgeCategory
+
+  // Unlock requirements
+  requirement String? // Description of how to earn
+
+  userBadges UserBadge[]
+
+  @@index([category])
+}
+
+enum BadgeCategory {
+  SPEED_MILESTONE
+  ACCURACY_MILESTONE
+  CONSISTENCY
+  PARTICIPATION
+  COMMUNITY_HELPER
+  COMPETITION_WIN
+  STREAK
+  SEASONAL
+  SPECIAL
+}
+
+// User earned badges
+model UserBadge {
+  id      String @id @default(cuid())
+  userId  String
+  badgeId String
+
+  // When earned
+  unlockedAt DateTime @default(now())
+
+  // Optional seasonal info
+  season Int?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId, season])
+  @@index([userId])
+}
+
+// Challenge System - Head to head or personal
+model Challenge {
+  id String @id @default(cuid())
+
+  type   ChallengeType
+  status ChallengeStatus @default(PENDING)
+
+  // Challenger initiates
+  challengerId String
+  // Challenged accepts (optional for open challenges)
+  challengedId String?
+
+  // Challenge parameters
+  mode     String? // "Sprint", "Marathon", "Code", etc.
+  duration Int? // seconds
+  minWpm   Int?
+
+  // Results
+  challengerWpm      Float?
+  challengerAccuracy Float?
+  challengedWpm      Float?
+  challengedAccuracy Float?
+  winnerId           String?
+
+  // Context
+  message               String? @db.Text
+  linkedFromAnalyticsId String? // If challenged from analytics page
+
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime? // Expires if not accepted
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  challenger User  @relation("ChallengerRole", fields: [challengerId], references: [id], onDelete: Cascade)
+  challenged User? @relation("ChallengedRole", fields: [challengedId], references: [id], onDelete: SetNull)
+  winner     User? @relation("WinnerRole", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  @@index([challengerId, status])
+  @@index([challengedId, status])
+}
+
+enum ChallengeType {
+  ONE_ON_ONE
+  PUBLIC_LEADERBOARD
+  SQUAD_WAR
+  THEMED
+  GHOST_REPLAY // Race against friend's past run
+}
+
+enum ChallengeStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  DECLINED
+  CANCELLED
+}
+
+// Coaching Sessions
+model CoachingSession {
+  id String @id @default(cuid())
+
+  coachId   String
+  studentId String
+
+  status CoachingStatus @default(SCHEDULED)
+
+  // Session info
+  title       String
+  description String?  @db.Text
+  focusAreas  String[] // e.g., ["accuracy", "consistency", "speed"]
+
+  // Schedule
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  endedAt         DateTime?
+  durationMinutes Int?
+
+  // Session notes
+  notes        String? @db.Text
+  improvements String? @db.Text
+  nextSteps    String? @db.Text
+
+  // Engagement
+  studentRating Int? // 1-5
+  coachFeedback String? @db.Text
+
+  isOnline   Boolean @default(true)
+  meetingUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  coach   User @relation("CoachRole", fields: [coachId], references: [id], onDelete: Cascade)
+  student User @relation("StudentRole", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([coachId, status])
+  @@index([studentId, status])
+}
+
+enum CoachingStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+// Improvement Quest / Squad Mission - Gamified goals
+model ImprovementQuest {
+  id String @id @default(cuid())
+
+  squadId String? // Optional - can be personal or squad-wide
+
+  title       String
+  description String? @db.Text
+  goal        String // e.g., "Reach 100 WPM", "Achieve 99% accuracy"
+  reward      String? // e.g., "500 XP", "Badge: Speed Demon"
+
+  // Schedule
+  startDate DateTime
+  endDate   DateTime
+
+  // Progress tracking
+  targetValue Float
+  unit        String // "WPM", "Accuracy %", "Races", etc.
+
+  participations QuestParticipation[]
+
+  createdAt DateTime @default(now())
+
+  squad Squad? @relation(fields: [squadId], references: [id], onDelete: Cascade)
+
+  @@index([squadId])
+}
+
+// User participation in quests
+model QuestParticipation {
+  id      String @id @default(cuid())
+  questId String
+  userId  String
+
+  progress    Float     @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  quest ImprovementQuest @relation(fields: [questId], references: [id], onDelete: Cascade)
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([questId, userId])
+}
+
+// Predefined Room Templates
+model RoomTemplate {
+  id String @id @default(cuid())
+
+  slug        String  @unique
+  name        String
+  description String?
+  category    String // e.g., "Sprint Lab", "Accuracy Rehab", "Code Typing Bay", "Tournament Arena"
+  emoji       String?
+  color       String? // Tailwind color class
+
+  // Settings
+  defaultDuration Int? // seconds
+  allowRaces      Boolean @default(true)
+  allowChallenges Boolean @default(true)
+  focus           String? // "speed", "accuracy", "consistency", "code", "endurance"
+
+  createdAt DateTime @default(now())
+}
+
+// Activity Feed - For Live Pulse Map
+model ActivityFeed {
+  id String @id @default(cuid())
+
+  type   ActivityType
+  userId String?
+
+  // Context - what activity is this?
+  roomId      String?
+  challengeId String?
+  eventId     String?
+  squadId     String?
+
+  // Activity details
+  title       String
+  description String?
+  data        String? @db.Text // JSON for extra context
+
+  // Engagement
+  likeCount Int @default(0)
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime? // Activity expires after period
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt, expiresAt])
+  @@index([roomId, type])
+}
+
+enum ActivityType {
+  RACE_STARTED
+  RACE_COMPLETED
+  CHALLENGE_ISSUED
+  CHALLENGE_ACCEPTED
+  CHALLENGE_WON
+  PB_BROKEN
+  STREAK_MILESTONE
+  JOINED_SQUAD
+  TOURNAMENT_STARTED
+  EVENT_STARTED
+  COACHING_SESSION
+  SKILL_BADGE_EARNED
+  MENTORSHIP_OFFERED
+  DISCUSSION_STARTED
+}
+
+// Direct Challenge from Analytics
+model PerformanceChallenge {
+  id String @id @default(cuid())
+
+  initiatorId String
+  targetId    String
+
+  // What triggered this challenge
+  initiatorHeatmapSnapshot String? @db.Text // JSON heatmap
+  targetHeatmapSnapshot    String? @db.Text // JSON heatmap
+
+  // Challenge details
+  focusArea String? // e.g., "weak_keys", "low_accuracy"
+  message   String?
+
+  status ChallengeStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  initiator User @relation("PerfChallengeInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  target    User @relation("PerfChallengeTarget", fields: [targetId], references: [id], onDelete: Cascade)
+}
+
+// Seasonal Ladder / Ranking
+model SeasonalRank {
+  id String @id @default(cuid())
+
+  season Int
+  userId String
+
+  tier String // "Bronze", "Silver", "Gold", "Platinum", "Diamond"
+  rank Int // Position within tier
+  rp   Int    @default(0) // Rank Points
+
+  // Stats for season
+  racesWon    Int   @default(0)
+  racesPlayed Int   @default(0)
+  avgWpm      Float @default(0)
+  avgAccuracy Float @default(0)
+
+  lastUpdatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([season, userId])
+  @@index([season, tier, rank])
+}
+
+// Mistake Clinic / Drill Recommendation
+model DrillRecommendation {
+  id String @id @default(cuid())
+
+  userId String
+
+  // What weakness triggered this
+  focusArea String // e.g., "weak_key_pattern", "accuracy_drop", "consistency_dip"
+  details   String? @db.Text // JSON with specific data
+
+  // Recommended drill
+  drillType String // e.g., "key_focus", "word_focus", "code_focus"
+  drillData String? @db.Text // JSON with drill specifics
+
+  // Engagement
+  completedDrills Int     @default(0)
+  accepted        Boolean @default(false)
+
+  // Coaching context
+  coachNotes               String? @db.Text
+  relatedCoachingSessionId String?
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime? // Recommendations expire
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Extend User model with community fields (add to existing User model)
+// NOTE: These should be added to the existing User model - see migration note below
