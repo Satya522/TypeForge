@@ -269,7 +269,7 @@ export function UserProfileSummary({
   ]
 
   return (
-    <section className="relative isolate overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#070a08_0%,#090d0a_52%,#050705_100%)] px-5 py-8 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_30px_90px_rgba(0,0,0,0.3)] sm:px-10 sm:py-11">
+    <section className="relative isolate overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#070a08_0%,#0a0f0b_46%,#050705_100%)] px-5 py-9 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.055),0_32px_90px_rgba(0,0,0,0.28)] sm:px-10 sm:py-12">
       <span
         aria-hidden="true"
         className={cn(
@@ -279,16 +279,16 @@ export function UserProfileSummary({
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/3 top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06),transparent_68%)] blur-2xl"
+        className="pointer-events-none absolute left-1/3 top-16 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.055),transparent_68%)] blur-2xl"
       />
       <span
         aria-hidden="true"
         className="pointer-events-none absolute right-0 top-0 h-px w-2/3 bg-gradient-to-l from-transparent via-white/20 to-transparent"
       />
 
-      <header className="relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-stretch">
-        <section className="flex flex-col gap-7 sm:flex-row sm:items-end">
-          <span className="relative mx-auto inline-flex sm:mx-0 sm:mb-1">
+      <header className="relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+        <section className="flex flex-col gap-8 sm:flex-row sm:items-end">
+          <span className="relative mx-auto inline-flex sm:mx-0 sm:mb-2">
             <span
               aria-hidden="true"
               className="absolute -inset-4 rounded-full bg-white/[0.035] blur-md transition-opacity duration-300 group-hover:opacity-80"
@@ -303,7 +303,7 @@ export function UserProfileSummary({
             <Avatar
               src={avatarUrl}
               name={displayName}
-              size={128}
+              size={132}
               status="focus"
               className="relative ring-[2.5px]"
               ringOffsetClassName="ring-offset-[#070a08]"
@@ -311,18 +311,18 @@ export function UserProfileSummary({
           </span>
 
           <section className="min-w-0 text-center sm:text-left">
-            <p className="mb-4 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.28em] text-zinc-500">
+            <p className="mb-5 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.32em] text-zinc-500">
               <span className={cn('h-1.5 w-1.5 rounded-full', rankTone.dot)} />
               Flagship profile
             </p>
-            <h2 className="[text-wrap:balance] text-[clamp(2.6rem,7vw,6rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white">
+            <h2 className="bg-gradient-to-b from-white via-zinc-100 to-zinc-400 bg-clip-text [text-wrap:balance] text-[clamp(2.8rem,7.4vw,6.4rem)] font-semibold leading-[0.84] tracking-[-0.09em] text-transparent">
               {displayName}
             </h2>
-            <p className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-zinc-500 sm:justify-start">
+            <p className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-[13px] text-zinc-500 sm:justify-start">
               {handleLabel ? <span>{handleLabel}</span> : null}
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2.5 py-1 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]',
+                  'inline-flex items-center gap-1.5 rounded-full bg-white/[0.035] px-2.5 py-1 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.045)]',
                   rankTone.text
                 )}
               >
@@ -342,15 +342,15 @@ export function UserProfileSummary({
           </section>
         </section>
 
-        <aside className="border-t border-white/[0.06] pt-6 transition-colors duration-200 ease-out lg:border-l lg:border-t-0 lg:pl-8 lg:pt-2">
-          <p className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+        <aside className="relative pt-6 transition-colors duration-200 ease-out before:absolute before:left-0 before:top-0 before:h-px before:w-full before:bg-gradient-to-r before:from-transparent before:via-white/[0.09] before:to-transparent before:content-[''] lg:pb-2 lg:pl-2 lg:pt-0 lg:before:hidden">
+          <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-zinc-500">
             <Sparkles size={13} className="text-green-300" />
             Identity signal
           </p>
-          <p className="mt-5 text-[22px] font-semibold leading-tight tracking-[-0.05em] text-white">
+          <p className="mt-5 text-[23px] font-semibold leading-tight tracking-[-0.055em] text-white">
             {identityTitle}
           </p>
-          <p className="mt-2 text-sm leading-6 text-zinc-500">
+          <p className="mt-2 text-[13px] leading-6 text-zinc-500">
             {preferredGameMode || favoriteLanguage || 'Focused typing craft'} ·{' '}
             {formatNumber(totalSessions)} sessions
           </p>
@@ -367,7 +367,7 @@ export function UserProfileSummary({
         </aside>
       </header>
 
-      <ul className="relative mt-12 grid border-y border-white/[0.06] sm:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-white/[0.055]">
+      <ul className="relative mt-14 grid before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.09] before:to-transparent before:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/[0.07] after:to-transparent after:content-[''] sm:grid-cols-2 lg:grid-cols-4">
         {showcaseMetrics.map((metric, index) => {
           const Icon = metric.icon
 
@@ -375,13 +375,15 @@ export function UserProfileSummary({
             <li
               key={metric.label}
               className={cn(
-                'group p-5 transition-colors duration-200 ease-out hover:bg-white/[0.025] sm:p-6',
-                index > 0 && 'border-t border-white/[0.055] sm:border-t-0',
+                'group relative px-5 py-6 transition-colors duration-200 ease-out hover:bg-white/[0.018] sm:px-6',
+                index > 0 && 'border-t border-white/[0.04] sm:border-t-0',
                 index >= 2 &&
-                  'sm:border-t sm:border-white/[0.055] lg:border-t-0'
+                  'sm:border-t sm:border-white/[0.04] lg:border-t-0',
+                index % 2 === 1 && 'sm:border-l sm:border-white/[0.04]',
+                index > 0 && 'lg:border-l lg:border-white/[0.04]'
               )}
             >
-              <p className="flex items-center justify-between gap-4 text-[12px] text-zinc-500">
+              <p className="flex items-center justify-between gap-4 text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-600">
                 <span>{metric.label}</span>
                 <Icon
                   size={16}
@@ -391,7 +393,7 @@ export function UserProfileSummary({
                   )}
                 />
               </p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-white">
+              <p className="mt-4 text-[2rem] font-semibold tracking-[-0.06em] text-white">
                 {metric.value}
               </p>
               <p className="mt-1 text-[12px] leading-5 text-zinc-600">
@@ -402,17 +404,17 @@ export function UserProfileSummary({
         })}
       </ul>
 
-      <section className="relative mt-10 grid gap-10 border-t border-white/[0.055] pt-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="relative mt-12 grid gap-12 pt-9 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.075] before:to-transparent before:content-[''] lg:grid-cols-[minmax(0,1fr)_22rem]">
         <article>
           <p className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] text-zinc-500">
             <Radio size={13} className="text-zinc-400" />
             Field notes
           </p>
-          <ul className="mt-4 divide-y divide-white/[0.055]">
+          <ul className="mt-5 divide-y divide-white/[0.04]">
             {storyItems.map((item) => (
               <li
                 key={item.label}
-                className="grid gap-2 py-3.5 transition-colors duration-150 ease-out hover:text-white sm:grid-cols-[10rem_1fr] sm:items-center"
+                className="grid gap-2 py-4 transition-colors duration-150 ease-out hover:text-white sm:grid-cols-[10rem_1fr] sm:items-center"
               >
                 <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-600">
                   {item.label}
@@ -428,12 +430,12 @@ export function UserProfileSummary({
           </ul>
         </article>
 
-        <article className="border-t border-white/[0.055] pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+        <article className="relative pt-7 before:absolute before:left-0 before:top-0 before:h-px before:w-full before:bg-gradient-to-r before:from-transparent before:via-white/[0.07] before:to-transparent before:content-[''] lg:pl-8 lg:pt-0 lg:before:bottom-0 lg:before:top-0 lg:before:h-auto lg:before:w-px lg:before:bg-gradient-to-b">
           <p className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] text-zinc-500">
             <Shield size={13} className={rankTone.text} />
             Beast mode profile
           </p>
-          <p className="mt-4 text-[15px] leading-7 text-zinc-400">
+          <p className="mt-5 text-[15px] leading-7 text-zinc-400">
             {hasPerformanceData ? (
               <>
                 {displayName} is currently operating as a{' '}
