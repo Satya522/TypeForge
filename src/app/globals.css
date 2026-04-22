@@ -4,6 +4,12 @@
 
 :root {
   color-scheme: dark;
+  --motion-ambient-y: 0px;
+  --motion-duration-fast: 160ms;
+  --motion-duration-medium: 520ms;
+  --motion-ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-micro: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-reveal-distance: 18px;
 }
 
 /* Custom global styles */
@@ -17,6 +23,7 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -25,7 +32,10 @@ body {
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: auto, 72px 72px, 72px 72px;
-  background-position: center top, center top, center top;
+  background-position:
+    center var(--motion-ambient-y),
+    center top,
+    center top;
   overflow-x: hidden;
 }
 
@@ -35,6 +45,110 @@ a {
 
 ::selection {
   @apply bg-accent-300 text-surface-100;
+}
+
+html[data-premium-motion='ready'] [data-motion-section='reveal'] {
+  opacity: 0;
+  transform: translate3d(0, var(--motion-reveal-distance), 0) scale(0.995);
+  filter: blur(8px);
+  transition:
+    opacity var(--motion-duration-medium) var(--motion-ease-premium),
+    transform var(--motion-duration-medium) var(--motion-ease-premium),
+    filter var(--motion-duration-medium) var(--motion-ease-premium);
+  transition-delay: var(--motion-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+html[data-premium-motion='ready']
+  [data-motion-section='reveal'][data-motion-visible='true'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  will-change: auto;
+}
+
+html[data-premium-motion='ready']
+  :where(button:not(:disabled), a[href], [role='button']) {
+  transition-duration: var(--motion-duration-fast);
+  transition-property:
+    background-color, border-color, box-shadow, color, opacity, transform;
+  transition-timing-function: var(--motion-ease-micro);
+}
+
+html[data-premium-motion='ready']
+  :where(input, textarea, select, [contenteditable='true']) {
+  transition-duration: var(--motion-duration-fast);
+  transition-property:
+    background-color, border-color, box-shadow, color, opacity;
+  transition-timing-function: var(--motion-ease-micro);
+}
+
+html[data-premium-motion='ready']
+  :where(.panel, .panel-muted, [data-motion-surface]) {
+  transition:
+    background-color 240ms var(--motion-ease-micro),
+    border-color 240ms var(--motion-ease-micro),
+    box-shadow 240ms var(--motion-ease-micro),
+    transform 240ms var(--motion-ease-micro);
+}
+
+html[data-premium-motion='ready']
+  :where(button:not(:disabled), a[href], [role='button']):active {
+  transform: translate3d(0, 0, 0) scale(0.985);
+}
+
+html[data-premium-motion='ready']
+  :where(
+    button,
+    a[href],
+    input,
+    textarea,
+    select,
+    [role='button']
+  ):focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px rgba(125, 255, 77, 0.28),
+    0 0 0 4px rgba(125, 255, 77, 0.08);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-premium-motion='ready']
+    :where(button:not(:disabled), a[href], [role='button']):hover {
+    transform: translate3d(0, -1px, 0);
+  }
+
+  html[data-premium-motion='ready']
+    :where(.panel, .panel-muted, [data-motion-surface]):hover {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+html[data-premium-motion='reduced'] [data-motion-section] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-motion-section] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
 
 /* Scrollbar styling for a subtle premium feel */
