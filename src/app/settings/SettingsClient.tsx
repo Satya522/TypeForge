@@ -817,7 +817,7 @@ export default function SettingsClient({
             <Button
               type="submit"
               disabled={isSavingProfile || !profileDirty}
-              className="h-10 rounded-full bg-white px-5 text-[13px] font-medium text-black shadow-none hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-10 rounded-full bg-white px-5 text-[13px] font-medium text-black shadow-none transition-colors duration-150 ease-out hover:bg-[var(--accent-color,#7dff4d)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:bg-zinc-500 disabled:text-black disabled:opacity-100 disabled:hover:bg-zinc-300"
             >
               {isSavingProfile ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
