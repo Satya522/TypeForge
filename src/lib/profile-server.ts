@@ -20,7 +20,9 @@ export type PublicProfileSummary = {
   wpm: number
 }
 
-export async function getPublicProfileSummary(userId: string): Promise<PublicProfileSummary | null> {
+export async function getPublicProfileSummary(
+  userId: string
+): Promise<PublicProfileSummary | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -86,30 +88,70 @@ export async function getProfilePageData(identifier: string) {
       avatarUrl: true,
       bio: true,
       createdAt: true,
+      rankTier: true,
+      memberProfile: {
+        select: {
+          archetype: true,
+          currentAccuracy: true,
+          currentTitle: true,
+          currentWpm: true,
+          favoriteLanguage: true,
+          favoriteLayout: true,
+          longestStreak: true,
+          momentumMeter: true,
+          preferredGameMode: true,
+          signatureMode: true,
+        },
+      },
+      _count: {
+        select: {
+          achievements: true,
+          communityMessages: true,
+          practiceSessions: true,
+        },
+      },
     },
   })
 
   if (!user) return null
 
-  const [lessonProgress, practiceAgg, streak] = await Promise.all([
-    prisma.userLessonProgress.aggregate({
-      _count: true,
-      _max: { wpm: true, accuracy: true },
-      where: { userId: user.id, completed: true },
-    }),
-    prisma.practiceSession.aggregate({
-      _max: { wpm: true, accuracy: true },
-      _avg: { wpm: true, accuracy: true },
-      where: { userId: user.id },
-    }),
-    prisma.streakTracking.findUnique({ where: { userId: user.id } }),
-  ])
+  const [lessonProgress, practiceAgg, streak, authoredMessages] =
+    await Promise.all([
+      prisma.userLessonProgress.aggregate({
+        _count: true,
+        _max: { wpm: true, accuracy: true },
+        where: { userId: user.id, completed: true },
+      }),
+      prisma.practiceSession.aggregate({
+        _max: { wpm: true, accuracy: true },
+        _avg: { wpm: true, accuracy: true },
+        where: { userId: user.id },
+      }),
+      prisma.streakTracking.findUnique({ where: { userId: user.id } }),
+      prisma.communityMessage.findMany({
+        where: { authorId: user.id },
+        select: { channelId: true },
+      }),
+    ])
+
+  const favoriteChannel =
+    Object.entries(
+      authoredMessages.reduce<Record<string, number>>(
+        (accumulator, message) => {
+          accumulator[message.channelId] =
+            (accumulator[message.channelId] || 0) + 1
+          return accumulator
+        },
+        {}
+      )
+    ).sort((left, right) => right[1] - left[1])[0]?.[0] || null
 
   return {
     user,
     lessonProgress,
     practiceAgg,
     streak,
+    favoriteChannel,
     displayName: getDisplayName(user, 'Typist'),
     avatarUrl: getResolvedAvatarUrl(user),
     handleLabel: getHandleLabel(user.handle),
