@@ -1,16 +1,19 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { ButtonHTMLAttributes, forwardRef } from 'react'
 
 // define styles using cva for variants
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-100 focus-visible:ring-accent-300 disabled:opacity-50 disabled:pointer-events-none',
+  'inline-flex items-center justify-center rounded-full border border-transparent font-medium transition-[background-color,border-color,box-shadow,color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-100 focus-visible:ring-accent-300 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'bg-accent-300 text-surface-100 shadow-[0_0_28px_rgba(57,255,20,0.18)] hover:bg-accent-200',
-        secondary: 'bg-surface-200 border border-surface-300 hover:border-accent-200 hover:bg-surface-300 text-gray-200',
-        ghost: 'hover:bg-surface-200 text-gray-200 hover:text-accent-100',
+        primary:
+          'bg-[var(--accent-color,#7dff4d)] text-[#04120a] shadow-[0_12px_28px_rgba(0,0,0,0.18)] hover:brightness-[1.03] hover:shadow-[0_18px_34px_rgba(0,0,0,0.22)]',
+        secondary:
+          'border-white/10 bg-white/[0.035] text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] hover:border-white/14 hover:bg-white/[0.06]',
+        ghost:
+          'bg-transparent text-gray-300 hover:bg-white/[0.05] hover:text-white',
       },
       size: {
         sm: 'h-9 px-3',
@@ -23,10 +26,11 @@ const buttonVariants = cva(
       size: 'md',
     },
   }
-);
+)
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -34,13 +38,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        data-motion-surface="button"
         className={cn(buttonVariants({ variant, size }), className)}
         {...props}
       />
-    );
+    )
   }
-);
+)
 
-Button.displayName = 'Button';
+Button.displayName = 'Button'
 
-export { Button, buttonVariants };
+export { Button, buttonVariants }

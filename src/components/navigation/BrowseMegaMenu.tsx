@@ -1,59 +1,64 @@
-"use client";
+'use client'
 
-import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Ref } from 'react';
-import { Button } from '@/components/ui/button';
-import BrowseColumn from './BrowseColumn';
-import { browseAllSectionsLink, browseColumns } from './nav-data';
+import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Ref } from 'react'
+import { Button } from '@/components/ui/button'
+import {
+  motionDurations,
+  motionEasing,
+  motionGroupStaggerMs,
+} from '@/components/motion'
+import BrowseColumn from './BrowseColumn'
+import { browseAllSectionsLink, browseColumns } from './nav-data'
 
 type BrowseMegaMenuProps = {
-  firstItemRef: Ref<HTMLAnchorElement>;
-  onClose: () => void;
-  onHoverEnd: () => void;
-  onHoverStart: () => void;
-  open: boolean;
-  pathname: string;
-};
+  firstItemRef: Ref<HTMLAnchorElement>
+  onClose: () => void
+  onHoverEnd: () => void
+  onHoverStart: () => void
+  open: boolean
+  pathname: string
+}
 
 /* Staggered reveal variants */
 const containerVariants = {
-  hidden: { opacity: 0, y: 18 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.28,
-      ease: [0.23, 1, 0.32, 1],
-      staggerChildren: 0.07,
-      delayChildren: 0.06,
+      duration: motionDurations.medium,
+      ease: motionEasing.premium,
+      staggerChildren: motionGroupStaggerMs.panel / 1000,
+      delayChildren: 0.04,
     },
   },
   exit: {
     opacity: 0,
-    y: 12,
-    transition: { duration: 0.16, ease: 'easeIn' },
+    y: 8,
+    transition: { duration: motionDurations.fast, ease: motionEasing.micro },
   },
-};
+}
 
 const columnVariants = {
-  hidden: { opacity: 0, y: 22, scale: 0.96 },
+  hidden: { opacity: 0, y: 14, scale: 0.985 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.38, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: motionDurations.base, ease: motionEasing.premium },
   },
-};
+}
 
 const headerVariants = {
-  hidden: { opacity: 0, x: -12 },
+  hidden: { opacity: 0, x: -8 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: { duration: motionDurations.medium, ease: motionEasing.micro },
   },
-};
+}
 
 export default function BrowseMegaMenu({
   firstItemRef,
@@ -81,11 +86,20 @@ export default function BrowseMegaMenu({
         >
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/60 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
             {/* Decorative gradient orbs */}
-            <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-full bg-accent-300/8 blur-3xl" aria-hidden="true" />
-            <div className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-accent-300/5 blur-3xl" aria-hidden="true" />
+            <div
+              className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-full bg-accent-300/8 blur-3xl"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-accent-300/5 blur-3xl"
+              aria-hidden="true"
+            />
 
             {/* Top shine line */}
-            <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" aria-hidden="true" />
+            <div
+              className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
+              aria-hidden="true"
+            />
 
             {/* Header */}
             <motion.div
@@ -93,18 +107,31 @@ export default function BrowseMegaMenu({
               className="relative flex flex-wrap items-center justify-between gap-4 border-b border-white/8 pb-4"
             >
               <div>
-                <p className="text-sm font-semibold text-white">Explore TypeForge</p>
+                <p className="text-sm font-semibold text-white">
+                  Explore TypeForge
+                </p>
                 <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
                   Fast access to every mode and tool
                 </p>
               </div>
-              <Link 
-                href={browseAllSectionsLink.href} 
+              <Link
+                href={browseAllSectionsLink.href}
                 onClick={onClose}
                 className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent-300/50"
               >
-                <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="primary" size="sm" className="rounded-full px-4 cta-glow-pulse">
+                <motion.div
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{
+                    duration: motionDurations.fast,
+                    ease: motionEasing.micro,
+                  }}
+                >
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="rounded-full px-4"
+                  >
                     {browseAllSectionsLink.label}
                   </Button>
                 </motion.div>
@@ -128,5 +155,5 @@ export default function BrowseMegaMenu({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

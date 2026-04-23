@@ -2,14 +2,43 @@
 
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
+import {
+  motionCssVariables,
+  motionGroupDistancesPx,
+  motionGroupStaggerMs,
+  type MotionGroupName,
+} from './tokens'
 
 const REVEAL_SELECTOR = [
+  '[data-motion-group] > :where(header, section, article, aside, footer, li, div):not([data-motion-skip])',
   '[data-motion-section]',
   'main > :where(header, section, article, form, div):not([data-motion-skip])',
   '.section-shell > :where(header, section, article, div):not([data-motion-skip])',
   '.panel:not([data-motion-skip])',
   '.panel-muted:not([data-motion-skip])',
 ].join(',')
+
+let nextMotionGroupId = 0
+
+function getMotionGroupDetails(node: HTMLElement) {
+  const groupNode = node.closest<HTMLElement>('[data-motion-group]')
+
+  if (!groupNode) {
+    return null
+  }
+
+  if (!groupNode.dataset.motionGroupId) {
+    groupNode.dataset.motionGroupId = `motion-group-${nextMotionGroupId}`
+    nextMotionGroupId += 1
+  }
+
+  const name = (groupNode.dataset.motionGroup || 'default') as MotionGroupName
+
+  return {
+    id: groupNode.dataset.motionGroupId,
+    name: name in motionGroupStaggerMs ? name : 'default',
+  }
+}
 
 const MOTION_EXCLUDE_SELECTOR = [
   '[data-motion-disabled]',
@@ -203,6 +232,7 @@ function setupSectionReveals(reducedMotion: boolean) {
   const seen = new WeakSet<HTMLElement>()
   let mutationFrame = 0
   let revealIndex = 0
+  const groupedRevealIndexes = new Map<string, number>()
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -234,11 +264,29 @@ function setupSectionReveals(reducedMotion: boolean) {
 
       seen.add(node)
       node.dataset.motionSection = node.dataset.motionSection || 'reveal'
+
+      const group = getMotionGroupDetails(node)
+      const groupIndex = group
+        ? (groupedRevealIndexes.get(group.id) ?? 0)
+        : revealIndex
+      const staggerMs = group
+        ? motionGroupStaggerMs[group.name]
+        : motionGroupStaggerMs.default
+      const distancePx = group
+        ? motionGroupDistancesPx[group.name]
+        : motionGroupDistancesPx.default
+
       node.style.setProperty(
         '--motion-delay',
-        `${Math.min(revealIndex % 8, 7) * 42}ms`
+        `${Math.min(groupIndex, 7) * staggerMs}ms`
       )
-      revealIndex += 1
+      node.style.setProperty('--motion-node-distance', `${distancePx}px`)
+
+      if (group) {
+        groupedRevealIndexes.set(group.id, groupIndex + 1)
+      } else {
+        revealIndex += 1
+      }
 
       const rect = node.getBoundingClientRect()
       const isInitiallyVisible =
@@ -288,6 +336,20 @@ export function PremiumMotionProvider({
 }: PremiumMotionProviderProps) {
   const pathname = usePathname()
   const [reducedMotion, setReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const root = document.documentElement
+
+    Object.entries(motionCssVariables).forEach(([key, value]) => {
+      root.style.setProperty(key, value)
+    })
+
+    return () => {
+      Object.keys(motionCssVariables).forEach((key) => {
+        root.style.removeProperty(key)
+      })
+    }
+  }, [])
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')

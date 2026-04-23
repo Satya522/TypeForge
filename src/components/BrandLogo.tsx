@@ -1,23 +1,23 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Outfit } from 'next/font/google';
+import Image from 'next/image'
+import Link from 'next/link'
+import { Outfit } from 'next/font/google'
 
-const outfit = Outfit({ subsets: ['latin'], weight: ['800', '900'] });
-import { cn } from '@/lib/utils';
-import { BRAND_ASSETS } from '@/lib/brand';
+const outfit = Outfit({ subsets: ['latin'], weight: ['800', '900'] })
+import { cn } from '@/lib/utils'
+import { BRAND_ASSETS } from '@/lib/brand'
 
 type BrandLogoProps = {
-  className?: string;
-  href?: string;
-  markClassName?: string;
-  priority?: boolean;
-  showTagline?: boolean;
-  showWordmark?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  taglineClassName?: string;
-  taglineText?: string;
-  wordmarkClassName?: string;
-};
+  className?: string
+  href?: string
+  markClassName?: string
+  priority?: boolean
+  showTagline?: boolean
+  showWordmark?: boolean
+  size?: 'sm' | 'md' | 'lg'
+  taglineClassName?: string
+  taglineText?: string
+  wordmarkClassName?: string
+}
 
 const sizeMap = {
   sm: {
@@ -38,7 +38,7 @@ const sizeMap = {
     title: 'text-lg',
     wrapper: 'gap-3.5',
   },
-} as const;
+} as const
 
 export default function BrandLogo({
   className,
@@ -52,13 +52,13 @@ export default function BrandLogo({
   taglineText = 'Typing practice platform',
   wordmarkClassName,
 }: BrandLogoProps) {
-  const current = sizeMap[size];
+  const current = sizeMap[size]
 
   const content = (
     <>
       <span
         className={cn(
-          'relative flex shrink-0 items-center justify-center overflow-hidden border border-amber-200/15 bg-black/70 shadow-[0_0_28px_rgba(255,145,22,0.18)]',
+          'relative flex shrink-0 items-center justify-center overflow-hidden border border-white/10 bg-black/70 shadow-[0_12px_24px_rgba(0,0,0,0.18)]',
           current.mark,
           markClassName
         )}
@@ -75,18 +75,38 @@ export default function BrandLogo({
 
       {showWordmark && (
         <div className="min-w-0">
-          <p className={cn('truncate font-black tracking-tight text-white/95', outfit.className, current.title, wordmarkClassName)}>TypeForge</p>
+          <p
+            className={cn(
+              'truncate font-black tracking-tight text-white/95',
+              outfit.className,
+              current.title,
+              wordmarkClassName
+            )}
+          >
+            TypeForge
+          </p>
           {showTagline && (
-            <p className={cn('truncate text-xs text-gray-400', taglineClassName)}>{taglineText}</p>
+            <p
+              className={cn('truncate text-xs text-gray-400', taglineClassName)}
+            >
+              {taglineText}
+            </p>
           )}
         </div>
       )}
     </>
-  );
+  )
 
   return (
-    <Link href={href} className={cn('flex min-w-0 shrink-0 items-center', current.wrapper, className)}>
+    <Link
+      href={href}
+      className={cn(
+        'flex min-w-0 shrink-0 items-center',
+        current.wrapper,
+        className
+      )}
+    >
       {content}
     </Link>
-  );
+  )
 }

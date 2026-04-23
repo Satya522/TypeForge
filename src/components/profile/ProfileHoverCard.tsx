@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Avatar, type AvatarStatus } from '@/components/ui/avatar'
+import { PremiumSkeleton } from '@/components/ui/premium-skeleton'
 import { cn } from '@/lib/utils'
 import type { PublicProfileSummary } from '@/lib/profile-server'
 
@@ -71,7 +72,7 @@ export function ProfileHoverCard({
     top: 12,
   })
   const [profile, setProfile] = useState<PublicProfileSummary | null>(() =>
-    userId ? profileCache.get(userId) ?? null : null
+    userId ? (profileCache.get(userId) ?? null) : null
   )
 
   const fallbackProfile = useMemo(
@@ -117,7 +118,9 @@ export function ProfileHoverCard({
     const spaceBelow = viewportHeight - triggerRect.bottom
     const spaceAbove = triggerRect.top
     const placement =
-      spaceBelow < cardHeight + 12 && spaceAbove > spaceBelow ? 'above' : 'below'
+      spaceBelow < cardHeight + 12 && spaceAbove > spaceBelow
+        ? 'above'
+        : 'below'
 
     const top =
       placement === 'above'
@@ -139,7 +142,10 @@ export function ProfileHoverCard({
 
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node
-      if (triggerRef.current?.contains(target) || cardRef.current?.contains(target)) {
+      if (
+        triggerRef.current?.contains(target) ||
+        cardRef.current?.contains(target)
+      ) {
         return
       }
       setOpen(false)
@@ -169,15 +175,20 @@ export function ProfileHoverCard({
     async function fetchProfile() {
       try {
         setLoading(true)
-        const response = await fetch(`/api/profile/public?id=${encodeURIComponent(profileId)}`, {
-          cache: 'no-store',
-        })
+        const response = await fetch(
+          `/api/profile/public?id=${encodeURIComponent(profileId)}`,
+          {
+            cache: 'no-store',
+          }
+        )
 
         if (!response.ok) {
           return
         }
 
-        const data = (await response.json()) as { profile?: PublicProfileSummary | null }
+        const data = (await response.json()) as {
+          profile?: PublicProfileSummary | null
+        }
         if (!data.profile || cancelled) {
           return
         }
@@ -230,9 +241,12 @@ export function ProfileHoverCard({
                   />
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-semibold text-white">{summary.displayName}</p>
+                    <p className="truncate text-base font-semibold text-white">
+                      {summary.displayName}
+                    </p>
                     <p className="mt-1 truncate text-[13px] text-zinc-500">
-                      {summary.handleLabel || (loading ? 'Loading handle...' : 'No handle yet')}
+                      {summary.handleLabel ||
+                        (loading ? 'Loading handle...' : 'No handle yet')}
                     </p>
                     <p className="mt-2 truncate text-[12px] text-zinc-400">
                       <span className="text-zinc-300">{summary.rank}</span>
@@ -245,14 +259,22 @@ export function ProfileHoverCard({
                       </span>
                       <span>{summary.accuracy.toFixed(0)}%</span>
                     </p>
-                    <p className="mt-2 text-[12px] text-zinc-400">{summary.streak}-day streak</p>
+                    <p className="mt-2 text-[12px] text-zinc-400">
+                      {summary.streak}-day streak
+                    </p>
                   </div>
                 </div>
 
                 {loading ? (
-                  <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-sm text-zinc-400">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading profile details
+                  <div className="rounded-xl border border-white/8 bg-white/[0.02] px-3 py-3">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Syncing profile
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <PremiumSkeleton className="h-3 w-full rounded-full" />
+                      <PremiumSkeleton className="h-3 w-4/5 rounded-full" />
+                    </div>
                   </div>
                 ) : null}
 

@@ -1,15 +1,16 @@
-"use client";
+'use client'
 
-import Link from 'next/link';
-import { Session } from 'next-auth';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
-import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile';
-import { cn } from '@/lib/utils';
-import { isNavPathActive, userNavLinks } from './nav-data';
+import Link from 'next/link'
+import { Session } from 'next-auth'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { Button } from '@/components/ui/button'
+import { Avatar } from '@/components/ui/avatar'
+import { motionDurations, motionEasing } from '@/components/motion'
+import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile'
+import { cn } from '@/lib/utils'
+import { isNavPathActive, userNavLinks } from './nav-data'
 
 // Phosphor Icons — premium, duo-tone feel
 import {
@@ -19,25 +20,31 @@ import {
   SquaresFour,
   UserCircle,
   CaretRight,
-} from '@phosphor-icons/react';
+} from '@phosphor-icons/react'
 
 type NavUserActionsProps = {
-  onSignIn: () => void;
-  onSignOut: () => void;
-  pathname: string;
-  session: Session | null;
-};
+  onSignIn: () => void
+  onSignOut: () => void
+  pathname: string
+  session: Session | null
+}
 
 const iconMap: Record<string, React.ElementType> = {
   Dashboard: SquaresFour,
   Profile: UserCircle,
-};
+}
 
-export default function NavUserActions({ onSignIn, onSignOut, pathname, session }: NavUserActionsProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
+export default function NavUserActions({
+  onSignIn,
+  onSignOut,
+  pathname,
+  session,
+}: NavUserActionsProps) {
+  const prefersReducedMotion = useReducedMotion()
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const actionsRef = useRef<HTMLDivElement>(null)
 
   const displayName = useMemo(
     () =>
@@ -51,48 +58,70 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
         'Profile'
       ),
     [session]
-  );
+  )
   const avatarSrc = getResolvedAvatarUrl({
     avatarUrl: session?.user?.avatarUrl,
     image: session?.user?.image,
-  });
+  })
 
   /* GSAP entrance */
   useEffect(() => {
-    if (!actionsRef.current) return;
+    if (!actionsRef.current) return
     const ctx = gsap.context(() => {
       gsap.fromTo(
         actionsRef.current,
-        { x: 20, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.5 }
-      );
-    });
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => { setIsOpen(false); }, [pathname]);
+        { x: 14, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: prefersReducedMotion ? 0.18 : 0.56,
+          ease: 'power3.out',
+          delay: 0.22,
+        }
+      )
+    })
+    return () => ctx.revert()
+  }, [prefersReducedMotion])
 
   useEffect(() => {
-    if (!isOpen) return;
+    setIsOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!isOpen) return
     const handlePointerDown = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setIsOpen(false);
-    };
+      if (!menuRef.current?.contains(event.target as Node)) setIsOpen(false)
+    }
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { setIsOpen(false); triggerRef.current?.focus(); }
-    };
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleEscape);
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        triggerRef.current?.focus()
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen])
 
   /* ── Unauthenticated ── */
   if (!session) {
     return (
-      <div ref={actionsRef} className="hidden shrink-0 items-center gap-2 lg:flex" style={{ opacity: 0 }}>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <div
+        ref={actionsRef}
+        className="hidden shrink-0 items-center gap-2 lg:flex"
+        style={{ opacity: 0 }}
+      >
+        <motion.div
+          whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+          transition={{
+            duration: motionDurations.fast,
+            ease: motionEasing.micro,
+          }}
+        >
           <Button
             variant="ghost"
             size="sm"
@@ -105,21 +134,31 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
         </motion.div>
 
         <Link href="/register">
-          <motion.div whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}>
-            <Button variant="primary" size="sm" className="rounded-full px-5 cta-glow-pulse btn-shimmer-sweep">
+          <motion.div
+            whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            transition={{
+              duration: motionDurations.fast,
+              ease: motionEasing.micro,
+            }}
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              className="rounded-full px-5 cta-glow-pulse"
+            >
               Sign Up
             </Button>
           </motion.div>
         </Link>
       </div>
-    );
+    )
   }
 
   /* ── Authenticated ── */
   return (
     <div ref={actionsRef} style={{ opacity: 0 }}>
       <div ref={menuRef} className="relative ml-auto hidden shrink-0 lg:block">
-
         {/* ── Trigger button ── */}
         <motion.button
           ref={triggerRef}
@@ -128,13 +167,18 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
           aria-haspopup="menu"
           aria-label="Open profile menu"
           onClick={() => setIsOpen((o) => !o)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
+          transition={{
+            duration: motionDurations.fast,
+            ease: motionEasing.micro,
+          }}
           className={cn(
             'inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-left outline-none transition-all duration-200',
-            'hover:border-accent-300/25 hover:bg-accent-300/[0.04]',
+            'hover:border-white/16 hover:bg-white/[0.05]',
             'focus-visible:ring-2 focus-visible:ring-accent-300/50',
-            isOpen && 'border-accent-300/30 bg-accent-300/[0.05] shadow-[0_0_24px_rgba(57,255,20,0.08)]'
+            isOpen &&
+              'border-white/16 bg-white/[0.055] shadow-[0_18px_36px_rgba(0,0,0,0.22)]'
           )}
         >
           {/* Avatar */}
@@ -148,16 +192,27 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
 
           {/* Name (only on xl) */}
           <span className="hidden min-w-0 xl:block">
-            <span className="block truncate text-[13px] font-semibold leading-5 text-white">{displayName}</span>
+            <span className="block truncate text-[13px] font-semibold leading-5 text-white">
+              {displayName}
+            </span>
           </span>
 
           {/* Caret */}
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+            transition={{
+              duration: motionDurations.fast,
+              ease: motionEasing.micro,
+            }}
             className="flex items-center"
           >
-            <CaretDown weight="bold" className={cn('h-3.5 w-3.5 transition-colors', isOpen ? 'text-accent-300' : 'text-gray-500')} />
+            <CaretDown
+              weight="bold"
+              className={cn(
+                'h-3.5 w-3.5 transition-colors',
+                isOpen ? 'text-white' : 'text-gray-500'
+              )}
+            />
           </motion.span>
         </motion.button>
 
@@ -168,7 +223,10 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
               initial={{ opacity: 0, y: 12, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.96 }}
-              transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+              transition={{
+                duration: motionDurations.fast,
+                ease: motionEasing.premium,
+              }}
               className="absolute right-0 top-[calc(100%+0.65rem)] z-[100] w-[260px] overflow-hidden rounded-2xl border border-white/[0.09] bg-[#060805] shadow-[0_28px_80px_rgba(0,0,0,0.55)]"
               role="menu"
             >
@@ -185,13 +243,17 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
                   fallbackClassName="text-sm font-bold tracking-wider text-accent-100"
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-semibold text-white leading-tight">{displayName}</p>
+                  <p className="truncate text-[13px] font-semibold text-white leading-tight">
+                    {displayName}
+                  </p>
                   {session.user?.email && (
-                    <p className="truncate text-[11px] text-gray-500 mt-0.5">{session.user.email}</p>
+                    <p className="truncate text-[11px] text-gray-500 mt-0.5">
+                      {session.user.email}
+                    </p>
                   )}
                   {/* Online indicator */}
-                  <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-accent-300/70">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent-300 animate-pulse" />
+                  <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-zinc-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/90" />
                     Online
                   </span>
                 </div>
@@ -203,8 +265,8 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
               {/* ── Nav items ── */}
               <div className="p-2">
                 {userNavLinks.map((link, idx) => {
-                  const Icon = iconMap[link.label] ?? UserCircle;
-                  const active = isNavPathActive(pathname, link.href);
+                  const Icon = iconMap[link.label] ?? UserCircle
+                  const active = isNavPathActive(pathname, link.href)
                   return (
                     <motion.div
                       key={link.href}
@@ -224,7 +286,12 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
                       >
                         <Icon
                           weight={active ? 'fill' : 'regular'}
-                          className={cn('h-[18px] w-[18px] shrink-0 transition-colors', active ? 'text-accent-300' : 'text-gray-500 group-hover:text-gray-300')}
+                          className={cn(
+                            'h-[18px] w-[18px] shrink-0 transition-colors',
+                            active
+                              ? 'text-accent-300'
+                              : 'text-gray-500 group-hover:text-gray-300'
+                          )}
                         />
                         <span className="flex-1 font-medium">{link.label}</span>
                         <CaretRight
@@ -233,7 +300,7 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
                         />
                       </Link>
                     </motion.div>
-                  );
+                  )
                 })}
               </div>
 
@@ -246,7 +313,11 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
                   type="button"
                   onClick={onSignOut}
                   role="menuitem"
-                  whileHover={{ x: 2 }}
+                  whileHover={prefersReducedMotion ? undefined : { x: 1 }}
+                  transition={{
+                    duration: motionDurations.fast,
+                    ease: motionEasing.micro,
+                  }}
                   className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-400 outline-none transition-all duration-150 hover:bg-red-500/[0.08] hover:text-red-400"
                 >
                   <SignOut
@@ -264,5 +335,5 @@ export default function NavUserActions({ onSignIn, onSignOut, pathname, session 
         </AnimatePresence>
       </div>
     </div>
-  );
+  )
 }

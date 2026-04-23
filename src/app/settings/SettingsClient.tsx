@@ -488,7 +488,10 @@ export default function SettingsClient({
         className="mx-auto w-full max-w-5xl"
       >
         <section className="overflow-hidden rounded-[2rem] bg-[#090d0a]/90 shadow-[0_30px_100px_rgba(0,0,0,0.34)] ring-1 ring-white/[0.055] backdrop-blur-xl">
-          <header className="flex flex-col gap-4 px-5 py-6 sm:flex-row sm:items-start sm:justify-between sm:px-7">
+          <header
+            className="flex flex-col gap-4 px-5 py-6 sm:flex-row sm:items-start sm:justify-between sm:px-7"
+            data-motion-section="reveal"
+          >
             <span>
               <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-zinc-600">
                 TypeForge
@@ -506,6 +509,7 @@ export default function SettingsClient({
           <section
             aria-labelledby="identity-title"
             className="grid gap-7 border-t border-white/[0.045] px-5 py-7 sm:px-7 lg:grid-cols-[13rem_minmax(0,1fr)]"
+            data-motion-group="hero"
           >
             <figure className="m-0">
               <span
@@ -568,7 +572,10 @@ export default function SettingsClient({
               >
                 Identity
               </legend>
-              <ul className="mt-4 divide-y divide-white/[0.045]">
+              <ul
+                className="mt-4 divide-y divide-white/[0.045]"
+                data-motion-group="form"
+              >
                 <SettingsField
                   htmlFor="profile-display-name"
                   title="Display name"
@@ -802,7 +809,10 @@ export default function SettingsClient({
             </p>
           ) : null}
 
-          <footer className="sticky bottom-0 flex flex-col gap-3 border-t border-white/[0.055] bg-[#090d0a]/88 px-5 py-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <footer
+            className="sticky bottom-0 flex flex-col gap-3 border-t border-white/[0.055] bg-[#090d0a]/88 px-5 py-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:px-7"
+            data-motion-section="reveal"
+          >
             <p
               className={cn(
                 'text-[12px]',

@@ -14,7 +14,10 @@ export function SettingsField({
   title,
 }: SettingsFieldProps) {
   return (
-    <li className="grid gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_minmax(14rem,auto)] sm:items-center">
+    <li
+      className="grid gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_minmax(14rem,auto)] sm:items-center"
+      data-motion-section="reveal"
+    >
       <span className="min-w-0">
         {htmlFor ? (
           <label

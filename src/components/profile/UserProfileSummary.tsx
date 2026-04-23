@@ -367,7 +367,10 @@ export function UserProfileSummary({
         </aside>
       </header>
 
-      <ul className="relative mt-14 grid before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.09] before:to-transparent before:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/[0.07] after:to-transparent after:content-[''] sm:grid-cols-2 lg:grid-cols-4">
+      <ul
+        className="relative mt-14 grid before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.09] before:to-transparent before:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/[0.07] after:to-transparent after:content-[''] sm:grid-cols-2 lg:grid-cols-4"
+        data-motion-group="list"
+      >
         {showcaseMetrics.map((metric, index) => {
           const Icon = metric.icon
 
@@ -404,13 +407,19 @@ export function UserProfileSummary({
         })}
       </ul>
 
-      <section className="relative mt-12 grid gap-12 pt-9 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.075] before:to-transparent before:content-[''] lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section
+        className="relative mt-12 grid gap-12 pt-9 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.075] before:to-transparent before:content-[''] lg:grid-cols-[minmax(0,1fr)_22rem]"
+        data-motion-group="panel"
+      >
         <article>
           <p className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] text-zinc-500">
             <Radio size={13} className="text-zinc-400" />
             Field notes
           </p>
-          <ul className="mt-5 divide-y divide-white/[0.04]">
+          <ul
+            className="mt-5 divide-y divide-white/[0.04]"
+            data-motion-group="list"
+          >
             {storyItems.map((item) => (
               <li
                 key={item.label}
@@ -449,7 +458,10 @@ export function UserProfileSummary({
               performanceNarrative
             )}
           </p>
-          <ul className="mt-5 grid gap-3 text-sm text-zinc-400">
+          <ul
+            className="mt-5 grid gap-3 text-sm text-zinc-400"
+            data-motion-group="list"
+          >
             <li className="flex items-center justify-between gap-4">
               <span className="inline-flex items-center gap-2">
                 <Zap size={14} className="text-green-300" />
