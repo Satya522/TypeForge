@@ -52,18 +52,32 @@ export function AnimatedCounter({ value, duration = 1.5, suffix = "" }: any) {
   return <span>{display}{suffix}</span>;
 }
 
-export function GlowCard({ children, className = "", hoverGlow = true }: any) {
+export function GlowCard({ children, className = "", hoverGlow = true, accentColor = "#8b5cf6" }: any) {
   return (
     <motion.div
-      whileHover={hoverGlow ? { y: -3 } : {}}
-      className={cn("group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-all duration-500 hover:border-white/[0.12]", className)}
+      whileHover={hoverGlow ? { y: -4, scale: 1.01 } : {}}
+      className={cn(
+        "group relative overflow-hidden rounded-3xl border border-white/[0.04] bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 backdrop-blur-xl transition-all duration-500",
+        className
+      )}
+      style={{
+        boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.02), 0 10px 30px -10px rgba(0,0,0,0.5)"
+      }}
     >
+      {/* Subtle Noise Texture */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.02] mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+      
+      {/* Top inner gradient reflection */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+      {/* Hover border & accent glow */}
       {hoverGlow && (
-        <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
-          <div className="absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="absolute inset-0 opacity-0 transition-all duration-700 group-hover:opacity-100 pointer-events-none">
+          <div className="absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full blur-[60px]" style={{ backgroundColor: accentColor, opacity: 0.15 }} />
+          <div className="absolute inset-0 rounded-3xl border transition-colors duration-500" style={{ borderColor: `${accentColor}30` }} />
         </div>
       )}
-      <div className="relative">{children}</div>
+      <div className="relative z-10">{children}</div>
     </motion.div>
   );
 }
@@ -87,44 +101,69 @@ export function KPICard({ metric, index }: { metric: SnapshotMetric; index: numb
     <motion.div
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: index * 0.12, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="h-full"
     >
-      <GlowCard className="p-5">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg" style={{ backgroundColor: `${metric.accent}15` }}>
-              <Icon className="h-4 w-4" style={{ color: metric.accent }} strokeWidth={2} />
+      <GlowCard className="p-6 flex flex-col h-full" accentColor={metric.accent}>
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl border border-white/[0.08] bg-[#0A0A0A] shadow-inner relative overflow-hidden">
+              <div className="absolute inset-0 opacity-20" style={{ backgroundColor: metric.accent }} />
+              <Icon className="h-4 w-4 relative z-10" style={{ color: metric.accent }} strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-600">{metric.label}</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">{metric.label}</span>
           </div>
           <div
-            className={cn("flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold", 
-              trendDir === "up" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20")}
+            className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black shadow-sm backdrop-blur-md", 
+              trendDir === "up" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-emerald-500/10" : "bg-red-500/10 text-red-400 border border-red-500/20 shadow-red-500/10")}
           >
-            {trendDir === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {trendDir === "up" ? <TrendingUp className="h-3 w-3" strokeWidth={2.5} /> : <TrendingDown className="h-3 w-3" strokeWidth={2.5} />}
             {metric.delta > 0 ? '+' : ''}{metric.delta}{metric.unit === '%' ? '%' : ''}
           </div>
         </div>
 
-        <div className="font-mono text-4xl font-black tracking-[-0.06em] text-white">
-          <AnimatedCounter value={metric.value} suffix={metric.unit === 'WPM' ? '' : metric.unit} />
+        <div className="mt-3 flex items-baseline gap-2">
+          <div className="font-mono text-5xl font-black tracking-[-0.04em] text-white">
+            <AnimatedCounter value={metric.value} />
+          </div>
+          <span className="text-sm font-bold tracking-wide text-zinc-500 uppercase">{metric.unit === 'WPM' ? 'WPM' : metric.unit}</span>
         </div>
 
-        <div className="mt-4 h-12">
+        <div className="mt-6 h-16 w-full relative -mx-2 px-2">
+          {/* Fading gradient masks for the sparkline to blend into edges */}
+          <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#111111] to-transparent z-10" />
+          <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#111111] to-transparent z-10" />
+          
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={metric.sparkline.map((v, i) => ({ i, v }))}>
               <defs>
                 <linearGradient id={`grad-${metric.key}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={metric.accent} stopOpacity={0.3} />
-                  <stop offset="100%" stopColor={metric.accent} stopOpacity={0} />
+                  <stop offset="100%" stopColor={metric.accent} stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id={`line-${metric.key}`} x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor={metric.accent} stopOpacity={0.1} />
+                  <stop offset="50%" stopColor={metric.accent} stopOpacity={1} />
+                  <stop offset="100%" stopColor={metric.accent} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke={metric.accent} strokeWidth={2} fill={`url(#grad-${metric.key})`} />
+              <Area 
+                type="monotone" 
+                dataKey="v" 
+                stroke={`url(#line-${metric.key})`} 
+                strokeWidth={3} 
+                fill={`url(#grad-${metric.key})`} 
+                isAnimationActive={true} 
+                animationDuration={1500}
+                animationEasing="ease-out"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <p className="mt-3 text-xs text-zinc-600 leading-relaxed truncate">{metric.helper}</p>
+        <div className="mt-auto pt-4 border-t border-white/[0.04]">
+          <p className="text-[12px] text-zinc-400 leading-relaxed font-medium line-clamp-2">{metric.helper}</p>
+        </div>
       </GlowCard>
     </motion.div>
   );

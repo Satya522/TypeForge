@@ -1,0 +1,335 @@
+/* ═══════════════════════════════════════════════════════════════
+   TypeForge Premium Effects Layer
+   Standalone CSS — no existing file modifications needed
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Cursor glow that follows the pointer ── */
+.cursor-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(79, 141, 253, 0.07) 0%,
+    rgba(79, 141, 253, 0.03) 25%,
+    transparent 60%
+  );
+  transition: opacity 0.3s ease;
+  mix-blend-mode: screen;
+  will-change: left, top;
+}
+
+.cursor-glow--hidden {
+  opacity: 0;
+}
+
+/* ── Aurora gradient animation ── */
+@keyframes aurora-drift {
+  0% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    background-position: 50% 100%;
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: hue-rotate(15deg);
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+}
+
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -100;
+  pointer-events: none;
+  opacity: 0.4;
+  background: 
+    radial-gradient(ellipse 80% 50% at 15% 40%, rgba(79, 141, 253, 0.18), transparent 50%),
+    radial-gradient(ellipse 70% 70% at 85% 15%, rgba(139, 182, 255, 0.10), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 85%, rgba(99, 102, 241, 0.08), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 70% 60%, rgba(168, 85, 247, 0.04), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 30% 70%, rgba(56, 189, 248, 0.04), transparent 50%);
+  background-size: 200% 200%;
+  animation: aurora-drift 20s ease-in-out infinite;
+}
+
+/* ── Animated grain / noise overlay for tactile premium feel ── */
+@keyframes grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  30% { transform: translate(3%, -15%); }
+  50% { transform: translate(12%, 9%); }
+  70% { transform: translate(9%, 4%); }
+  90% { transform: translate(-1%, 7%); }
+}
+
+.premium-grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.018;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  animation: grain-shift 8s steps(10) infinite;
+  mix-blend-mode: overlay;
+}
+
+/* ── Spotlight card effect ── */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  --spotlight-x: 50%;
+  --spotlight-y: 50%;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    600px circle at var(--spotlight-x) var(--spotlight-y),
+    rgba(79, 141, 253, 0.06),
+    transparent 40%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Spotlight border glow */
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    400px circle at var(--spotlight-x) var(--spotlight-y),
+    rgba(79, 141, 253, 0.12),
+    transparent 40%
+  );
+  z-index: 0;
+  pointer-events: none;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+/* ── Beam divider — an animated light sweep across a line ── */
+@keyframes beam-sweep {
+  0% { left: -20%; }
+  100% { left: 120%; }
+}
+
+.beam-divider {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(79, 141, 253, 0.1), transparent);
+  overflow: hidden;
+}
+
+.beam-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -20%;
+  width: 20%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(79, 141, 253, 0.6),
+    rgba(139, 182, 255, 0.8),
+    rgba(79, 141, 253, 0.6),
+    transparent
+  );
+  animation: beam-sweep 4s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+/* ── Breathing glow for badges/icons ── */
+@keyframes breathe-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(79, 141, 253, 0.15),
+      0 0 30px rgba(79, 141, 253, 0.05);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(79, 141, 253, 0.25),
+      0 0 50px rgba(79, 141, 253, 0.1);
+  }
+}
+
+.breathe-glow {
+  animation: breathe-glow 4s ease-in-out infinite;
+}
+
+/* ── Floating dot grid animation ── */
+@keyframes dot-float {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(-6px); opacity: 0.7; }
+}
+
+.animated-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(79, 141, 253, 0.12) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+  animation: dot-float 6s ease-in-out infinite;
+}
+
+/* ── Glassmorphic card premium upgrade ── */
+.glass-premium {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-premium:hover {
+  border-color: rgba(79, 141, 253, 0.15);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(79, 141, 253, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Text shimmer effect for premium headings ── */
+@keyframes text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(139, 182, 255, 0.9) 25%,
+    rgba(79, 141, 253, 1) 50%,
+    rgba(139, 182, 255, 0.9) 75%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 6s linear infinite;
+}
+
+/* ── Magnetic hover effect for interactive elements ── */
+.magnetic-hover {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* ── Stagger reveal for lists/grids ── */
+.stagger-reveal > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stagger-reveal.is-visible > *:nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+.stagger-reveal.is-visible > *:nth-child(2) { transition-delay: 80ms; opacity: 1; transform: translateY(0); }
+.stagger-reveal.is-visible > *:nth-child(3) { transition-delay: 160ms; opacity: 1; transform: translateY(0); }
+.stagger-reveal.is-visible > *:nth-child(4) { transition-delay: 240ms; opacity: 1; transform: translateY(0); }
+.stagger-reveal.is-visible > *:nth-child(5) { transition-delay: 320ms; opacity: 1; transform: translateY(0); }
+.stagger-reveal.is-visible > *:nth-child(6) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+
+/* ── Vignette overlay for cinematic depth ── */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 50%,
+    transparent 55%,
+    rgba(2, 4, 10, 0.25) 100%
+  );
+}
+
+/* ── Premium scroll shadow for containers ── */
+.scroll-shadow-top {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 30px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30px);
+}
+
+.scroll-shadow-bottom {
+  mask-image: linear-gradient(to top, transparent 0%, black 30px);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 30px);
+}
+
+/* ── Glowing border on focus ── */
+.premium-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px rgba(79, 141, 253, 0.4),
+    0 0 0 4px rgba(79, 141, 253, 0.1),
+    0 0 20px rgba(79, 141, 253, 0.1);
+}
+
+/* ── Reduced motion override ── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg,
+  .premium-grain,
+  .cursor-glow,
+  .vignette-overlay {
+    display: none !important;
+  }
+  
+  .beam-divider::after {
+    animation: none;
+  }
+  
+  .breathe-glow {
+    animation: none;
+  }
+  
+  .text-shimmer {
+    animation: none;
+  }
+  
+  .animated-dot-grid {
+    animation: none;
+  }
+}

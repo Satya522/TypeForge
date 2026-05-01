@@ -9,6 +9,7 @@ import {
   PremiumMotionProvider,
   ScrollProgressChrome,
 } from '@/components/motion'
+import { PremiumEffectsLayer } from '@/components/premium'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -21,6 +22,7 @@ export default function Providers({ children }: ProvidersProps) {
         <NotificationManager />
         <PremiumMotionProvider>
           <ScrollProgressChrome />
+          <PremiumEffectsLayer />
           {children}
         </PremiumMotionProvider>
       </ThemeProvider>

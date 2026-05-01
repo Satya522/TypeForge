@@ -53,7 +53,7 @@ const TABS = ["Overview", "Detailed", "Raw"] as const;
 export default function AnalyticsDashboard({
   data, exportHref, heatmapData, sessionExtremes, sessions, streak, telemetryMode = "preview"
 }: Props) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
