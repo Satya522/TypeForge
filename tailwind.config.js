@@ -10,19 +10,19 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter var', ...fontFamily.sans],
+        sans: ['Google Sans Text', 'Google Sans', 'Inter var', ...fontFamily.sans],
       },
       colors: {
         surface: {
-          100: '#070906',
-          200: '#0d110b',
-          300: '#161c14',
-          400: '#21291d',
+          100: '#02040a',
+          200: '#07101d',
+          300: '#101a2c',
+          400: '#1a2740',
         },
         accent: {
-          100: '#bcff9d',
-          200: '#7dff4d',
-          300: '#39ff14',
+          100: '#dfe9ff',
+          200: '#8bb6ff',
+          300: '#4f8dfd',
         },
       },
     },

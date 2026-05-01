@@ -27,6 +27,9 @@ export default function LegalLayout({ title, subtitle, lastUpdated, icon, sectio
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!containerRef.current) return;
+    const scope = containerRef.current;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.legal-section',
@@ -38,12 +41,12 @@ export default function LegalLayout({ title, subtitle, lastUpdated, icon, sectio
           stagger: 0.15,
           ease: 'power3.out',
           scrollTrigger: {
-            trigger: containerRef.current,
+            trigger: scope,
             start: 'top 80%',
           },
         }
       );
-    }, containerRef);
+    }, scope);
 
     return () => ctx.revert();
   }, []);

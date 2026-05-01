@@ -18,15 +18,15 @@ type ThemeContextType = {
 
 const defaultSettings: ThemeSettings = {
   theme: 'dark',
-  accentColor: 'green',
-  fontFamily: 'Inter',
+  accentColor: 'blue',
+  fontFamily: 'Google Sans Text',
   fontSize: 16,
   notificationsEnabled: true,
 };
 
 const accentColors: Record<string, string> = {
   green: '#7dff4d',
-  blue: '#60a5fa',
+  blue: '#4f8dfd',
   purple: '#8b5cf6',
   orange: '#f59e0b',
 };

@@ -274,11 +274,11 @@ export default function Hero() {
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/learn" className="hero-cta w-full sm:w-auto" style={{ opacity: 0 }}>
               <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="primary" size="lg" className="group relative w-full gap-2 overflow-hidden px-8 sm:w-auto">
-                  <span className="relative z-10">Start Training</span>
-                  <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <Button variant="primary" size="lg" className="group relative w-full gap-2 overflow-hidden px-8 sm:w-auto" style={{ background: '#4f8dfd', color: '#ffffff' }}>
+                  <span className="relative z-10 text-white">Start Training</span>
+                  <ArrowRight className="relative z-10 h-4 w-4 text-white transition-transform group-hover:translate-x-1" />
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-accent-300 via-emerald-400 to-accent-300 opacity-0 transition-opacity group-hover:opacity-20"
+                    className="absolute inset-0 bg-gradient-to-r from-[#4f8dfd] via-[#8bb6ff] to-[#4f8dfd] opacity-0 transition-opacity group-hover:opacity-20"
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                   />

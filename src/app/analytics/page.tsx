@@ -1,6 +1,6 @@
 import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import { redirect } from 'next/navigation';
@@ -150,7 +150,7 @@ export default async function AnalyticsPage() {
   const telemetryMode = Object.keys(liveHeatmapData).length > 0 ? 'live' : 'preview';
   return (
     <>
-      <Navbar />
+      
       <AnalyticsDashboard
         data={data}
         exportHref="/api/analytics/export"

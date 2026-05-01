@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import AIPracticeClient from '@/components/AIPracticeClient';
 
@@ -18,7 +18,7 @@ export const metadata = {
 export default function AIPracticePage() {
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl space-y-6">
         <h1 className="text-3xl font-bold text-gray-100">AI Generated Practice</h1>
         <p className="text-gray-300">

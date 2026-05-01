@@ -138,7 +138,7 @@ function FooterParticles() {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 80) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(57,255,20,${0.06 * (1 - dist / 80)})`;
+            ctx.strokeStyle = `rgba(79,141,253,${0.06 * (1 - dist / 80)})`;
             ctx.lineWidth = 0.5;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -176,6 +176,10 @@ export default function Footer() {
 
   // GSAP scroll-triggered reveal
   useEffect(() => {
+    if (!footerRef.current) return;
+    const scope = footerRef.current;
+    const bottomTrigger = bottomRef.current ?? scope;
+
     const ctx = gsap.context(() => {
       // Wordmark / brand column
       gsap.fromTo(
@@ -183,7 +187,7 @@ export default function Footer() {
         { y: 50, opacity: 0 },
         {
           y: 0, opacity: 1, duration: 1, ease: 'power3.out',
-          scrollTrigger: { trigger: footerRef.current, start: 'top 90%', once: true },
+          scrollTrigger: { trigger: scope, start: 'top 90%', once: true },
         }
       );
 
@@ -193,7 +197,7 @@ export default function Footer() {
         { y: 40, opacity: 0 },
         {
           y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out',
-          scrollTrigger: { trigger: footerRef.current, start: 'top 88%', once: true },
+          scrollTrigger: { trigger: scope, start: 'top 88%', once: true },
         }
       );
 
@@ -205,17 +209,17 @@ export default function Footer() {
         { opacity: 0 },
         {
           opacity: 1, duration: 0.8, ease: 'power2.out',
-          scrollTrigger: { trigger: bottomRef.current, start: 'top 95%', once: true },
+          scrollTrigger: { trigger: bottomTrigger, start: 'top 95%', once: true },
         }
       );
 
-    }, footerRef);
+    }, scope);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <footer ref={footerRef} className="relative mt-auto overflow-hidden bg-[#050704]">
+    <footer ref={footerRef} className="relative mt-auto overflow-hidden bg-[#02040a]">
       {/* ── Particle canvas ── */}
       <FooterParticles />
 
@@ -224,7 +228,7 @@ export default function Footer() {
         {/* Core neon glow bloom */}
         <div
           className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full"
-          style={{ background: 'radial-gradient(ellipse, rgba(57,255,20,0.06) 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(ellipse, rgba(79,141,253,0.06) 0%, transparent 65%)' }}
         />
         {/* Grid fabric */}
         <div
@@ -267,9 +271,9 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.15, y: -2 }}
                   whileTap={{ scale: 0.93 }}
-                  className="group flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] transition-all duration-200 hover:border-[#39ff14]/30 hover:bg-[#39ff14]/[0.06]"
+                  className="group flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] transition-all duration-200 hover:border-[#4f8dfd]/30 hover:bg-[#4f8dfd]/[0.06]"
                 >
-                  <Icon weight="bold" className="h-4 w-4 text-gray-500 transition-colors duration-200 group-hover:text-[#39ff14]" />
+                  <Icon weight="bold" className="h-4 w-4 text-gray-500 transition-colors duration-200 group-hover:text-[#4f8dfd]" />
                 </motion.a>
               ))}
             </div>
@@ -281,8 +285,8 @@ export default function Footer() {
             return (
               <div key={col.title} className="footer-col opacity-0">
                 <div className="mb-5 flex items-center gap-2">
-                  <ColIcon weight="duotone" className="h-3.5 w-3.5 text-[#39ff14]/70" />
-                  <h4 className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#39ff14]/80">
+                  <ColIcon weight="duotone" className="h-3.5 w-3.5 text-[#4f8dfd]/70" />
+                  <h4 className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#4f8dfd]/80">
                     {col.title}
                   </h4>
                 </div>
@@ -297,7 +301,7 @@ export default function Footer() {
                       >
                         <Link
                           href={link.href}
-                          className="group inline-flex items-center gap-1.5 text-sm text-gray-400 transition-all duration-200 hover:text-[#39ff14]"
+                          className="group inline-flex items-center gap-1.5 text-sm text-gray-400 transition-all duration-200 hover:text-[#4f8dfd]"
                         >
                           <CaretRight weight="bold" className="h-3 w-3 -translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
                           {link.label}

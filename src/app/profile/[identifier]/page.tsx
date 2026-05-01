@@ -47,8 +47,7 @@ export default async function PublicProfilePage({
 
   return (
     <>
-      <Navbar />
-      <main className="mx-auto max-w-6xl px-4 pb-14 pt-24 sm:px-6">
+            <main className="mx-auto max-w-6xl px-4 pb-14 pt-24 sm:px-6">
         <UserProfileSummary
           achievementCount={profile.user._count.achievements}
           archetype={profile.user.memberProfile?.archetype}

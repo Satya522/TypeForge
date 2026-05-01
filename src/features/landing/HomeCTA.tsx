@@ -20,7 +20,7 @@ export default function HomeCTA() {
         y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
         scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
       });
-    }, sectionRef);
+    }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
@@ -40,7 +40,7 @@ export default function HomeCTA() {
             <motion.div
               animate={{ scale: [1, 1.15, 1], opacity: [0.03, 0.06, 0.03] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              className="absolute -right-32 top-0 h-[350px] w-[350px] rounded-full bg-emerald-500/[0.05] blur-[100px]"
+              className="absolute -right-32 top-0 h-[350px] w-[350px] rounded-full bg-[#5f9aff]/[0.05] blur-[100px]"
             />
           </div>
 
@@ -58,7 +58,7 @@ export default function HomeCTA() {
           {/* Headline */}
           <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">
             Build speed, accuracy, and{' '}
-            <span className="bg-gradient-to-r from-accent-300 via-emerald-400 to-accent-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent-300 via-[#8bb6ff] to-accent-200 bg-clip-text text-transparent">
               confidence
             </span>
           </h2>
@@ -90,7 +90,7 @@ export default function HomeCTA() {
                   <span className="relative z-10">Explore Learning Paths</span>
                   <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-accent-300 via-emerald-400 to-accent-300 opacity-0 transition-opacity group-hover:opacity-20"
+                    className="absolute inset-0 bg-gradient-to-r from-accent-300 via-[#8bb6ff] to-accent-300 opacity-0 transition-opacity group-hover:opacity-20"
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                   />

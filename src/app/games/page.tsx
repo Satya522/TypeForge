@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import GamesHubClient from './GamesHubClient';
 
@@ -10,7 +10,7 @@ export const metadata = {
 export default function GamesPage() {
   return (
     <>
-      <Navbar />
+      
       <main className="pt-28 pb-20 px-6 mx-auto max-w-[1400px]">
         <div className="mb-14">
           <h1 className="text-4xl font-black text-white mb-3">Typing Games</h1>

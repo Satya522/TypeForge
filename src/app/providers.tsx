@@ -7,7 +7,7 @@ import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import {
   PremiumMotionProvider,
-  RouteTransitionShell,
+  ScrollProgressChrome,
 } from '@/components/motion'
 
 interface ProvidersProps {
@@ -20,7 +20,8 @@ export default function Providers({ children }: ProvidersProps) {
       <ThemeProvider>
         <NotificationManager />
         <PremiumMotionProvider>
-          <RouteTransitionShell>{children}</RouteTransitionShell>
+          <ScrollProgressChrome />
+          {children}
         </PremiumMotionProvider>
       </ThemeProvider>
       <Toaster position="bottom-right" richColors />

@@ -19,10 +19,10 @@ const trendData = [
 ];
 
 const metricCards = [
-  { label: 'WPM', value: 78, suffix: '', detail: '+18% this week', color: '#39ff14' },
-  { label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', color: '#4ade80' },
-  { label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', color: '#34d399' },
-  { label: 'Streak', value: 14, suffix: '', detail: 'Days active', color: '#bcff9d' },
+  { label: 'WPM', value: 78, suffix: '', detail: '+18% this week', color: '#4f8dfd' },
+  { label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', color: '#6fa7ff' },
+  { label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', color: '#7b61ff' },
+  { label: 'Streak', value: 14, suffix: '', detail: 'Days active', color: '#dfe9ff' },
 ] as const;
 
 const insightItems = [
@@ -69,7 +69,7 @@ export default function AnalyticsShowcase() {
         y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
         scrollTrigger: { trigger: '.analytics-chart', start: 'top 85%', once: true },
       });
-    }, sectionRef);
+    }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
@@ -89,7 +89,7 @@ export default function AnalyticsShowcase() {
           </div>
           <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
             Progress you can{' '}
-            <span className="bg-gradient-to-r from-accent-300 via-emerald-400 to-teal-400 bg-clip-text text-transparent">actually read</span>
+            <span className="bg-gradient-to-r from-accent-300 via-[#8bb6ff] to-[#7b61ff] bg-clip-text text-transparent">actually read</span>
             {' '}at a glance
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 lg:text-lg">
@@ -128,7 +128,7 @@ export default function AnalyticsShowcase() {
           <div
             className="relative overflow-hidden rounded-2xl border border-white/[0.04] p-5 sm:p-6"
             style={{
-              background: 'linear-gradient(135deg, rgba(13,17,11,0.7) 0%, rgba(6,9,8,0.85) 100%)',
+              background: 'linear-gradient(135deg, rgba(7,16,29,0.7) 0%, rgba(2,4,10,0.85) 100%)',
               backdropFilter: 'blur(20px)',
             }}
           >
@@ -150,8 +150,8 @@ export default function AnalyticsShowcase() {
                 <AreaChart data={trendData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
                   <defs>
                     <linearGradient id="analytics-wpm-gradient" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#39ff14" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#39ff14" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#4f8dfd" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#4f8dfd" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
@@ -159,26 +159,26 @@ export default function AnalyticsShowcase() {
                   <YAxis stroke="#4b5563" tickMargin={8} width={30} domain={[45, 85]} fontSize={12} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'rgba(6,9,8,0.95)',
-                      border: '1px solid rgba(57,255,20,0.15)',
+                      backgroundColor: 'rgba(2,4,10,0.95)',
+                      border: '1px solid rgba(79,141,253,0.15)',
                       borderRadius: '12px',
                       backdropFilter: 'blur(20px)',
                     }}
-                    labelStyle={{ color: '#bcff9d' }}
+                    labelStyle={{ color: '#dfe9ff' }}
                     itemStyle={{ color: '#f3f4f6' }}
                   />
                   <Area
                     type="monotone"
                     dataKey="wpm"
-                    stroke="#39ff14"
+                    stroke="#4f8dfd"
                     strokeWidth={2.5}
                     fill="url(#analytics-wpm-gradient)"
                     activeDot={{
                       r: 5,
-                      fill: '#39ff14',
-                      stroke: '#060908',
+                      fill: '#4f8dfd',
+                      stroke: '#02040a',
                       strokeWidth: 2,
-                      style: { filter: 'drop-shadow(0 0 6px rgba(57,255,20,0.5))' },
+                      style: { filter: 'drop-shadow(0 0 6px rgba(79,141,253,0.5))' },
                     }}
                   />
                 </AreaChart>

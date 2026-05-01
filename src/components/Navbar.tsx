@@ -28,6 +28,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isBrowseMenuOpen, setIsBrowseMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isNavAutoHidden, setIsNavAutoHidden] = useState(false)
   const [mousePos, setMousePos] = useState({ x: -200, y: -200 })
   const [isNavHovered, setIsNavHovered] = useState(false)
 
@@ -36,8 +37,19 @@ export default function Navbar() {
   const browseTriggerRef = useRef<HTMLButtonElement>(null)
   const firstBrowseItemRef = useRef<HTMLAnchorElement>(null)
   const browseCloseTimerRef = useRef<number | null>(null)
+  const navIdleTimerRef = useRef<number | null>(null)
+  const lastScrollYRef = useRef(0)
+  const browseOpenRef = useRef(false)
+  const mobileOpenRef = useRef(false)
 
-  /* ── GSAP Entrance ── */
+  useEffect(() => {
+    browseOpenRef.current = isBrowseMenuOpen
+  }, [isBrowseMenuOpen])
+
+  useEffect(() => {
+    mobileOpenRef.current = isMobileMenuOpen
+  }, [isMobileMenuOpen])
+
   useEffect(() => {
     if (!navShellRef.current) return
     const ctx = gsap.context(() => {
@@ -56,14 +68,12 @@ export default function Navbar() {
     return () => ctx.revert()
   }, [prefersReducedMotion])
 
-  /* ── Mouse Spotlight ── */
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!navRef.current) return
     const rect = navRef.current.getBoundingClientRect()
     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
   }, [])
 
-  /* ── Browse Menu Logic ── */
   const clearBrowseCloseTimer = () => {
     if (browseCloseTimerRef.current) {
       window.clearTimeout(browseCloseTimerRef.current)
@@ -91,16 +101,76 @@ export default function Navbar() {
     }, 120)
   }
 
-  /* ── Effects ── */
+  const clearNavIdleTimer = () => {
+    if (navIdleTimerRef.current) {
+      window.clearTimeout(navIdleTimerRef.current)
+      navIdleTimerRef.current = null
+    }
+  }
+
+  const scheduleNavIdleHide = () => {
+    clearNavIdleTimer()
+    navIdleTimerRef.current = window.setTimeout(() => {
+      if (!browseOpenRef.current && !mobileOpenRef.current) {
+        setIsNavAutoHidden(true)
+      }
+    }, 4000)
+  }
+
+  const revealNav = () => {
+    setIsNavAutoHidden(false)
+    scheduleNavIdleHide()
+  }
+
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 14)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => {
+      const currentScrollY = window.scrollY
+      const scrolled = currentScrollY > 14
+      const isScrollingUp = currentScrollY < lastScrollYRef.current
+
+      setIsScrolled(scrolled)
+
+      if (!scrolled || isScrollingUp) {
+        revealNav()
+      } else if (!browseOpenRef.current && !mobileOpenRef.current) {
+        setIsNavAutoHidden(true)
+      }
+
+      lastScrollYRef.current = currentScrollY
+    }
+
+    lastScrollYRef.current = window.scrollY
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
+    const handlePointerMove = (event: MouseEvent) => {
+      if (event.clientY <= 28) {
+        revealNav()
+      }
+    }
+
+    const handleActivity = () => revealNav()
+
+    scheduleNavIdleHide()
+    window.addEventListener('mousemove', handlePointerMove, { passive: true })
+    window.addEventListener('keydown', handleActivity)
+    window.addEventListener('focusin', handleActivity)
+
+    return () => {
+      clearNavIdleTimer()
+      window.removeEventListener('mousemove', handlePointerMove)
+      window.removeEventListener('keydown', handleActivity)
+      window.removeEventListener('focusin', handleActivity)
+    }
+  }, [isBrowseMenuOpen, isMobileMenuOpen])
+
+  useEffect(() => {
     closeBrowseMenu()
     setIsMobileMenuOpen(false)
+    revealNav()
   }, [pathname])
 
   useEffect(() => {
@@ -114,8 +184,9 @@ export default function Navbar() {
   useEffect(() => {
     if (!isBrowseMenuOpen && !isMobileMenuOpen) return
     const handlePointerDown = (event: MouseEvent) => {
-      if (isBrowseMenuOpen && !navRef.current?.contains(event.target as Node))
+      if (isBrowseMenuOpen && !navRef.current?.contains(event.target as Node)) {
         closeBrowseMenu()
+      }
     }
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -131,7 +202,13 @@ export default function Navbar() {
     }
   }, [isBrowseMenuOpen, isMobileMenuOpen])
 
-  useEffect(() => () => clearBrowseCloseTimer(), [])
+  useEffect(
+    () => () => {
+      clearBrowseCloseTimer()
+      clearNavIdleTimer()
+    },
+    []
+  )
 
   const handleBrowseTriggerKeyDown = (
     event: ReactKeyboardEvent<HTMLButtonElement>
@@ -150,29 +227,29 @@ export default function Navbar() {
     }
   }
 
-  const isPracticeSession =
-    pathname.startsWith('/practice/') && pathname.split('/').length > 2
+  const shouldHideNav =
+    isNavAutoHidden && !isBrowseMenuOpen && !isMobileMenuOpen
 
   return (
     <>
       <header
         className={cn(
           'fixed inset-x-0 top-0 z-50 w-full group/nav',
-          isPracticeSession ? 'h-3' : 'h-auto' // A small hit-box when hidden
+          shouldHideNav ? 'h-3' : 'h-auto'
         )}
+        onMouseEnter={revealNav}
+        onFocus={revealNav}
       >
         <div
           className={cn(
-            'transition-transform duration-500 origin-top h-full',
-            // Hide the nav almost completely (leave 3px so it can be hovered easily at the very top edge)
-            isPracticeSession && !isBrowseMenuOpen
-              ? '-translate-y-[calc(100%-3px)] group-hover/nav:translate-y-0'
+            'transition-transform duration-500 origin-top',
+            shouldHideNav && !isBrowseMenuOpen
+              ? '-translate-y-[calc(100%-3px)]'
               : 'translate-y-0'
           )}
         >
           <nav className="w-full relative">
             <div ref={navShellRef} style={{ opacity: 0 }}>
-              {/* ── Main Navbar Body ── */}
               <div
                 ref={navRef}
                 onMouseMove={handleMouseMove}
@@ -184,8 +261,8 @@ export default function Navbar() {
                 className={cn(
                   'relative nav-noise border-b transition-all duration-500 ease-out',
                   isScrolled
-                    ? 'bg-[#060908]/72 backdrop-blur-[20px] border-white/[0.06] shadow-[0_18px_48px_rgba(0,0,0,0.28)]'
-                    : 'bg-[#060908]/92 border-transparent backdrop-blur-[8px]'
+                    ? 'bg-[#050706] border-transparent shadow-none'
+                    : 'bg-[#050706] border-transparent shadow-none'
                 )}
               >
                 <div
@@ -194,9 +271,7 @@ export default function Navbar() {
                     isScrolled ? 'opacity-30' : 'opacity-45'
                   )}
                 >
-                  {/* Living aurora light beams */}
                   <NavAurora />
-                  {/* Mouse-following spotlight */}
                   <div
                     className="absolute inset-0 transition-opacity duration-300"
                     aria-hidden="true"
@@ -207,7 +282,6 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Top accent line */}
                 <div
                   className={cn(
                     'pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent transition-opacity duration-500',
@@ -216,7 +290,6 @@ export default function Navbar() {
                   aria-hidden="true"
                 />
 
-                {/* Bottom subtle line */}
                 <div
                   className={cn(
                     'pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.03] to-transparent transition-opacity duration-500',
@@ -225,7 +298,6 @@ export default function Navbar() {
                   aria-hidden="true"
                 />
 
-                {/* ── Content Row ── */}
                 <div
                   className={cn(
                     'mx-auto relative z-10 flex max-w-7xl items-center justify-between transition-[height,padding] duration-500 ease-out',
@@ -253,7 +325,6 @@ export default function Navbar() {
                     session={session ?? null}
                   />
 
-                  {/* ── Mobile Hamburger ── */}
                   <motion.button
                     type="button"
                     whileHover={
@@ -289,7 +360,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Browse overlay */}
       <AnimatePresence>
         {isBrowseMenuOpen && (
           <motion.button

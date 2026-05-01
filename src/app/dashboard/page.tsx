@@ -1,6 +1,6 @@
 import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   )
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-6">Welcome back{displayName ? `, ${displayName}` : ''}!</h1>
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">

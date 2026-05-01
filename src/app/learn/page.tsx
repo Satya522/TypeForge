@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ export default async function LearnPage() {
   });
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-6">Learning Paths</h1>
         {lessonPaths.length === 0 && (

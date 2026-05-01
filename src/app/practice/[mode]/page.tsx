@@ -1,6 +1,6 @@
 import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import PracticeClient from './PracticeClient';
 import { redirect, notFound } from 'next/navigation';

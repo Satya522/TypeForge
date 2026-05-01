@@ -40,3 +40,16 @@ prisma/*.db-journal
 # Misc
 *.tsbuildinfo
 next-env.d.ts
+
+# Temporary/Debug files
+.codex-*
+.tmp/
+*.err.log
+*.out.log
+*.png
+!public/**/*.png
+!src/**/*.png
+COMMUNITY_CHAT_ANALYSIS.md
+COMMUNITY_SYSTEM_GUIDE.md
+community-headless*.html
+fix.cjs

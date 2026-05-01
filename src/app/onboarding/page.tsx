@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import OnboardingClient from './OnboardingClient';
 
@@ -44,7 +44,7 @@ const steps = [
 export default function OnboardingPage() {
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-2xl">
         <OnboardingClient steps={steps} />
       </main>

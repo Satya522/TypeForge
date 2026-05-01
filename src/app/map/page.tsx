@@ -1,6 +1,6 @@
 import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import { redirect } from 'next/navigation';
 import RoadmapClient from './RoadmapClient';
@@ -112,7 +112,7 @@ export default async function MapPage() {
 
   return (
     <>
-      <Navbar />
+      
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-8 xl:px-12 pt-24 pb-20 sm:pt-32">
         <RoadmapClient
           paths={pathSections}

@@ -27,12 +27,11 @@ export default function NavBrand({ pathname: _pathname }: NavBrandProps) {
   return (
     <div ref={wrapperRef} style={{ opacity: 0 }}>
       <BrandLogo
-        size="md"
+        size="sm"
         showTagline={false}
-        markClassName="logo-glow-pulse"
-        wordmarkClassName="brand-gradient-text"
-        className="min-w-0 shrink-0 px-2 py-1 transition-all duration-300 hover:opacity-90"
-        priority
+        markClassName="border-[#4f8dfd]/30 bg-black shadow-[0_10px_20px_rgba(0,0,0,0.28)]"
+        wordmarkClassName="text-white"
+        className="min-w-0 shrink-0 pr-2 transition-opacity duration-300 hover:opacity-90 xl:pr-4"
       />
     </div>
   )

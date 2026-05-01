@@ -417,7 +417,7 @@ export default function MemoryMatrixGame() {
                     onClick={initGame} 
                     className="group relative w-full h-16 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-black tracking-widest text-xl shadow-[0_0_40px_rgba(232,121,249,0.4)] rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shrink-0"
                   >
-                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:duration-[1000ms]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:[transition-duration:1000ms]" />
                     <Play className="w-6 h-6 mr-3 fill-current group-hover:scale-125 transition-transform duration-300" /> ENTER NEURAL NET
                   </Button>
                 </>

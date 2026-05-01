@@ -13,7 +13,7 @@ export function RouteTransitionShell({ children }: RouteTransitionShellProps) {
   const prefersReducedMotion = useReducedMotion()
 
   return (
-    <AnimatePresence initial={false} mode="wait">
+    <AnimatePresence initial={false} mode="sync">
       <motion.div
         key={pathname}
         initial={
@@ -30,7 +30,7 @@ export function RouteTransitionShell({ children }: RouteTransitionShellProps) {
         transition={{
           duration: prefersReducedMotion
             ? motionDurations.fast
-            : motionDurations.route,
+            : motionDurations.medium,
           ease: motionEasing.premium,
         }}
         className="flex min-h-screen flex-col"

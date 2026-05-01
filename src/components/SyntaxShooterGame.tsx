@@ -572,7 +572,7 @@ export default function SyntaxShooterGame() {
                     onClick={initGame} 
                     className="group relative w-64 md:w-80 h-16 md:h-20 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black tracking-widest text-xl md:text-2xl shadow-[0_0_40px_rgba(244,63,94,0.4)] rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shrink-0"
                   >
-                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:duration-[1500ms]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat transition-[background-position_0s_ease] hover:bg-[position:-20%_0,0_0] hover:[transition-duration:1500ms]" />
                     <Play className="w-8 h-8 mr-4 fill-current group-hover:scale-125 transition-transform duration-300" /> SYSTEM OVERRIDE
                   </Button>
                 </>

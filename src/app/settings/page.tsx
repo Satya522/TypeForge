@@ -52,7 +52,7 @@ export default async function SettingsPage() {
   // Render client component
   return (
     <>
-      <Navbar />
+      
       <main className="w-full flex-1 px-4 pb-16 pt-24 sm:px-6">
         <SettingsClient settings={settings} user={user} />
       </main>

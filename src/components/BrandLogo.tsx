@@ -1,8 +1,5 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Outfit } from 'next/font/google'
-
-const outfit = Outfit({ subsets: ['latin'], weight: ['800', '900'] })
 import { cn } from '@/lib/utils'
 import { BRAND_ASSETS } from '@/lib/brand'
 
@@ -77,8 +74,7 @@ export default function BrandLogo({
         <div className="min-w-0">
           <p
             className={cn(
-              'truncate font-black tracking-tight text-white/95',
-              outfit.className,
+              'font-display-premium truncate font-bold tracking-normal text-white/96',
               current.title,
               wordmarkClassName
             )}

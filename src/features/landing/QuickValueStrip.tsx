@@ -13,19 +13,19 @@ const valueItems = [
     icon: BookOpen,
     title: 'Guided Lessons',
     description: 'Structured paths from fundamentals to advanced precision.',
-    gradient: 'from-accent-300/20 to-emerald-500/20',
+    gradient: 'from-accent-300/20 to-blue-500/20',
   },
   {
     icon: ActivitySquare,
     title: 'Real-Time Feedback',
     description: 'WPM, accuracy, and consistency update as you type.',
-    gradient: 'from-emerald-400/20 to-teal-500/20',
+    gradient: 'from-blue-400/20 to-cyan-500/20',
   },
   {
     icon: Keyboard,
     title: 'Practice Modes',
     description: 'Custom text, code, AI prompts, dictation, and races.',
-    gradient: 'from-teal-500/20 to-cyan-500/20',
+    gradient: 'from-cyan-500/20 to-[#7b61ff]/20',
   },
   {
     icon: Target,
@@ -56,7 +56,7 @@ export default function QuickValueStrip() {
           scrollTrigger: { trigger: stripRef.current, start: 'top 85%', once: true },
         }
       );
-    }, stripRef);
+    }, stripRef.current);
     return () => ctx.revert();
   }, []);
 

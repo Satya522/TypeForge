@@ -16,7 +16,7 @@ const practiceModes = [
     description: 'Paste your own text and drill the exact patterns you want to improve.',
     tag: 'Flexible',
     icon: FileText,
-    accent: '#39ff14',
+    accent: '#4f8dfd',
   },
   {
     href: '/code-practice',
@@ -24,7 +24,7 @@ const practiceModes = [
     description: 'Stay sharp with syntax-heavy snippets built for developer muscle memory.',
     tag: 'Developer',
     icon: Code2,
-    accent: '#4ade80',
+    accent: '#6fa7ff',
   },
   {
     href: '/ai-practice',
@@ -32,7 +32,7 @@ const practiceModes = [
     description: 'Generate fresh prompts, passages, and targeted challenges on demand.',
     tag: 'Adaptive',
     icon: Sparkles,
-    accent: '#34d399',
+    accent: '#7b61ff',
   },
   {
     href: '/dictation',
@@ -40,7 +40,7 @@ const practiceModes = [
     description: 'Improve listening, punctuation, and rhythm through spoken input drills.',
     tag: 'Listening',
     icon: Mic,
-    accent: '#2dd4bf',
+    accent: '#5bd2ff',
   },
   {
     href: '/race',
@@ -48,7 +48,7 @@ const practiceModes = [
     description: 'Push speed and composure in competitive runs built for quick reactions.',
     tag: 'Competitive',
     icon: Trophy,
-    accent: '#bcff9d',
+    accent: '#dfe9ff',
   },
 ] as const;
 
@@ -67,7 +67,7 @@ export default function PracticeModesPreview() {
         y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.08, ease: 'power3.out',
         scrollTrigger: { trigger: '.pm-card', start: 'top 88%', once: true },
       });
-    }, sectionRef);
+    }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
@@ -90,7 +90,7 @@ export default function PracticeModesPreview() {
           </div>
           <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
             Switch modes{' '}
-            <span className="bg-gradient-to-r from-emerald-400 to-accent-300 bg-clip-text text-transparent">without losing momentum</span>
+            <span className="bg-gradient-to-r from-[#8bb6ff] to-accent-300 bg-clip-text text-transparent">without losing momentum</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 lg:text-lg">
             Train with the mode that matches your goal — from custom passages and code drills to AI sessions and live races.

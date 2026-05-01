@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
@@ -17,7 +17,7 @@ export const metadata = {
 export default function ExtensionPage() {
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-4">Browser Extension</h1>
         <p className="text-gray-300 mb-6">

@@ -1,5 +1,5 @@
 import { getServerAuthSession } from '@/lib/auth';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import CustomPracticeForm from './CustomPracticeForm';
 import { redirect } from 'next/navigation';
@@ -26,7 +26,7 @@ export default async function CustomPracticePage() {
   }
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-3xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-4">Custom Practice</h1>
         <CustomPracticeForm />

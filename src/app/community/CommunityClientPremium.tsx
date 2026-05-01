@@ -21,6 +21,7 @@ import {
   Swords,
   Trophy,
   Users,
+  X,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -480,6 +481,7 @@ function CommunityClientPremium({
   const [replyTarget, setReplyTarget] = useState<CommunityMessage | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMembers, setShowMembers] = useState(true);
+  const [showExitButton, setShowExitButton] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [presence, setPresence] =
@@ -1691,12 +1693,25 @@ function CommunityClientPremium({
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="border-b border-white/5 bg-[#0b0d10]/90 px-6 py-4 backdrop-blur-xl">
+          <header className="border-b border-white/5 bg-[#0b0d10]/90 px-6 py-4 backdrop-blur-xl" onMouseEnter={() => setShowExitButton(true)} onMouseLeave={() => setShowExitButton(false)}>
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h1 className="truncate text-[16px] font-semibold text-white">
                   {activeChannel.name}
                 </h1>
+                <motion.button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={showExitButton ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+                  transition={{ duration: 0.25, type: "spring", stiffness: 300, damping: 20 }}
+                  className="rounded-lg p-2 text-slate-400 transition-colors duration-150 ease-out hover:bg-red-500/10 hover:text-red-400"
+                  aria-label="Exit community"
+                  title="Exit community"
+                  style={{ originX: 0, originY: 0.5 }}
+                >
+                  <X size={20} />
+                </motion.button>
                 <p className="truncate text-[13px] text-slate-500">
                   {activeChannel.description}
                 </p>
@@ -2195,30 +2210,6 @@ function CommunityClientPremium({
                             isOpen={showEmojiPicker}
                             onSelectEmoji={(emoji) => {
                               setDraft((previous) => `${previous}${emoji}`);
-                              setShowEmojiPicker(false);
-                              focusComposer();
-                            }}
-                            onSelectGif={(gifUrl) => {
-                              socketRef.current?.emit("message:send", {
-                                channelId: activeChannelId,
-                                content: "", // Send empty content, rely on attachment
-                                attachments: [
-                                  {
-                                    id: `gif-${Date.now()}`,
-                                    type: "image",
-                                    url: gifUrl,
-                                    fileName: "gif.gif",
-                                  },
-                                ],
-                                replyTo: replyTarget
-                                  ? {
-                                      id: replyTarget.id,
-                                      userName: replyTarget.userName,
-                                      content: replyTarget.content,
-                                    }
-                                  : null,
-                              });
-                              setReplyTarget(null);
                               setShowEmojiPicker(false);
                               focusComposer();
                             }}

@@ -33,7 +33,7 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <Navbar />
+      
       <main className="mx-auto max-w-6xl px-4 pb-14 pt-24 sm:px-6">
         <UserProfileSummary
           achievementCount={profile.user._count.achievements}

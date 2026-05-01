@@ -114,25 +114,6 @@ export default function NavUserActions({
         className="hidden shrink-0 items-center gap-2 lg:flex"
         style={{ opacity: 0 }}
       >
-        <motion.div
-          whileHover={prefersReducedMotion ? undefined : { y: -1 }}
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-          transition={{
-            duration: motionDurations.fast,
-            ease: motionEasing.micro,
-          }}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSignIn}
-            className="gap-2 rounded-full px-4 text-gray-300 hover:text-accent-300 hover:bg-accent-300/[0.05]"
-          >
-            <SignIn weight="bold" className="h-4 w-4" />
-            <span>Login</span>
-          </Button>
-        </motion.div>
-
         <Link href="/register">
           <motion.div
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
@@ -145,7 +126,7 @@ export default function NavUserActions({
             <Button
               variant="primary"
               size="sm"
-              className="rounded-full px-5 cta-glow-pulse"
+              className="h-12 rounded-full border border-[#6ea4ff]/20 bg-[#1a73e8] px-7 text-base font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_12px_24px_rgba(26,115,232,0.28)] hover:bg-[#2b7ff0]"
             >
               Sign Up
             </Button>
@@ -175,10 +156,10 @@ export default function NavUserActions({
           }}
           className={cn(
             'inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-left outline-none transition-all duration-200',
-            'hover:border-white/16 hover:bg-white/[0.05]',
+            'hover:border-[#4f8dfd]/24 hover:bg-[#4f8dfd]/[0.08]',
             'focus-visible:ring-2 focus-visible:ring-accent-300/50',
             isOpen &&
-              'border-white/16 bg-white/[0.055] shadow-[0_18px_36px_rgba(0,0,0,0.22)]'
+              'border-[#4f8dfd]/28 bg-[#4f8dfd]/[0.09] shadow-[0_18px_36px_rgba(0,0,0,0.22)]'
           )}
         >
           {/* Avatar */}
@@ -227,11 +208,10 @@ export default function NavUserActions({
                 duration: motionDurations.fast,
                 ease: motionEasing.premium,
               }}
-              className="absolute right-0 top-[calc(100%+0.65rem)] z-[100] w-[260px] overflow-hidden rounded-2xl border border-white/[0.09] bg-[#060805] shadow-[0_28px_80px_rgba(0,0,0,0.55)]"
+              className="absolute right-0 top-[calc(100%+0.65rem)] z-[100] w-[260px] overflow-hidden rounded-2xl border border-[#4f8dfd]/18 bg-[#04070f] shadow-[0_28px_80px_rgba(0,0,0,0.55)]"
               role="menu"
             >
-              {/* Top accent line */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-300/50 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4f8dfd]/60 to-transparent" />
 
               {/* ── Profile header ── */}
               <div className="flex items-center gap-3 px-4 py-4">
@@ -253,7 +233,7 @@ export default function NavUserActions({
                   )}
                   {/* Online indicator */}
                   <span className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-zinc-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/90" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#4f8dfd]" />
                     Online
                   </span>
                 </div>
@@ -280,7 +260,7 @@ export default function NavUserActions({
                         className={cn(
                           'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 outline-none',
                           active
-                            ? 'bg-accent-300/10 text-accent-100'
+                            ? 'bg-[#4f8dfd]/10 text-[#dfe9ff]'
                             : 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
                         )}
                       >
@@ -289,7 +269,7 @@ export default function NavUserActions({
                           className={cn(
                             'h-[18px] w-[18px] shrink-0 transition-colors',
                             active
-                              ? 'text-accent-300'
+                              ? 'text-[#4f8dfd]'
                               : 'text-gray-500 group-hover:text-gray-300'
                           )}
                         />

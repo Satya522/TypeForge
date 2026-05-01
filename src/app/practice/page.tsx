@@ -6,7 +6,7 @@ import {
   Atom, Box, FileTerminal, ArrowUp, ArrowDown, MoveLeft,
   MoveRight, Timer, BookOpen, TestTube, Activity, Scale, Library
 } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 
 const moduleCategories = [
@@ -78,7 +78,7 @@ export const metadata = {
 export default function PracticePage() {
   return (
     <div className="min-h-screen bg-[#050706] flex flex-col font-sans">
-      <Navbar />
+      
       
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-8 xl:px-12 pt-24 pb-20 sm:pt-32">
         {/* Header Hero Section */}

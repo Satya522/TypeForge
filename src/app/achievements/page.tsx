@@ -1,6 +1,6 @@
 import { getServerAuthSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import { redirect } from 'next/navigation';
 import { BadgeCheck, CircleOff } from 'lucide-react';
@@ -25,7 +25,7 @@ export default async function AchievementsPage() {
   const achievedIds = new Set(userAchievements.map((ua) => ua.achievementId));
   return (
     <>
-      <Navbar />
+      
       <main className="pt-24 pb-12 px-6 mx-auto max-w-6xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-6">Achievements</h1>
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

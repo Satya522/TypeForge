@@ -1,13 +1,18 @@
 'use client'
 
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from 'lenis'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   motionCssVariables,
   motionGroupDistancesPx,
   motionGroupStaggerMs,
   type MotionGroupName,
 } from './tokens'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const REVEAL_SELECTOR = [
   '[data-motion-group] > :where(header, section, article, aside, footer, li, div):not([data-motion-skip])',
@@ -16,6 +21,26 @@ const REVEAL_SELECTOR = [
   '.section-shell > :where(header, section, article, div):not([data-motion-skip])',
   '.panel:not([data-motion-skip])',
   '.panel-muted:not([data-motion-skip])',
+].join(',')
+
+const MOTION_EXCLUDE_SELECTOR = [
+  '[data-motion-disabled]',
+  '[data-motion-skip]',
+  '[role="dialog"]',
+  '[data-radix-popper-content-wrapper]',
+].join(',')
+
+const LENIS_PREVENT_SELECTOR = [
+  '[data-lenis-prevent]',
+  '[data-lenis-prevent-wheel]',
+  '[data-lenis-prevent-touch]',
+  '[data-native-scroll]',
+  '[role="dialog"]',
+  '[data-radix-popper-content-wrapper]',
+  'input',
+  'textarea',
+  'select',
+  '[contenteditable="true"]',
 ].join(',')
 
 let nextMotionGroupId = 0
@@ -40,31 +65,28 @@ function getMotionGroupDetails(node: HTMLElement) {
   }
 }
 
-const MOTION_EXCLUDE_SELECTOR = [
-  '[data-motion-disabled]',
-  '[data-motion-skip]',
-  '[role="dialog"]',
-  '[data-radix-popper-content-wrapper]',
-].join(',')
+function isNestedScrollContainer(node: HTMLElement) {
+  const style = window.getComputedStyle(node)
+  const scrollableY =
+    /(auto|scroll|overlay)/.test(style.overflowY) &&
+    node.scrollHeight > node.clientHeight + 1
+  const scrollableX =
+    /(auto|scroll|overlay)/.test(style.overflowX) &&
+    node.scrollWidth > node.clientWidth + 1
 
-function isScrollableElement(element: Element | null, deltaY: number) {
-  let current = element instanceof HTMLElement ? element : null
+  return scrollableY || scrollableX
+}
 
-  while (current && current !== document.body) {
-    const style = window.getComputedStyle(current)
-    const overflowY = style.overflowY
-    const canScroll =
-      /(auto|scroll|overlay)/.test(overflowY) &&
-      current.scrollHeight > current.clientHeight + 1
+function shouldPreventSmoothScroll(node: HTMLElement | null) {
+  let current = node
 
-    if (canScroll) {
-      const goingDown = deltaY > 0
-      const goingUp = deltaY < 0
-      const canScrollDown =
-        current.scrollTop + current.clientHeight < current.scrollHeight - 1
-      const canScrollUp = current.scrollTop > 0
-
-      return (goingDown && canScrollDown) || (goingUp && canScrollUp)
+  while (
+    current &&
+    current !== document.body &&
+    current !== document.documentElement
+  ) {
+    if (current.matches(LENIS_PREVENT_SELECTOR) || isNestedScrollContainer(current)) {
+      return true
     }
 
     current = current.parentElement
@@ -73,120 +95,70 @@ function isScrollableElement(element: Element | null, deltaY: number) {
   return false
 }
 
-function getWheelDelta(event: WheelEvent) {
-  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
-    return event.deltaY * 16
-  }
-
-  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
-    return event.deltaY * window.innerHeight
-  }
-
-  return event.deltaY
-}
-
-function setupSmoothWheelScroll() {
+function setupPremiumSmoothScroll() {
   const root = document.documentElement
-  let targetY = window.scrollY
-  let frame = 0
 
-  const maxScroll = () => Math.max(0, root.scrollHeight - window.innerHeight)
+  const lenis = new Lenis({
+    smoothWheel: true,
+    syncTouch: true,
+    syncTouchLerp: 0.09,
+    touchInertiaExponent: 1.45,
+    lerp: 0.085,
+    wheelMultiplier: 0.92,
+    gestureOrientation: 'vertical',
+    overscroll: true,
+    autoResize: true,
+    anchors: {
+      offset: -96,
+      duration: 1.15,
+      lock: true,
+    },
+    stopInertiaOnNavigate: true,
+    prevent: (node) => shouldPreventSmoothScroll(node),
+    virtualScroll: ({ event }) => {
+      return !(event instanceof WheelEvent && (event.ctrlKey || event.metaKey))
+    },
+  })
 
-  const clampTarget = (value: number) =>
-    Math.min(maxScroll(), Math.max(0, value))
-
-  const tick = () => {
-    const currentY = window.scrollY
-    const distance = targetY - currentY
-
-    if (Math.abs(distance) < 0.6) {
-      window.scrollTo(0, targetY)
-      frame = 0
-      return
-    }
-
-    window.scrollTo(0, currentY + distance * 0.18)
-    frame = window.requestAnimationFrame(tick)
-  }
-
-  const onWheel = (event: WheelEvent) => {
-    if (
-      event.defaultPrevented ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      maxScroll() <= 0
-    ) {
-      return
-    }
-
-    const target = event.target instanceof Element ? event.target : null
-
-    if (
-      target?.closest(
-        'input, textarea, select, [contenteditable="true"], [data-native-scroll]'
-      ) ||
-      isScrollableElement(target, event.deltaY)
-    ) {
-      targetY = window.scrollY
-      return
-    }
-
-    event.preventDefault()
-    targetY = clampTarget(targetY + getWheelDelta(event) * 0.86)
-
-    if (!frame) {
-      frame = window.requestAnimationFrame(tick)
-    }
-  }
-
-  const syncTarget = () => {
-    targetY = window.scrollY
-  }
-
-  window.addEventListener('wheel', onWheel, { passive: false })
-  window.addEventListener('keydown', syncTarget)
-  window.addEventListener('resize', syncTarget)
-
-  return () => {
-    window.removeEventListener('wheel', onWheel)
-    window.removeEventListener('keydown', syncTarget)
-    window.removeEventListener('resize', syncTarget)
-
-    if (frame) {
-      window.cancelAnimationFrame(frame)
-    }
-  }
-}
-
-function setupAmbientParallax() {
-  let frame = 0
-
-  const update = () => {
-    document.documentElement.style.setProperty(
-      '--motion-ambient-y',
-      `${Math.round(window.scrollY * -0.035)}px`
+  const updateAmbientState = (scroll: number, limit: number) => {
+    root.style.setProperty('--motion-ambient-y', `${Math.round(scroll * -0.04)}px`)
+    root.style.setProperty(
+      '--scroll-progress',
+      limit > 0 ? Math.min(1, scroll / limit).toFixed(4) : '0'
     )
-    frame = 0
   }
 
-  const onScroll = () => {
-    if (!frame) {
-      frame = window.requestAnimationFrame(update)
-    }
+  const handleLenisScroll = (instance: Lenis) => {
+    updateAmbientState(instance.scroll, instance.limit)
+    ScrollTrigger.update()
   }
 
-  update()
-  window.addEventListener('scroll', onScroll, { passive: true })
+  const handleTicker = (time: number) => {
+    lenis.raf(time * 1000)
+  }
 
-  return () => {
-    window.removeEventListener('scroll', onScroll)
+  const handleResize = () => {
+    lenis.resize()
+    ScrollTrigger.refresh()
+  }
 
-    if (frame) {
-      window.cancelAnimationFrame(frame)
-    }
+  lenis.on('scroll', handleLenisScroll)
+  updateAmbientState(lenis.scroll, lenis.limit)
 
-    document.documentElement.style.removeProperty('--motion-ambient-y')
+  gsap.ticker.add(handleTicker)
+  gsap.ticker.lagSmoothing(0)
+  window.addEventListener('resize', handleResize)
+
+  return {
+    lenis,
+    destroy: () => {
+      window.removeEventListener('resize', handleResize)
+      lenis.off('scroll', handleLenisScroll)
+      gsap.ticker.remove(handleTicker)
+      lenis.destroy()
+      root.style.removeProperty('--motion-ambient-y')
+      root.style.removeProperty('--scroll-progress')
+    },
   }
 }
 
@@ -336,6 +308,7 @@ export function PremiumMotionProvider({
 }: PremiumMotionProviderProps) {
   const pathname = usePathname()
   const [reducedMotion, setReducedMotion] = useState(false)
+  const lenisRef = useRef<Lenis | null>(null)
 
   useEffect(() => {
     const root = document.documentElement
@@ -364,24 +337,33 @@ export function PremiumMotionProvider({
   useEffect(() => {
     if (reducedMotion) {
       document.documentElement.dataset.premiumMotion = 'reduced'
+      lenisRef.current = null
       return undefined
     }
 
-    const cleanupScroll = setupSmoothWheelScroll()
-    const cleanupParallax = setupAmbientParallax()
+    const scrollEngine = setupPremiumSmoothScroll()
+    lenisRef.current = scrollEngine.lenis
 
     return () => {
-      cleanupScroll()
-      cleanupParallax()
+      lenisRef.current = null
+      scrollEngine.destroy()
     }
   }, [reducedMotion])
 
   useEffect(() => {
     let cleanupReveals: (() => void) | undefined
 
+    // Delay motion setup to ensure React hydration is fully complete
+    // before mutating data-motion-* attributes on DOM elements.
     const timeout = window.setTimeout(() => {
-      cleanupReveals = setupSectionReveals(reducedMotion)
-    }, 40)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cleanupReveals = setupSectionReveals(reducedMotion)
+          lenisRef.current?.resize()
+          ScrollTrigger.refresh()
+        })
+      })
+    }, 80)
 
     return () => {
       window.clearTimeout(timeout)

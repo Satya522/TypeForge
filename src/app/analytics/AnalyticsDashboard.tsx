@@ -1,339 +1,273 @@
-'use client'
+"use client";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BarChart3, Download, RefreshCcw } from "lucide-react";
+import {
+  KPICard, PerformanceChart, SessionIntelligence,
+  SkillMatrix, KeyboardVisualizer, AICoachPanel, SessionTable, WeakZonesPanel
+} from "./analytics-cards";
+import {
+  buildAnalyticsModel, type DailyAnalyticsDatum,
+  type PracticeSessionDatum, type SessionExtremes, type StreakSnapshot,
+} from "./analytics-model";
+import { cardVariants } from "@/components/SectionTransition";
 
-import { motion } from 'framer-motion'
-import { BrainCircuit, Download, Layers3, Sparkles, Target } from 'lucide-react'
-import { useState, useTransition } from 'react'
-import {
-  motionDistances,
-  motionDurations,
-  motionEasing,
-  motionGroupStaggerMs,
-} from '@/components/motion'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import {
-  AICoachInsights,
-  BenchmarkComparisonCard,
-  CompositeScorePanel,
-  ErrorHeatmapCard,
-  FocusDriftCard,
-  GrowthTrajectoryCard,
-  MetricCard,
-  PressureResponseCard,
-  RecommendationPanel,
-  RhythmTimelineCard,
-  SessionReplayCard,
-  SessionStaminaCard,
-  SkillRadarCard,
-  StreakQualityCard,
-  TypingDNAProfile,
-} from './analytics-cards'
-import {
-  buildAnalyticsModel,
-  type AnalyticsRange,
-  type DailyAnalyticsDatum,
-  type PracticeSessionDatum,
-  type SessionExtremes,
-  type StreakSnapshot,
-} from './analytics-model'
-import { Reveal, ToneBadge } from './analytics-primitives'
-
-interface AnalyticsDashboardProps {
-  data: DailyAnalyticsDatum[]
-  exportHref: string
-  heatmapData: Record<string, number>
-  sessionExtremes: SessionExtremes
-  sessions: PracticeSessionDatum[]
-  streak: StreakSnapshot
-  telemetryMode?: 'live' | 'preview'
+interface Props {
+  data: DailyAnalyticsDatum[];
+  exportHref: string;
+  heatmapData: Record<string, number>;
+  sessionExtremes: SessionExtremes;
+  sessions: PracticeSessionDatum[];
+  streak: StreakSnapshot;
+  telemetryMode?: "live" | "preview";
 }
 
-const rangeOptions: Array<{
-  helper: string
-  label: string
-  value: AnalyticsRange
-}> = [
-  { helper: 'Recent pulse', label: '7D', value: '7d' },
-  { helper: 'Primary view', label: '30D', value: '30d' },
-  { helper: 'Behavioral lens', label: '12 Sessions', value: 'sessions' },
-]
+// ─── Transition easing & variants ───────────────────────────────
+const sectionEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const sectionVariants = {
+  initial: { opacity: 0, y: 12, filter: "blur(4px)" },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.45,
+      ease: sectionEase,
+      staggerChildren: 0.06,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    filter: "blur(4px)",
+    transition: {
+      duration: 0.25,
+      ease: sectionEase,
+    },
+  },
+};
+
+const TABS = ["Overview", "Detailed", "Raw"] as const;
 
 export default function AnalyticsDashboard({
-  data,
-  exportHref,
-  heatmapData,
-  sessionExtremes,
-  sessions,
-  streak,
-  telemetryMode = 'preview',
-}: AnalyticsDashboardProps) {
-  const [range, setRange] = useState<AnalyticsRange>('30d')
-  const [isPending, startTransition] = useTransition()
+  data, exportHref, heatmapData, sessionExtremes, sessions, streak, telemetryMode = "preview"
+}: Props) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const model = buildAnalyticsModel({
-    data,
-    heatmapData,
-    range,
-    sessionExtremes,
-    sessions,
-    streak,
-    telemetryMode,
-  })
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const m = buildAnalyticsModel({ data, heatmapData, range: "30d", sessionExtremes, sessions, streak, telemetryMode });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[#0A0A0A]">
+        <div className="flex flex-col items-center gap-4">
+          <motion.div
+            animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="h-12 w-12 rounded-xl border-2 border-violet-400 border-t-transparent"
+          />
+          <motion.p
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-sm font-medium text-zinc-600"
+          >
+            Loading analytics...
+          </motion.p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      animate="show"
-      className="section-shell mt-10 space-y-8 pb-28 pt-24 sm:pt-28"
-      initial="hidden"
-      variants={{
-        hidden: { opacity: 0, y: motionDistances.sm },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: {
-            delayChildren: 0.05,
-            duration: motionDurations.medium,
-            ease: motionEasing.premium,
-            staggerChildren: motionGroupStaggerMs.panel / 1000,
-          },
-        },
-      }}
-    >
-      <Reveal>
-        <section className="panel relative overflow-hidden border border-white/10 bg-[linear-gradient(135deg,rgba(5,10,9,0.98),rgba(8,12,16,0.94)_48%,rgba(12,10,18,0.94))] shadow-[0_40px_120px_rgba(0,0,0,0.48)]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(57,255,20,0.16),transparent_26%),radial-gradient(circle_at_80%_18%,rgba(34,211,238,0.14),transparent_22%),radial-gradient(circle_at_68%_72%,rgba(244,114,182,0.12),transparent_24%)]" />
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.06]"
-            style={{
-              backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
-              backgroundSize: '46px 46px',
-            }}
-          />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+    <div className="relative min-h-screen bg-[#0A0A0A] text-white antialiased selection:bg-violet-400/30">
+      
+      {/* Ambient background */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute left-1/3 top-0 h-[500px] w-[500px] rounded-full bg-violet-500/[0.03] blur-[150px]" />
+        <div className="absolute bottom-0 right-1/3 h-[400px] w-[400px] rounded-full bg-cyan-500/[0.03] blur-[120px]" />
+        <div className="absolute left-0 top-1/2 h-[300px] w-[300px] rounded-full bg-fuchsia-500/[0.02] blur-[100px]" />
+      </div>
 
-          <div className="relative px-6 py-7 sm:px-8 sm:py-9 lg:px-10">
-            <div className="grid gap-8 xl:grid-cols-[1.16fr_0.84fr] xl:items-start">
+      <main className="relative z-10 w-full mx-auto max-w-[1480px] pt-24">
+        {/* Sticky Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: sectionEase }}
+          className="relative z-30 border-b border-white/[0.06] bg-[#0A0A0A]/80 px-4 py-5 sm:px-6 lg:px-8 backdrop-blur-2xl"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04]">
+                <BarChart3 className="h-5 w-5 text-zinc-300" />
+              </div>
               <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <ToneBadge label="Performance intelligence" tone="accent" />
-                  <ToneBadge
-                    label={model.header.statusPill}
-                    tone={telemetryMode === 'live' ? 'cyan' : 'amber'}
-                  />
-                  <ToneBadge label={model.header.windowLabel} tone="neutral" />
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-black tracking-[-0.04em] text-white">Analytics</h1>
+                  <span className="rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[11px] font-black text-amber-300">
+                    PREVIEW
+                  </span>
                 </div>
-
-                <h1 className="mt-6 max-w-5xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-[4.5rem] lg:leading-[0.98]">
-                  {model.header.headline}
-                </h1>
-                <p className="mt-5 max-w-3xl text-base leading-8 text-gray-300 sm:text-lg">
-                  {model.header.intro}
+                <p className="mt-1 text-sm text-zinc-600">
+                  Typing performance, accuracy drift, weak keys, and AI coaching intelligence
                 </p>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-500 sm:text-base">
-                  {model.header.subline}
-                </p>
-
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <motion.a
-                    className="inline-flex items-center gap-2 rounded-full border border-[#39ff14]/30 bg-[#39ff14]/10 px-5 py-3 text-sm font-semibold text-[#bcff9d] transition-colors hover:border-[#39ff14]/60 hover:bg-[#39ff14]/14 hover:text-white"
-                    href={exportHref}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <Download className="h-4 w-4" />
-                    Export session intelligence
-                  </motion.a>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-gray-400">
-                    <BrainCircuit className="h-4 w-4 text-cyan-300" />
-                    {model.header.readinessLabel}
-                  </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-gray-400">
-                    <Target className="h-4 w-4 text-fuchsia-300" />
-                    {model.totalSessions} sessions in memory
-                  </div>
-                </div>
               </div>
+            </div>
 
-              <div className="rounded-[1.9rem] border border-white/10 bg-black/25 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                <div className="flex items-start justify-between gap-5">
-                  <div>
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-gray-500">
-                      Signal readiness
-                    </p>
-                    <p className="mt-3 text-6xl font-black tracking-tight text-white">
-                      {model.header.readiness}%
-                    </p>
-                  </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.04] p-3">
-                    <Layers3 className="h-5 w-5 text-[#bcff9d]" />
-                  </div>
-                </div>
-                <div className="mt-5 h-3 rounded-full bg-white/[0.06]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#39ff14] via-cyan-300 to-white"
-                    style={{ width: `${model.header.readiness}%` }}
-                  />
-                </div>
-                <p className="mt-4 text-sm leading-7 text-gray-400">
-                  {model.lowData
-                    ? 'The system already sees your broad typing shape, but it needs more signal to make the DNA, replay, and pressure modules truly personal.'
-                    : 'You have enough signal for the system to distinguish between pace, control, rhythm, pressure recovery, and weak-zone drag.'}
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {rangeOptions.map((option) => (
-                    <Button
-                      key={option.value}
-                      className={cn(
-                        'h-auto rounded-full border px-4 py-3 text-left transition-all duration-200',
-                        range === option.value
-                          ? 'border-[#39ff14]/35 bg-[#39ff14]/10 text-white shadow-[0_0_24px_rgba(57,255,20,0.12)]'
-                          : 'border-white/10 bg-white/[0.03] text-gray-400 hover:border-white/20 hover:bg-white/[0.06] hover:text-white'
-                      )}
-                      onClick={() =>
-                        startTransition(() => setRange(option.value))
-                      }
-                      type="button"
-                      variant="ghost"
+            <div className="flex items-center gap-3">
+              {/* ─── Tab bar with animated pill ─── */}
+              <div className="flex items-center gap-1 rounded-full border border-transparent bg-transparent p-1">
+                {TABS.map((tab) => {
+                  const isActive = activeTab === tab.toLowerCase();
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab.toLowerCase())}
+                      className="relative min-w-[5.9rem] rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200"
+                      style={{
+                        color: isActive
+                          ? "#ffffff"
+                          : "rgba(161,161,170,1)", /* zinc-500 */
+                      }}
                     >
-                      <span className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold uppercase tracking-[0.22em]">
-                          {option.label}
-                        </span>
-                        <span className="text-[0.7rem] font-medium tracking-[0.16em] text-gray-500">
-                          {option.helper}
-                        </span>
-                      </span>
-                    </Button>
-                  ))}
-                </div>
-                {isPending ? (
-                  <p className="mt-3 text-sm text-cyan-200">
-                    Recomputing the intelligence layer for this range.
-                  </p>
-                ) : null}
+                      <span className="relative z-10">{tab}</span>
+                      {isActive && (
+                        <motion.span
+                          layoutId="analytics-tab-pill"
+                          className="absolute inset-0 rounded-full bg-violet-500 shadow-[0_10px_26px_rgba(139,92,246,0.32)]"
+                          style={{ zIndex: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 420,
+                            damping: 34,
+                          }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-2.5 text-zinc-400 transition hover:bg-white/[0.05] hover:text-white"
+              >
+                <RefreshCcw className="h-4 w-4" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-2.5 text-zinc-400 transition hover:bg-white/[0.05] hover:text-white"
+              >
+                <Download className="h-4 w-4" />
+              </motion.button>
             </div>
           </div>
-        </section>
-      </Reveal>
+        </motion.header>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        {model.snapshotMetrics.map((metric) => (
-          <Reveal key={metric.key} delay={0.05}>
-            <MetricCard metric={metric} />
-          </Reveal>
-        ))}
-      </div>
+        {/* ─── Tab Content with AnimatePresence ─── */}
+        <div className="px-4 py-6 sm:px-6 lg:px-8">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              variants={sectionVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {activeTab === "overview" && (
+                <>
+                  {/* KPI Grid */}
+                  <motion.section
+                    variants={cardVariants}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+                  >
+                    {m.snapshotMetrics.map((metric, i) => (
+                      <KPICard key={metric.key} metric={metric} index={i} />
+                    ))}
+                  </motion.section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-        <Reveal>
-          <CompositeScorePanel model={model.composite} />
-        </Reveal>
-        <div className="space-y-6">
-          <Reveal delay={0.04}>
-            <AICoachInsights insights={model.coachInsights} />
-          </Reveal>
-          <Reveal delay={0.08}>
-            <BenchmarkComparisonCard rows={model.benchmarkRows} />
-          </Reveal>
+                  {/* Chart + Intelligence */}
+                  <motion.section
+                    variants={cardVariants}
+                    className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-12"
+                  >
+                    <PerformanceChart data={m.growthSeries} />
+                    <SessionIntelligence sessionExtremes={sessionExtremes} pressure={m.pressure} />
+                  </motion.section>
+
+                  {/* Skill + Keyboard */}
+                  <motion.section
+                    variants={cardVariants}
+                    className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-12"
+                  >
+                    <SkillMatrix data={m.skillRadar} />
+                    <KeyboardVisualizer telemetryMode={m.telemetryMode} />
+                  </motion.section>
+
+                  {/* AI Coach */}
+                  <motion.section variants={cardVariants} className="mt-5">
+                    <AICoachPanel insights={m.coachInsights} />
+                  </motion.section>
+                </>
+              )}
+
+              {activeTab === "detailed" && (
+                <>
+                  {/* KPI Grid */}
+                  <motion.section
+                    variants={cardVariants}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+                  >
+                    {m.snapshotMetrics.map((metric, i) => (
+                      <KPICard key={metric.key} metric={metric} index={i} />
+                    ))}
+                  </motion.section>
+
+                  {/* Session Table */}
+                  <motion.section variants={cardVariants} className="mt-5">
+                    <SessionTable sessions={sessions} />
+                  </motion.section>
+
+                  {/* Skill + Keyboard */}
+                  <motion.section
+                    variants={cardVariants}
+                    className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-12"
+                  >
+                    <SkillMatrix data={m.skillRadar} />
+                    <KeyboardVisualizer telemetryMode={m.telemetryMode} />
+                  </motion.section>
+
+                  {/* AI Coach */}
+                  <motion.section variants={cardVariants} className="mt-5">
+                    <AICoachPanel insights={m.coachInsights} />
+                  </motion.section>
+                </>
+              )}
+
+              {activeTab === "raw" && (
+                <>
+                  {/* Session Table */}
+                  <motion.section variants={cardVariants} className="mt-0">
+                    <SessionTable sessions={sessions} />
+                  </motion.section>
+
+                  {/* Weak Zones */}
+                  <motion.section variants={cardVariants} className="mt-5 pb-12">
+                    <WeakZonesPanel zones={m.topWeakZones} />
+                  </motion.section>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1.12fr_0.88fr]">
-        <Reveal>
-          <GrowthTrajectoryCard data={model.growthSeries} />
-        </Reveal>
-        <div className="space-y-6">
-          <Reveal delay={0.04}>
-            <StreakQualityCard model={model.streakQuality} />
-          </Reveal>
-          <Reveal delay={0.08}>
-            <SessionReplayCard
-              events={model.sessionReplay.events}
-              summary={model.sessionReplay.summary}
-            />
-          </Reveal>
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <Reveal>
-          <TypingDNAProfile
-            profile={model.typingDNA}
-            unlockCount={model.unlocks.dna}
-          />
-        </Reveal>
-        <Reveal delay={0.04}>
-          <SkillRadarCard data={model.skillRadar} />
-        </Reveal>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <Reveal>
-          <RhythmTimelineCard
-            timeline={model.rhythmTimeline}
-            unlockCount={model.unlocks.replay}
-          />
-        </Reveal>
-        <div className="space-y-6">
-          <Reveal delay={0.04}>
-            <PressureResponseCard
-              model={model.pressure}
-              unlockCount={model.unlocks.pressure}
-            />
-          </Reveal>
-          <Reveal delay={0.08}>
-            <FocusDriftCard
-              bands={model.focusDrift.bands}
-              driftWindow={model.focusDrift.driftWindow}
-              narrative={model.focusDrift.narrative}
-              score={model.focusDrift.score}
-            />
-          </Reveal>
-        </div>
-      </div>
-
-      <Reveal>
-        <SessionStaminaCard model={model.sessionStamina} />
-      </Reveal>
-
-      <Reveal>
-        <ErrorHeatmapCard
-          data={heatmapData}
-          telemetryMode={model.telemetryMode}
-          weakZones={model.topWeakZones}
-        />
-      </Reveal>
-
-      <Reveal>
-        <RecommendationPanel recommendations={model.recommendations} />
-      </Reveal>
-
-      <Reveal>
-        <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,15,18,0.96),rgba(8,10,13,0.92))] px-6 py-6 shadow-[0_25px_80px_rgba(0,0,0,0.34)]">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-gray-500">
-                Launch note
-              </p>
-              <h3 className="mt-2 text-2xl font-black tracking-tight text-white">
-                Analytics now behaves like a premium typing lab.
-              </h3>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-400">
-                It is purpose-built around typing pace, control, recovery,
-                rhythm, weak zones, focus drift, and streak quality. Even
-                low-data states stay intentional and premium.
-              </p>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-gray-400">
-              <Sparkles className="h-4 w-4 text-fuchsia-300" />
-              Designed for screenshots, tuned for real progress
-            </div>
-          </div>
-        </div>
-      </Reveal>
-    </motion.div>
-  )
+      </main>
+    </div>
+  );
 }

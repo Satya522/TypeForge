@@ -18,7 +18,7 @@ const learningPaths = [
     hint: 'Foundation track',
     progress: 35,
     icon: BookOpen,
-    color: '#39ff14',
+    color: '#4f8dfd',
   },
   {
     href: '/learn?view=home-row',
@@ -28,7 +28,7 @@ const learningPaths = [
     hint: 'Best first milestone',
     progress: 52,
     icon: Keyboard,
-    color: '#4ade80',
+    color: '#6fa7ff',
   },
   {
     href: '/learn?track=speed',
@@ -38,7 +38,7 @@ const learningPaths = [
     hint: 'Goal: 70+ WPM',
     progress: 64,
     icon: Gauge,
-    color: '#34d399',
+    color: '#7b61ff',
   },
   {
     href: '/learn?level=advanced',
@@ -48,7 +48,7 @@ const learningPaths = [
     hint: 'High-accuracy track',
     progress: 82,
     icon: Sparkles,
-    color: '#bcff9d',
+    color: '#dfe9ff',
   },
 ] as const;
 
@@ -95,7 +95,7 @@ export default function LearningPathsPreview() {
         y: 0, opacity: 1, rotateY: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
         scrollTrigger: { trigger: '.lp-card', start: 'top 85%', once: true },
       });
-    }, sectionRef);
+    }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
@@ -104,7 +104,7 @@ export default function LearningPathsPreview() {
       {/* Background elements */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-0 top-1/4 h-[400px] w-[400px] rounded-full bg-accent-300/[0.03] blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-emerald-500/[0.03] blur-[100px]" />
+        <div className="absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-[#5f9aff]/[0.04] blur-[100px]" />
       </div>
 
       <div className="section-shell">
@@ -116,7 +116,7 @@ export default function LearningPathsPreview() {
           </div>
           <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
             A structured route for{' '}
-            <span className="bg-gradient-to-r from-accent-300 to-emerald-400 bg-clip-text text-transparent">every typing goal</span>
+            <span className="bg-gradient-to-r from-accent-300 to-[#8bb6ff] bg-clip-text text-transparent">every typing goal</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 lg:text-lg">
             Move from fundamentals to faster, cleaner typing with tracks designed to build precision before raw speed.
@@ -143,10 +143,10 @@ export default function LearningPathsPreview() {
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     style={{
                       background: isActive
-                        ? `linear-gradient(135deg, rgba(57,255,20,0.04) 0%, transparent 60%)`
+                        ? `linear-gradient(135deg, rgba(79,141,253,0.04) 0%, transparent 60%)`
                         : 'transparent',
                     }}
-                    animate={{ borderColor: isActive ? 'rgba(57,255,20,0.12)' : 'rgba(255,255,255,0.04)' }}
+                    animate={{ borderColor: isActive ? 'rgba(79,141,253,0.12)' : 'rgba(255,255,255,0.04)' }}
                   >
                     {/* Top accent */}
                     <motion.div

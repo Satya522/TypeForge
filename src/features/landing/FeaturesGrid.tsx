@@ -71,7 +71,7 @@ export default function FeaturesGrid() {
               <h3 className="mt-5 text-lg font-semibold text-gray-100">{feature.title}</h3>
               <p className="mt-3 text-sm leading-7 text-gray-400">{feature.description}</p>
               <div className="mt-6 flex items-center gap-2 text-sm font-medium text-accent-100">
-                <span className="h-2 w-2 rounded-full bg-accent-300 shadow-[0_0_12px_rgba(57,255,20,0.8)]" />
+                <span className="h-2 w-2 rounded-full bg-accent-300 shadow-[0_0_12px_rgba(79,141,253,0.8)]" />
                 Responsive by design
               </div>
             </motion.div>

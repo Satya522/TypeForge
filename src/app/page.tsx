@@ -1,4 +1,4 @@
-import Navbar from '@/components/Navbar';
+
 import Footer from '@/components/Footer';
 import Hero from '@/features/landing/Hero';
 import QuickValueStrip from '@/features/landing/QuickValueStrip';
@@ -27,7 +27,7 @@ export const metadata = {
 export default function Home() {
   return (
     <>
-      <Navbar />
+      
       <main className="flex flex-col overflow-hidden">
         <Hero />
         <QuickValueStrip />
