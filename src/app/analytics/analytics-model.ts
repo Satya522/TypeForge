@@ -2,7 +2,7 @@
 
 import type { TypingTelemetryPayload } from "@/lib/typingTelemetry";
 
-export type AnalyticsRange = "7d" | "30d" | "sessions";
+export type AnalyticsRange = "today" | "7d" | "30d" | "90d" | "all" | "sessions";
 
 export interface DailyAnalyticsDatum {
   accuracy: number;
@@ -48,6 +48,7 @@ export interface StreakSnapshot {
 
 export interface SnapshotMetric {
   accent: string;
+  context?: string;
   delta: number;
   helper: string;
   key: string;
@@ -233,9 +234,12 @@ interface BuildAnalyticsModelInput {
   telemetryMode?: "live" | "preview";
 }
 
-const ACCENT = "#39ff14";
-const CYAN = "#22d3ee";
+const SPEED = "#a855f7";
+const ACCURACY = "#22c55e";
+const VOLUME = "#38bdf8";
 const AMBER = "#fbbf24";
+const ACCENT = ACCURACY;
+const CYAN = VOLUME;
 const FUCHSIA = "#f472b6";
 
 const WEAK_ZONE_MAP = [
@@ -301,17 +305,34 @@ export function buildAnalyticsModel({
   const totalSessions = sessionExtremes.totalSessions || sortedSessions.length;
   const lowData = totalSessions < 5;
 
-  const recentThirtyDaily = data.slice(-30);
-  const recentSevenDaily = data.slice(-7);
-  const filteredDaily = range === "7d" ? recentSevenDaily : recentThirtyDaily;
+  const dayWindow =
+    range === "today"
+      ? 1
+      : range === "7d"
+        ? 7
+        : range === "90d"
+          ? 90
+          : range === "all"
+            ? Math.max(data.length, 1)
+            : 30;
+  const filteredDaily = data.slice(-dayWindow);
+  const recentSevenDaily = filteredDaily.slice(-7);
+  const recentThirtyDaily = filteredDaily.slice(-30);
+  const latestDailyTime = filteredDaily.length > 0
+    ? new Date(`${filteredDaily[filteredDaily.length - 1].date}T23:59:59`).getTime()
+    : Date.now();
+  const startDailyTime =
+    range === "all"
+      ? Number.NEGATIVE_INFINITY
+      : filteredDaily.length > 0
+        ? new Date(`${filteredDaily[0].date}T00:00:00`).getTime()
+        : latestDailyTime - dayWindow * 24 * 60 * 60 * 1000;
   const filteredSessions =
     range === "sessions"
       ? sortedSessions.slice(-12)
       : sortedSessions.filter((session) => {
           const sessionTime = new Date(session.sessionDate).getTime();
-          const days = range === "7d" ? 7 : 30;
-          const start = Date.now() - days * 24 * 60 * 60 * 1000;
-          return sessionTime >= start;
+          return sessionTime >= startDailyTime && sessionTime <= latestDailyTime;
         });
 
   const windowSessions = filteredSessions.length > 0 ? filteredSessions : sortedSessions.slice(-Math.min(sortedSessions.length, 12));
@@ -320,10 +341,9 @@ export function buildAnalyticsModel({
       ? sortedSessions.slice(-24, -12)
       : sortedSessions.filter((session) => {
           const sessionTime = new Date(session.sessionDate).getTime();
-          const days = range === "7d" ? 7 : 30;
-          const end = Date.now() - days * 24 * 60 * 60 * 1000;
-          const start = end - days * 24 * 60 * 60 * 1000;
-          return sessionTime >= start && sessionTime < end;
+          const previousEnd = startDailyTime;
+          const previousStart = previousEnd - dayWindow * 24 * 60 * 60 * 1000;
+          return sessionTime >= previousStart && sessionTime < previousEnd;
         });
   const telemetryWindow = windowSessions
     .map((session) => session.typingTelemetry)
@@ -341,6 +361,7 @@ export function buildAnalyticsModel({
   const hasLiveSessionTelemetry = telemetryWindow.length > 0;
 
   const activeDaily = filteredDaily.filter((day) => day.sessions > 0 || day.lessons > 0 || day.time > 0);
+  const avgActiveMinutes = activeDaily.length > 0 ? round(average(activeDaily.map((day) => day.time))) : 0;
   const wpmSeries = pickSeries(activeDaily.map((day) => day.wpm), 12);
   const accuracySeries = pickSeries(activeDaily.map((day) => day.accuracy), 12);
   const consistencySeries = pickSeries(
@@ -556,7 +577,7 @@ export function buildAnalyticsModel({
     ? buildSessionReplayFromTelemetry(latestTelemetry, typingDNA)
     : buildSessionReplay({ rhythmTimeline, typingDNA });
   const sessionStamina = buildSessionStamina({ latestTelemetry, staminaScore, staminaRetention, sortedSessions });
-  const growthSeries = buildGrowthSeries(recentThirtyDaily);
+  const growthSeries = buildGrowthSeries(filteredDaily);
   const streakQuality = buildStreakQuality({
     currentStreak: streak.currentStreak,
     longestStreak: streak.longestStreak,
@@ -634,7 +655,8 @@ export function buildAnalyticsModel({
 
   const snapshotMetrics: SnapshotMetric[] = [
     {
-      accent: ACCENT,
+      accent: SPEED,
+      context: `Best ${Math.round(sessionExtremes.personalBestWpm || currentWpm)} WPM`,
       delta: wpmDelta,
       helper:
         wpmDelta >= 0
@@ -648,7 +670,8 @@ export function buildAnalyticsModel({
       value: currentWpm,
     },
     {
-      accent: CYAN,
+      accent: ACCURACY,
+      context: "Goal 97%",
       delta: accuracyDelta,
       helper:
         currentAccuracy >= 96
@@ -663,6 +686,7 @@ export function buildAnalyticsModel({
     },
     {
       accent: FUCHSIA,
+      context: `${streak.currentStreak}-day streak · ${activeDaily.length} active`,
       delta: consistencyDelta,
       helper:
         rhythmStability >= 82
@@ -677,6 +701,7 @@ export function buildAnalyticsModel({
     },
     {
       accent: AMBER,
+      context: avgActiveMinutes > 0 ? `Avg ${avgActiveMinutes} min active days` : "Ready for signal",
       delta: focusScore - previousFocusScore,
       helper:
         focusScore >= 84
@@ -702,13 +727,13 @@ export function buildAnalyticsModel({
       overall: overallScore,
       pillars: [
         {
-          accent: ACCENT,
+          accent: SPEED,
           description: "Current pace relative to your own ceiling.",
           label: "Velocity",
           value: speedScore,
         },
         {
-          accent: CYAN,
+          accent: ACCURACY,
           description: "How cleanly you hold precision while moving fast.",
           label: "Control",
           value: currentAccuracy,
@@ -732,7 +757,7 @@ export function buildAnalyticsModel({
           value: staminaScore,
         },
         {
-          accent: "#fb7185",
+          accent: AMBER,
           description: "The attention layer that keeps speed from turning noisy.",
           label: "Focus",
           value: focusScore,
@@ -1492,20 +1517,18 @@ function percentile(values: number[], percentileValue: number) {
 }
 
 function pickSeries(values: number[], targetLength: number) {
-  // If all values are zero or essentially flat, generate a beautiful demo curve
   const nonZero = values.filter((v) => v > 0);
   const allFlat = nonZero.length === 0 || new Set(nonZero.map((v) => Math.round(v))).size <= 1;
 
   if (allFlat) {
-    // Generate a smooth organic wave for visual appeal
     const base = nonZero.length > 0 ? nonZero[0] : 50;
     const amplitude = Math.max(base * 0.15, 5);
-    const seed = values.length * 7 + targetLength * 13; // deterministic per-metric
+    const seed = values.length * 7 + targetLength * 13;
     return Array.from({ length: Math.max(targetLength, 8) }, (_, i) => {
       const t = i / (targetLength - 1);
       const wave1 = Math.sin(t * Math.PI * 2.2 + seed * 0.1) * amplitude * 0.6;
       const wave2 = Math.sin(t * Math.PI * 3.8 + seed * 0.3) * amplitude * 0.25;
-      const trend = t * amplitude * 0.4; // gentle upward trend
+      const trend = t * amplitude * 0.4;
       return Math.max(0, base + wave1 + wave2 + trend);
     });
   }

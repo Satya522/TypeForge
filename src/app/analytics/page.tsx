@@ -20,8 +20,8 @@ export default async function AnalyticsPage() {
   }
   const userId = session.user.id;
 
-  const since = new Date();
-  since.setDate(since.getDate() - 59);
+  const today = new Date();
+  const since = new Date(today.getFullYear(), 0, 1);
 
   const [stats, sessionAggregate, sessionRows, streak] = await Promise.all([
     prisma.dailyStat.findMany({
@@ -77,14 +77,15 @@ export default async function AnalyticsPage() {
   ]);
 
   const data: { date: string; wpm: number; accuracy: number; time: number; lessons: number; sessions: number }[] = [];
-  for (let i = 0; i < 60; i++) {
+  const totalDays = Math.max(1, Math.floor((today.getTime() - since.getTime()) / (24 * 60 * 60 * 1000)) + 1);
+  for (let i = 0; i < totalDays; i++) {
     const d = new Date(since.getTime());
     d.setDate(d.getDate() + i);
     const key = d.toISOString().slice(0, 10);
     const stat = stats.find((s) => s.date.toISOString().slice(0, 10) === key);
     const completedSessions = stat?.practiceSessions ?? 0;
     data.push({
-      date: key.substring(5), // MM-DD for chart
+      date: key,
       wpm: stat && completedSessions > 0 ? stat.averageWpm / completedSessions : 0,
       accuracy: stat && completedSessions > 0 ? stat.averageAccuracy / completedSessions : 0,
       time: stat ? stat.totalTimePracticed : 0,

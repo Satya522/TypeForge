@@ -25,7 +25,6 @@ export function AnimatedNumber({ value, duration = 2 }: { value: string | number
       const elapsed = (Date.now() - startTime) / 1000;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Ease out expo
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.floor(eased * numValue);
 
@@ -34,7 +33,7 @@ export function AnimatedNumber({ value, duration = 2 }: { value: string | number
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setDisplay(value); // Final exact value
+        setDisplay(value);
       }
     };
 
