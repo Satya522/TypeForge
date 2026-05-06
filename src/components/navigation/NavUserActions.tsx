@@ -114,6 +114,26 @@ export default function NavUserActions({
         className="hidden shrink-0 items-center gap-2 lg:flex"
         style={{ opacity: 0 }}
       >
+        <Link href="/login">
+          <motion.div
+            whileHover={prefersReducedMotion ? undefined : { y: -1 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            transition={{
+              duration: motionDurations.fast,
+              ease: motionEasing.micro,
+            }}
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-12 rounded-full px-7 text-base font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-all duration-200"
+            >
+              <SignIn weight="bold" className="mr-2 h-4 w-4" />
+              Log in
+            </Button>
+          </motion.div>
+        </Link>
+
         <Link href="/register">
           <motion.div
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
