@@ -227,10 +227,10 @@ function CommandCard({
         e.currentTarget.style.setProperty("--tc-spot-y", `${e.clientY - rect.top}px`);
       }}
     >
-      {}
+      {/* Top accent beam */}
       <span className="pointer-events-none absolute inset-x-6 top-0 h-px opacity-60" aria-hidden="true" style={{ background: `linear-gradient(90deg, transparent, ${accent}90, transparent)` }} />
 
-      {}
+      {/* Hover glow orb */}
       <span className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-3xl transition duration-500 group-hover:opacity-100" aria-hidden="true" style={{ backgroundColor: accent }} />
 
       <header className="relative flex items-start justify-between gap-4">
@@ -285,7 +285,7 @@ function IntelligenceTile({
   const content = (
     <>
       <header className="flex items-start justify-between gap-3">
-        {}
+        {/* Icon + mini ring */}
         <figure className="relative">
           <svg width="44" height="44" viewBox="0 0 44 44" className="shrink-0">
             <circle cx="22" cy="22" r={ringR} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="3" />
@@ -363,11 +363,11 @@ export function AnalyticsInteractiveAreaChart({ data, heatmapData = {}, sessions
     const sliced = Number.isNaN(lastDate.getTime())
       ? sorted.slice(-rangeDays[timeRange])
       : sorted.filter((item) => {
-          const date = new Date(item.date);
-          const startDate = new Date(lastDate);
-          startDate.setDate(startDate.getDate() - rangeDays[timeRange]);
-          return !Number.isNaN(date.getTime()) && date >= startDate;
-        });
+        const date = new Date(item.date);
+        const startDate = new Date(lastDate);
+        startDate.setDate(startDate.getDate() - rangeDays[timeRange]);
+        return !Number.isNaN(date.getTime()) && date >= startDate;
+      });
 
     const maxSessions = Math.max(1, ...sliced.map((item) => item.sessions));
     const maxOutput = Math.max(1, ...sliced.map((item) => item.sessions * item.wpm));

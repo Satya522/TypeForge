@@ -229,6 +229,15 @@ export default function Navbar() {
 
   const shouldHideNav =
     isNavAutoHidden && !isBrowseMenuOpen && !isMobileMenuOpen
+  const isAuthRoute =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname.startsWith('/login/') ||
+    pathname.startsWith('/register/')
+
+  if (isAuthRoute) {
+    return null
+  }
 
   return (
     <>

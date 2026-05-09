@@ -3,8 +3,7 @@ import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import Providers from './providers';
-import Navbar from '@/components/Navbar';
-import { RouteTransitionShell } from '@/components/motion';
+import AppChrome from '@/components/AppChrome';
 
 // Load Inter variable font with latin subset
 const inter = Inter({ subsets: ['latin'] });
@@ -60,8 +59,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-screen flex flex-col bg-surface-100 dark" suppressHydrationWarning>
         <Providers>
-          <Navbar />
-          <RouteTransitionShell>{children}</RouteTransitionShell>
+          <AppChrome>{children}</AppChrome>
         </Providers>
       </body>
     </html>
