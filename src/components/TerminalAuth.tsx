@@ -10,8 +10,9 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import TypeForgeTerminalLogo from "@/components/terminal-auth/TypeForgeTerminalLogo";
 
-type LineType = "ascii" | "boot" | "dim" | "error" | "info" | "success" | "system" | "user";
+type LineType = "boot" | "dim" | "error" | "info" | "logo" | "success" | "system" | "user";
 type Stage =
   | "auth"
   | "await_go"
@@ -19,6 +20,7 @@ type Stage =
   | "done"
   | "idle"
   | "login_email"
+  | "login_method"
   | "login_pw"
   | "signup_confirm"
   | "signup_email"
@@ -30,8 +32,38 @@ type FontName = "fira" | "jetbrains" | "geist" | "ibm" | "space";
 type SoundProfile = "mech" | "soft" | "synth";
 type MissionKey = "command" | "identity" | "baseline" | "dashboard";
 type AchievementId = "clean_auth" | "first_command" | "oauth_launch" | "speed_runner" | "terminal_auth" | "theme_switch" | "tone_shaper";
+type OsFamily = "android" | "ios" | "linux" | "macos" | "unknown" | "windows";
+
+interface NeofetchStat {
+  label: string;
+  labelColor: string;
+  value: string;
+  valueColor: string;
+}
+
+interface NeofetchPanel {
+  logoAlt: string;
+  logoFilter?: string;
+  logoSrc: string;
+  logoTitle: string;
+  stats: NeofetchStat[];
+}
+
+interface BrowserDetails {
+  engine: string;
+  name: string;
+  source: string;
+  version?: string;
+}
 
 interface Line {
+  neofetch?: NeofetchPanel;
+  segments?: Array<{
+    color?: string;
+    text: string;
+    type?: LineType;
+    weight?: number;
+  }>;
   text: string;
   type: LineType;
 }
@@ -56,6 +88,220 @@ const DEFAULT_LIVE_STATS = {
   chars: 0,
   wpm: 0,
 };
+
+const OS_LABELS: Record<OsFamily, string> = {
+  android: "Android",
+  ios: "iOS",
+  linux: "Linux",
+  macos: "macOS",
+  unknown: "Unknown OS",
+  windows: "Windows",
+};
+
+const OS_LOGOS: Record<OsFamily, string> = {
+  android: "/neofetch/android.svg",
+  ios: "/neofetch/macos.svg",
+  linux: "/neofetch/linux.svg",
+  macos: "/neofetch/macos.svg",
+  unknown: "/neofetch/unknown.svg",
+  windows: "/neofetch/windows.svg",
+};
+
+interface SystemProbe {
+  architecture?: string;
+  family: OsFamily;
+  os: string;
+  platform?: string;
+  source: string;
+}
+
+function getOsFamily(value: string): OsFamily {
+  const normalized = value.toLowerCase();
+  if (normalized.includes("android")) return "android";
+  if (normalized.includes("iphone") || normalized.includes("ipad") || normalized.includes("ios")) return "ios";
+  if (normalized.includes("win")) return "windows";
+  if (normalized.includes("mac")) return "macos";
+  if (normalized.includes("linux") || normalized.includes("x11") || normalized.includes("ubuntu")) return "linux";
+  return "unknown";
+}
+
+function getReadableOs(family: OsFamily, platform?: string) {
+  if (platform && family !== "unknown") return platform;
+  return OS_LABELS[family];
+}
+
+function getOsLogoFilter(family: OsFamily, glow: string) {
+  const glowFilter = `drop-shadow(0 0 22px ${glow})`;
+  if (family === "macos" || family === "ios") return `invert(1) brightness(1.12) ${glowFilter}`;
+  if (family === "unknown") return `brightness(1.18) ${glowFilter}`;
+  return glowFilter;
+}
+
+function getVersionFromUa(userAgent: string, pattern: RegExp) {
+  return userAgent.match(pattern)?.[1]?.split(".").slice(0, 2).join(".");
+}
+
+function formatBrowserName(name: string, version?: string) {
+  return version ? `${name} ${version}` : name;
+}
+
+function getDisplaySummary() {
+  const width = Math.round(window.screen.width);
+  const height = Math.round(window.screen.height);
+  const longEdge = Math.max(width, height);
+  const shortEdge = Math.min(width, height);
+  const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    const mobileClass = shortEdge >= 700 ? "tablet" : "phone";
+    return `${width}x${height} px (${mobileClass})`;
+  }
+
+  let sizeLabel = "~14 inch";
+  if (longEdge >= 2560 || shortEdge >= 1440) sizeLabel = "24+ inch desktop";
+  else if (longEdge >= 1920 || shortEdge >= 1080) sizeLabel = "~24 inch";
+  else if (longEdge >= 1680) sizeLabel = "~16 inch";
+  else if (longEdge >= 1440) sizeLabel = "~15 inch";
+
+  return `${width}x${height} px (${sizeLabel})`;
+}
+
+async function getBrowserDetails(): Promise<BrowserDetails> {
+  const userAgent = navigator.userAgent;
+  const navWithBrowserData = navigator as unknown as {
+    brave?: { isBrave?: () => Promise<boolean> };
+    userAgentData?: {
+      brands?: Array<{ brand: string; version: string }>;
+      getHighEntropyValues?: (hints: string[]) => Promise<{
+        fullVersionList?: Array<{ brand: string; version: string }>;
+      }>;
+    };
+  };
+
+  let brands = navWithBrowserData.userAgentData?.brands ?? [];
+  try {
+    const highEntropy = await navWithBrowserData.userAgentData?.getHighEntropyValues?.(["fullVersionList"]);
+    if (highEntropy?.fullVersionList?.length) brands = highEntropy.fullVersionList;
+  } catch {
+    // Browser brand hints are optional.
+  }
+
+  const brandVersion = (brandName: string) =>
+    brands
+      .find((brand) => brand.brand.toLowerCase().includes(brandName.toLowerCase()))
+      ?.version.split(".")
+      .slice(0, 2)
+      .join(".");
+
+  const hasBrand = (brandName: string) => brands.some((brand) => brand.brand.toLowerCase().includes(brandName.toLowerCase()));
+
+  try {
+    if (await navWithBrowserData.brave?.isBrave?.()) {
+      return { engine: "Blink", name: formatBrowserName("Brave", brandVersion("Chromium")), source: "Brave API" };
+    }
+  } catch {
+    // Brave private detection can be unavailable.
+  }
+
+  if (/EdgA?\//.test(userAgent) || /EdgiOS\//.test(userAgent) || hasBrand("Microsoft Edge")) {
+    const version = getVersionFromUa(userAgent, /EdgA?\/([\d.]+)/) ?? getVersionFromUa(userAgent, /EdgiOS\/([\d.]+)/) ?? brandVersion("Microsoft Edge");
+    return { engine: /EdgiOS\//.test(userAgent) ? "WebKit" : "Blink", name: formatBrowserName("Microsoft Edge", version), source: hasBrand("Microsoft Edge") ? "Browser brands" : "User agent" };
+  }
+
+  if (/OPR\/|Opera|OPT\//.test(userAgent) || hasBrand("Opera")) {
+    const version = getVersionFromUa(userAgent, /(?:OPR|OPT)\/([\d.]+)/) ?? brandVersion("Opera");
+    return { engine: "Blink", name: formatBrowserName("Opera", version), source: hasBrand("Opera") ? "Browser brands" : "User agent" };
+  }
+
+  if (/SamsungBrowser\//.test(userAgent)) {
+    return { engine: "Blink", name: formatBrowserName("Samsung Internet", getVersionFromUa(userAgent, /SamsungBrowser\/([\d.]+)/)), source: "User agent" };
+  }
+
+  if (/Vivaldi\//.test(userAgent)) {
+    return { engine: "Blink", name: formatBrowserName("Vivaldi", getVersionFromUa(userAgent, /Vivaldi\/([\d.]+)/)), source: "User agent" };
+  }
+
+  if (/Firefox\//.test(userAgent) || /FxiOS\//.test(userAgent)) {
+    const isIos = /FxiOS\//.test(userAgent);
+    const version = getVersionFromUa(userAgent, isIos ? /FxiOS\/([\d.]+)/ : /Firefox\/([\d.]+)/);
+    return { engine: isIos ? "WebKit" : "Gecko", name: formatBrowserName(isIos ? "Firefox iOS" : "Firefox", version), source: "User agent" };
+  }
+
+  if (/CriOS\//.test(userAgent)) {
+    return { engine: "WebKit", name: formatBrowserName("Chrome iOS", getVersionFromUa(userAgent, /CriOS\/([\d.]+)/)), source: "User agent" };
+  }
+
+  if (hasBrand("Google Chrome") || /Chrome\//.test(userAgent)) {
+    const version = getVersionFromUa(userAgent, /Chrome\/([\d.]+)/) ?? brandVersion("Google Chrome");
+    return { engine: "Blink", name: formatBrowserName("Google Chrome", version), source: hasBrand("Google Chrome") ? "Browser brands" : "User agent" };
+  }
+
+  if (hasBrand("Chromium") || /Chromium\//.test(userAgent)) {
+    const version = getVersionFromUa(userAgent, /Chromium\/([\d.]+)/) ?? brandVersion("Chromium");
+    return { engine: "Blink", name: formatBrowserName("Chromium", version), source: hasBrand("Chromium") ? "Browser brands" : "User agent" };
+  }
+
+  if (/Safari\//.test(userAgent)) {
+    return { engine: "WebKit", name: formatBrowserName("Safari", getVersionFromUa(userAgent, /Version\/([\d.]+)/)), source: "User agent" };
+  }
+
+  return { engine: "Unknown", name: "Unknown Browser", source: brands.length ? "Browser brands" : "User agent" };
+}
+
+async function getBrowserSystemProbe(): Promise<SystemProbe> {
+  const navWithUa = navigator as unknown as {
+    userAgentData?: {
+      getHighEntropyValues?: (hints: string[]) => Promise<{
+        architecture?: string;
+        platform?: string;
+        platformVersion?: string;
+      }>;
+      platform?: string;
+    };
+  };
+  const basicPlatform = navWithUa.userAgentData?.platform || navigator.platform || "";
+  let architecture: string | undefined;
+  let platform = basicPlatform;
+
+  try {
+    const highEntropy = await navWithUa.userAgentData?.getHighEntropyValues?.(["architecture", "platform", "platformVersion"]);
+    architecture = highEntropy?.architecture;
+    platform = highEntropy?.platform || platform;
+  } catch {
+    // Browser high entropy hints are optional.
+  }
+
+  const family = getOsFamily(`${platform} ${navigator.platform} ${navigator.userAgent}`);
+  return {
+    architecture,
+    family,
+    os: getReadableOs(family, platform),
+    platform,
+    source: "browser",
+  };
+}
+
+async function getNetworkSystemProbe(): Promise<SystemProbe> {
+  try {
+    const response = await fetch("/api/system/os", { cache: "no-store" });
+    if (!response.ok) throw new Error("OS probe failed");
+    const payload = (await response.json()) as Partial<SystemProbe>;
+    const family = getOsFamily(`${payload.family ?? ""} ${payload.os ?? ""} ${payload.platform ?? ""}`);
+    return {
+      architecture: payload.architecture,
+      family,
+      os: payload.os || OS_LABELS[family],
+      platform: payload.platform,
+      source: payload.source || "network",
+    };
+  } catch {
+    return {
+      family: "unknown",
+      os: "Unknown OS",
+      source: "network-unavailable",
+    };
+  }
+}
 
 const SOUND_PROFILES: Record<SoundProfile, { detail: string; name: string }> = {
   mech: { detail: "crisp keyboard clicks", name: "Mechanical" },
@@ -103,7 +349,7 @@ const ACHIEVEMENTS: Record<AchievementId, { detail: string; id: AchievementId; t
 
 const MISSION_STEPS: Array<{ detail: string; key: MissionKey; title: string }> = [
   { detail: "Run any command", key: "command", title: "Wake console" },
-  { detail: "Pick login, signup, Google, or GitHub", key: "identity", title: "Choose identity" },
+  { detail: "Pick login, signup, or OAuth", key: "identity", title: "Choose identity" },
   { detail: "Run speed for a quick baseline", key: "baseline", title: "Capture baseline" },
   { detail: 'Type "go" after success', key: "dashboard", title: "Enter dashboard" },
 ];
@@ -117,22 +363,22 @@ const FONTS: Record<FontName, { family: string; name: string; url: string }> = {
   fira: {
     name: "Fira Code",
     family: "'Fira Code', monospace",
-    url: "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap",
+    url: "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap",
   },
   jetbrains: {
     name: "JetBrains Mono",
     family: "'JetBrains Mono', monospace",
-    url: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap",
+    url: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap",
   },
   geist: {
     name: "Geist Mono",
     family: "'Geist Mono', monospace",
-    url: "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&display=swap",
+    url: "https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.css",
   },
   ibm: {
     name: "IBM Plex Mono",
     family: "'IBM Plex Mono', monospace",
-    url: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap",
+    url: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
   },
   space: {
     name: "Space Mono",
@@ -147,39 +393,39 @@ function isFontName(v: string | null | undefined): v is FontName {
 
 const THEMES: Record<ThemeName, { accent: string; accentSoft: string; glow: string; name: string; secondary: string }> = {
   matrix: {
-    accent:     "#22c55e",                    // vivid green
+    accent: "#22c55e",                    // vivid green
     accentSoft: "rgba(34,197,94,0.12)",
-    glow:       "rgba(34,197,94,0.35)",
-    name:       "Terminal Green",
-    secondary:  "#4ade80",                    // lighter green — still on-theme but distinct
+    glow: "rgba(34,197,94,0.35)",
+    name: "Terminal Green",
+    secondary: "#4ade80",                    // lighter green — still on-theme but distinct
   },
   cyan: {
-    accent:     "#0ea5e9",                    // sky blue
+    accent: "#0ea5e9",                    // sky blue
     accentSoft: "rgba(14,165,233,0.12)",
-    glow:       "rgba(14,165,233,0.35)",
-    name:       "Cyber Cyan",
-    secondary:  "#67e8f9",                    // bright cyan — high contrast vs deep blue
+    glow: "rgba(14,165,233,0.35)",
+    name: "Cyber Cyan",
+    secondary: "#67e8f9",                    // bright cyan — high contrast vs deep blue
   },
   violet: {
-    accent:     "#8b5cf6",                    // mid-purple
+    accent: "#8b5cf6",                    // mid-purple
     accentSoft: "rgba(139,92,246,0.15)",
-    glow:       "rgba(139,92,246,0.35)",
-    name:       "Deep Violet",
-    secondary:  "#38bdf8",                    // sky blue — strong contrast vs purple
+    glow: "rgba(139,92,246,0.35)",
+    name: "Deep Violet",
+    secondary: "#38bdf8",                    // sky blue — strong contrast vs purple
   },
   amber: {
-    accent:     "#f59e0b",                    // golden amber
+    accent: "#f59e0b",                    // golden amber
     accentSoft: "rgba(245,158,11,0.15)",
-    glow:       "rgba(245,158,11,0.35)",
-    name:       "Gold Forge",
-    secondary:  "#34d399",                    // emerald green — complementary to amber
+    glow: "rgba(245,158,11,0.35)",
+    name: "Gold Forge",
+    secondary: "#34d399",                    // emerald green — complementary to amber
   },
   rose: {
-    accent:     "#f43f5e",                    // vivid rose red
+    accent: "#f43f5e",                    // vivid rose red
     accentSoft: "rgba(244,63,94,0.15)",
-    glow:       "rgba(244,63,94,0.35)",
-    name:       "Cherry Blossom",
-    secondary:  "#a78bfa",                    // violet — cool contrast vs warm rose
+    glow: "rgba(244,63,94,0.35)",
+    name: "Cherry Blossom",
+    secondary: "#a78bfa",                    // violet — cool contrast vs warm rose
   },
 };
 
@@ -191,24 +437,15 @@ const BOOT_LINES: Line[] = [
   { text: "", type: "dim" },
 ];
 
-const ASCII_LOGO = [
-  "████████╗██╗   ██╗██████╗ ███████╗███████╗ ██████╗ ██████╗  ██████╗ ███████╗",
-  "╚══██╔══╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝",
-  "   ██║    ╚████╔╝ ██████╔╝█████╗  █████╗  ██║   ██║██████╔╝██║  ███╗█████╗  ",
-  "   ██║     ╚██╔╝  ██╔═══╝ ██╔══╝  ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝  ",
-  "   ██║      ██║   ██║     ███████╗██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗",
-  "   ╚═╝      ╚═╝   ╚═╝     ╚══════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝",
-];
-
 const WELCOME_LINES: Line[] = [
   { text: "", type: "dim" },
   { text: "> Welcome to TypeForge Terminal v1.0", type: "info" },
   { text: "> Type a command to continue.", type: "dim" },
   { text: "", type: "dim" },
-  { text: "  login    -> Sign in with email", type: "system" },
+  { text: "  login    -> Choose email, Google, or GitHub", type: "system" },
   { text: "  signup   -> Create new account", type: "system" },
-  { text: "  google   -> Continue with Google", type: "system" },
-  { text: "  github   -> Continue with GitHub", type: "system" },
+  { text: "  mission  -> Show starter quest", type: "system" },
+  { text: "  neofetch -> Run system identity scan", type: "system" },
   { text: "  speed    -> Quick typing baseline", type: "system" },
   { text: "  help     -> Show all commands", type: "dim" },
   { text: "", type: "dim" },
@@ -216,7 +453,7 @@ const WELCOME_LINES: Line[] = [
 
 const HELP_LINES: Line[] = [
   { text: "  Core Commands", type: "info" },
-  { text: "    login            sign in with email/password", type: "system" },
+  { text: "    login            choose email, Google, or GitHub", type: "system" },
   { text: "    signup           create a new TypeForge account", type: "system" },
   { text: "    google           open Google OAuth", type: "system" },
   { text: "    github           open GitHub OAuth", type: "system" },
@@ -224,6 +461,7 @@ const HELP_LINES: Line[] = [
   { text: "    retry            restart the typing test", type: "system" },
   { text: "    palette          show command shortcuts", type: "system" },
   { text: "    mission          show onboarding mission", type: "system" },
+  { text: "    osprobe          detect OS from browser + network hints", type: "system" },
   { text: "", type: "dim" },
   { text: "  System & Network (Easter Eggs)", type: "info" },
   { text: "    neofetch         show system hardware info", type: "dim" },
@@ -282,6 +520,19 @@ const AUTOCOMPLETE: Record<string, string> = {
   m: "mission",
   mi: "mission",
   mis: "mission",
+  n: "neofetch",
+  ne: "neofetch",
+  neo: "neofetch",
+  neof: "neofetch",
+  neofe: "neofetch",
+  neofet: "neofetch",
+  neofetc: "neofetch",
+  o: "osprobe",
+  os: "osprobe",
+  osp: "osprobe",
+  ospr: "osprobe",
+  ospro: "osprobe",
+  osprob: "osprobe",
   p: "palette",
   pa: "palette",
   pal: "palette",
@@ -304,6 +555,22 @@ const AUTOCOMPLETE: Record<string, string> = {
   who: "whoami",
 };
 
+const LOGIN_METHOD_AUTOCOMPLETE: Record<string, string> = {
+  e: "email",
+  em: "email",
+  ema: "email",
+  emai: "email",
+  g: "google",
+  gi: "github",
+  git: "github",
+  gith: "github",
+  githu: "github",
+  go: "google",
+  goo: "google",
+  goog: "google",
+  googl: "google",
+};
+
 function isThemeName(value: string | null | undefined): value is ThemeName {
   return value === "matrix" || value === "cyan" || value === "violet" || value === "amber" || value === "rose";
 }
@@ -313,6 +580,7 @@ function isSoundProfile(value: string | null | undefined): value is SoundProfile
 }
 
 function getPrompt(stage: Stage) {
+  if (stage === "login_method") return "login: ";
   if (stage === "login_email" || stage === "signup_email") return "email: ";
   if (stage === "login_pw" || stage === "signup_pw" || stage === "signup_confirm") return "password: ";
   if (stage === "signup_name") return "name: ";
@@ -407,7 +675,6 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
   const [font, setFont] = useState<FontName>("jetbrains");
   const [lastWpm, setLastWpm] = useState(0);
   const [lastAccuracy, setLastAccuracy] = useState(100);
-  const hasBooted = useRef(false);
   const [storageReady, setStorageReady] = useState(false);
   const [liveStats, setLiveStats] = useState(DEFAULT_LIVE_STATS);
   const [mission, setMission] = useState<Record<MissionKey, boolean>>({
@@ -442,23 +709,34 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
   const palette = THEMES[theme];
   const isPassword = stage === "login_pw" || stage === "signup_pw" || stage === "signup_confirm";
   const passwordStrength = isPassword && input ? getPasswordStrength(input) : null;
-  const suggestion = stage === "idle" && input.length > 0 ? AUTOCOMPLETE[input.toLowerCase()] : undefined;
+  const suggestion =
+    input.length > 0
+      ? stage === "idle"
+        ? AUTOCOMPLETE[input.toLowerCase()]
+        : stage === "login_method"
+          ? LOGIN_METHOD_AUTOCOMPLETE[input.toLowerCase()]
+          : undefined
+      : undefined;
   const missionComplete = MISSION_STEPS.filter((step) => mission[step.key]).length;
   const missionPercent = Math.round((missionComplete / MISSION_STEPS.length) * 100);
 
   const lineColors = useMemo<Record<LineType, string>>(
     () => ({
-      ascii:   palette.secondary,
-      boot:    "#94a3b8",        // slate — neutral across all themes
-      dim:     "#4b5563",        // always muted grey
-      error:   "#f87171",        // always red-ish (readable on any bg)
-      info:    palette.secondary, // theme secondary = clear visual split from accent
+      boot: "#94a3b8",        // slate — neutral across all themes
+      dim: "#4b5563",        // always muted grey
+      error: "#f87171",        // always red-ish (readable on any bg)
+      info: palette.secondary, // theme secondary = clear visual split from accent
+      logo: palette.accent,
       success: palette.accent,   // theme primary accent
-      system:  "#e2e8f0",        // near-white — always legible
-      user:    palette.accent,   // prompt input = accent
+      system: "#e2e8f0",        // near-white — always legible
+      user: palette.accent,   // prompt input = accent
     }),
     [palette.accent, palette.secondary],
   );
+
+  const focusTerminalInput = useCallback(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const playSound = useCallback(
     (type: "enter" | "error" | "key" | "success") => {
@@ -473,7 +751,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
 
   const typeLines = useCallback(async (nextLines: Line[], delay = 18) => {
     for (const line of nextLines) {
-      if (line.text.length === 0 || line.type === "ascii") {
+      if (line.neofetch || line.segments || line.text.length === 0 || line.type === "logo") {
         setLines((previous) => [...previous, line]);
         await new Promise((resolve) => setTimeout(resolve, 40));
         continue;
@@ -585,10 +863,12 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
     async (command: string) => {
       const raw = command.trim();
       const trimmed = raw.toLowerCase();
+      const [commandName, commandArg] = trimmed.split(/\s+/);
 
       if (
         trimmed === "esc" &&
         (stage === "login_email" ||
+          stage === "login_method" ||
           stage === "login_pw" ||
           stage === "signup_name" ||
           stage === "signup_email" ||
@@ -609,6 +889,61 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
         }
         playSound("error");
         await typeLines([{ text: '> Type "go" to enter your dashboard.', type: "error" }], 16);
+        return;
+      }
+
+      if (stage === "login_method") {
+        if (trimmed === "email" || trimmed === "mail" || trimmed === "password" || trimmed === "credentials") {
+          resetAuthMetrics();
+          markMission("identity");
+          await typeLines([{ text: "> Enter your email (press ESC to cancel):", type: "info" }], 16);
+          setStage("login_email");
+          return;
+        }
+
+        if (trimmed === "google") {
+          markMission("identity");
+          unlockAchievement("oauth_launch");
+          await typeLines(
+            [
+              { text: "> OAuth bridge: Google", type: "info" },
+              { text: "> Checking secure provider handshake...", type: "dim" },
+              { text: "> Redirect issued. Keep speed command ready for your baseline.", type: "success" },
+            ],
+            14,
+          );
+          playSound("success");
+          signIn("google", { callbackUrl: DASHBOARD_PATH });
+          return;
+        }
+
+        if (trimmed === "github") {
+          markMission("identity");
+          unlockAchievement("oauth_launch");
+          await typeLines(
+            [
+              { text: "> OAuth bridge: GitHub", type: "info" },
+              { text: "> Checking secure provider handshake...", type: "dim" },
+              { text: "> Redirect issued. Keep speed command ready for your baseline.", type: "success" },
+            ],
+            14,
+          );
+          playSound("success");
+          signIn("github", { callbackUrl: DASHBOARD_PATH });
+          return;
+        }
+
+        playSound("error");
+        registerError();
+        await typeLines(
+          [
+            { text: "> Choose one: email, google, or github.", type: "error" },
+            { text: "    email    -> Sign in with email/password", type: "system" },
+            { text: "    google   -> Continue with Google", type: "system" },
+            { text: "    github   -> Continue with GitHub", type: "system" },
+          ],
+          14,
+        );
         return;
       }
 
@@ -650,10 +985,17 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
         if (trimmed === "") return;
 
         if (trimmed === "login") {
-          resetAuthMetrics();
-          markMission("identity");
-          await typeLines([{ text: "> Enter your email (press ESC to cancel):", type: "info" }], 16);
-          setStage("login_email");
+          await typeLines(
+            [
+              { text: "> Which login method?", type: "info" },
+              { text: "    email    -> Sign in with email/password", type: "system" },
+              { text: "    google   -> Continue with Google", type: "system" },
+              { text: "    github   -> Continue with GitHub", type: "system" },
+              { text: "    esc      -> Cancel", type: "dim" },
+            ],
+            14,
+          );
+          setStage("login_method");
           return;
         }
 
@@ -717,7 +1059,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
               { text: "  Command palette", type: "info" },
               { text: "    Tab        autocomplete current command", type: "system" },
               { text: "    Up/Down    cycle command history", type: "system" },
-              { text: "    login      email login flow", type: "system" },
+              { text: "    login      choose email / Google / GitHub", type: "system" },
               { text: "    signup     account creation flow", type: "system" },
               { text: "    speed      quick baseline before dashboard", type: "system" },
               { text: "    theme      matrix / cyan / violet / amber / rose", type: "dim" },
@@ -788,31 +1130,76 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           );
           return;
         }
+        if (trimmed === "osprobe" || trimmed === "probe os") {
+          const browserProbe = await getBrowserSystemProbe();
+          const networkProbe = await getNetworkSystemProbe();
+          const browserDetails = await getBrowserDetails();
+          const bestProbe = browserProbe.family !== "unknown" ? browserProbe : networkProbe;
+          await typeLines(
+            [
+              { text: "> OS probe started...", type: "dim" },
+              { text: `> Browser hint  -> ${browserProbe.os}`, type: browserProbe.family === "unknown" ? "dim" : "info" },
+              { text: `> Network hint  -> ${networkProbe.os}`, type: networkProbe.family === "unknown" ? "dim" : "info" },
+              { text: `> Browser app   -> ${browserDetails.name}`, type: browserDetails.name === "Unknown Browser" ? "dim" : "info" },
+              { text: `> Engine        -> ${browserDetails.engine}`, type: browserDetails.engine === "Unknown" ? "dim" : "info" },
+              { text: `> Selected logo -> ${OS_LABELS[bestProbe.family]}`, type: "success" },
+              { text: "", type: "dim" },
+            ],
+            12,
+          );
+          return;
+        }
         if (trimmed === "neofetch" || trimmed === "sysinfo") {
-          const os = (navigator as any).userAgentData?.platform || navigator.platform || "Unknown OS";
+          const browserProbe = await getBrowserSystemProbe();
+          const networkProbe = await getNetworkSystemProbe();
+          const browserDetails = await getBrowserDetails();
+          const osFamily = browserProbe.family !== "unknown" ? browserProbe.family : networkProbe.family;
+          const os = browserProbe.family !== "unknown" ? browserProbe.os : networkProbe.os;
           const cores = navigator.hardwareConcurrency || "Unknown";
           const ram = (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory}GB+` : "Unknown";
-          const screenRes = `${window.screen.width}x${window.screen.height}`;
-          
+          const screenRes = getDisplaySummary();
+
           // Generate a believable CPU string based on logical cores and OS
-          const isMac = os.toLowerCase().includes("mac");
-          const arch = navigator.userAgent.includes("Win64") || navigator.userAgent.includes("x86_64") ? "x86_64" : "ARM64";
+          const isMac = osFamily === "macos";
+          const arch = browserProbe.architecture || (navigator.userAgent.includes("Win64") || navigator.userAgent.includes("x86_64") ? "x86_64" : "ARM64");
           const cpuName = isMac && typeof cores === "number" && cores >= 4 ? `Apple Silicon (M-Series) ${cores}-Core` : `Intel/AMD ${arch} ${cores}-Core Processor`;
 
-          // Basic browser detection from userAgent
-          let browser = "Unknown Browser";
-          if (navigator.userAgent.includes("Chrome")) browser = "Chrome/Chromium";
-          else if (navigator.userAgent.includes("Firefox")) browser = "Firefox";
-          else if (navigator.userAgent.includes("Safari")) browser = "Safari";
+          const isMobileDevice = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+          const themeStatColors = {
+            browser: theme === "rose" ? "#fecdd3" : "#fda4af",
+            cpu: theme === "violet" ? "#e9d5ff" : "#ddd6fe",
+            device: theme === "cyan" ? "#a5f3fc" : "#bae6fd",
+            display: theme === "amber" ? "#fef3c7" : "#fde68a",
+            memory: theme === "matrix" ? "#bbf7d0" : "#86efac",
+            os: theme === "cyan" ? "#bae6fd" : "#93c5fd",
+          };
+          const statRows: NeofetchStat[] = [
+            { label: "OS", value: os, labelColor: palette.secondary, valueColor: themeStatColors.os },
+            { label: "Device", value: isMobileDevice ? "Mobile terminal" : "Desktop terminal", labelColor: "#22d3ee", valueColor: themeStatColors.device },
+            { label: "CPU", value: cpuName, labelColor: "#a78bfa", valueColor: themeStatColors.cpu },
+            { label: "Memory", value: `~${ram}`, labelColor: "#34d399", valueColor: themeStatColors.memory },
+            { label: "Display", value: screenRes, labelColor: "#f59e0b", valueColor: themeStatColors.display },
+            { label: "Browser", value: browserDetails.name, labelColor: "#fb7185", valueColor: themeStatColors.browser },
+            { label: "Engine", value: browserDetails.engine, labelColor: "#22d3ee", valueColor: themeStatColors.device },
+            { label: "Source", value: browserDetails.source, labelColor: "#64748b", valueColor: "#94a3b8" },
+            { label: "Terminal", value: "TypeForge Web", labelColor: palette.accent, valueColor: palette.secondary },
+          ];
 
           await typeLines(
             [
-              { text: `   .----.     OS: ${os}`, type: "system" },
-              { text: `  /      \\    CPU: ${cpuName}`, type: "system" },
-              { text: ` |        |   Memory: ~${ram}`, type: "system" },
-              { text: ` |        |   Display: ${screenRes}`, type: "system" },
-              { text: `  \\      /    Browser: ${browser}`, type: "system" },
-              { text: `   \`----'     Terminal: TypeForge Web`, type: "system" },
+              { text: "  SYSTEM IDENTITY", type: "info" },
+              { text: "", type: "dim" },
+              {
+                neofetch: {
+                  logoAlt: `${OS_LABELS[osFamily]} logo`,
+                  logoFilter: getOsLogoFilter(osFamily, palette.glow),
+                  logoSrc: OS_LOGOS[osFamily],
+                  logoTitle: OS_LABELS[osFamily],
+                  stats: statRows,
+                },
+                text: "neofetch system panel",
+                type: "system",
+              },
               { text: "", type: "dim" }
             ],
             12
@@ -996,7 +1383,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           // Generate random binary dumps
           for (let i = 0; i < 10 + Math.random() * 8; i += 1) {
             const binaryDump = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * 2)]).join("")).join(" ");
-            
+
             addLines([{ text: `  ${binaryDump}`, type: "success" }]);
             await new Promise((resolve) => setTimeout(resolve, 30 + Math.random() * 30));
           }
@@ -1078,8 +1465,8 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           return;
         }
 
-        if (trimmed.startsWith("theme")) {
-          const nextTheme = trimmed.split(/\s+/)[1] as ThemeName | undefined;
+        if (commandName === "theme" || commandName === "themes") {
+          const nextTheme = commandArg as ThemeName | undefined;
           if (nextTheme && THEMES[nextTheme]) {
             if (nextTheme === theme) {
               await typeLines([{ text: `> Already on ${THEMES[nextTheme].name}. No change.`, type: "info" }, { text: "", type: "dim" }], 16);
@@ -1102,8 +1489,8 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           return;
         }
 
-        if (trimmed.startsWith("font")) {
-          const nextFont = trimmed.split(/\s+/)[1] as FontName | undefined;
+        if (commandName === "font" || commandName === "fonts") {
+          const nextFont = commandArg as FontName | undefined;
           if (nextFont && FONTS[nextFont]) {
             if (nextFont === font) {
               await typeLines([{ text: `> Already using ${FONTS[nextFont].name}. No change.`, type: "info" }, { text: "", type: "dim" }], 16);
@@ -1311,7 +1698,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
         }
       }
     },
-    [addLines, getAuthStats, markMission, mission, missionPercent, openDashboard, playSound, recoveryHint, registerError, resetAuthMetrics, stage, typeLines, unlockAchievement],
+    [addLines, font, getAuthStats, markMission, mission, missionPercent, openDashboard, playSound, recoveryHint, registerError, resetAuthMetrics, stage, theme, typeLines, unlockAchievement],
   );
 
   const submitInput = useCallback(() => {
@@ -1344,6 +1731,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
       event.preventDefault();
       if (
         stage === "login_email" ||
+        stage === "login_method" ||
         stage === "login_pw" ||
         stage === "signup_name" ||
         stage === "signup_email" ||
@@ -1418,26 +1806,72 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
   };
 
   useEffect(() => {
-    if (hasBooted.current) return;
-    hasBooted.current = true;
+    let cancelled = false;
 
-    (async () => {
-      for (const line of BOOT_LINES) {
-        addLines([line]);
-        await new Promise((resolve) => setTimeout(resolve, 150 + Math.random() * 100));
-      }
-      for (const row of ASCII_LOGO) {
-        addLines([{ text: row, type: "ascii" }]);
-        await new Promise((resolve) => setTimeout(resolve, 26));
-      }
-      await typeLines(WELCOME_LINES, 10);
-      if (mode === "register") {
-        await typeLines([{ text: "> Hint: type signup to create your account.", type: "dim" }, { text: "", type: "dim" }], 12);
-      }
+    setStage("boot");
+    setLines([
+      ...BOOT_LINES,
+      { text: "", type: "logo" },
+      ...WELCOME_LINES,
+      ...(mode === "register"
+        ? [
+          { text: "> Hint: type signup to create your account.", type: "dim" } satisfies Line,
+          { text: "", type: "dim" } satisfies Line,
+        ]
+        : []),
+    ]);
+
+    const readyTimer = window.setTimeout(() => {
+      if (cancelled) return;
       setStage("idle");
-      inputRef.current?.focus();
-    })();
-  }, [addLines, mode, typeLines]);
+      focusTerminalInput();
+    }, 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(readyTimer);
+    };
+  }, [focusTerminalInput, mode]);
+
+  useEffect(() => {
+    const handleDocumentKeyDown = (event: KeyboardEvent) => {
+      const terminalInput = inputRef.current;
+      if (!terminalInput || event.defaultPrevented || document.activeElement === terminalInput) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const isEditableTarget =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        Boolean(target?.isContentEditable);
+
+      if (isEditableTarget && target !== terminalInput) {
+        return;
+      }
+
+      if (event.key !== " " && event.code !== "Space") {
+        return;
+      }
+
+      event.preventDefault();
+      focusTerminalInput();
+
+      if (stage === "auth" || stage === "boot" || stage === "done") {
+        return;
+      }
+
+      setInput((previous) => {
+        const nextValue = `${previous} `;
+        updateLiveStats(nextValue);
+        return nextValue;
+      });
+      playSound("key");
+    };
+
+    document.addEventListener("keydown", handleDocumentKeyDown, true);
+    return () => document.removeEventListener("keydown", handleDocumentKeyDown, true);
+  }, [focusTerminalInput, playSound, stage, updateLiveStats]);
 
   // Load persisted preferences on mount
   useEffect(() => {
@@ -1501,7 +1935,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
     <div
       data-typeforge-auth="true"
       className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#050608] text-white"
-      onClick={() => inputRef.current?.focus()}
+      onClick={focusTerminalInput}
       style={{
         backgroundImage:
           `radial-gradient(circle at 50% -10%, ${palette.glow}, transparent 38%), radial-gradient(circle at 82% 20%, rgba(56,189,248,0.08), transparent 30%), linear-gradient(180deg, #050608 0%, #07090d 100%)`,
@@ -1557,18 +1991,76 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
 
           <div
             ref={scrollRef}
-            className="min-h-0 flex-1 overflow-y-auto px-4 py-5 text-[12px] leading-[1.72] sm:px-6 sm:text-[13px] sm:leading-[1.78] lg:px-8"
+            data-lenis-prevent=""
+            data-lenis-prevent-wheel=""
+            data-native-scroll=""
+            className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-4 py-5 text-[12px] leading-[1.72] sm:px-6 sm:text-[13px] sm:leading-[1.78] lg:px-8"
             style={{ fontFamily: FONTS[font].family }}
           >
-            {lines.map((line, index) => (
-              <div
-                key={`${index}-${line.type}`}
-                className={line.type === "ascii" ? "whitespace-pre text-[8px] leading-[1.08] sm:text-[10px] md:text-[11px]" : "whitespace-pre-wrap break-words"}
-                style={{ color: lineColors[line.type] }}
-              >
-                {line.text || "\u00A0"}
-              </div>
-            ))}
+            {lines.map((line, index) => {
+              if (line.type === "logo") {
+                return <TypeForgeTerminalLogo key={`${index}-${line.type}`} font={font} theme={theme} />;
+              }
+
+              if (line.neofetch) {
+                return (
+                  <div
+                    key={`${index}-${line.type}`}
+                    className="my-3 flex max-w-[760px] flex-col gap-3 bg-transparent p-0 sm:flex-row sm:items-center"
+                  >
+                    <div className="flex shrink-0 items-center justify-center sm:w-[176px]">
+                      <span className="grid h-28 w-28 place-items-center bg-transparent sm:h-36 sm:w-36">
+                        <img
+                          alt={line.neofetch.logoAlt}
+                          className="h-24 w-24 object-contain sm:h-32 sm:w-32"
+                          draggable={false}
+                          src={line.neofetch.logoSrc}
+                          style={{ filter: line.neofetch.logoFilter }}
+                        />
+                      </span>
+                    </div>
+                    <div className="grid min-w-0 flex-1 gap-1.5">
+                      {line.neofetch.stats.map((stat) => (
+                        <div
+                          key={stat.label}
+                          className="grid min-w-0 grid-cols-[66px_18px_minmax(0,1fr)] items-baseline gap-1.5 text-[11px] sm:grid-cols-[88px_28px_minmax(0,1fr)] sm:gap-2 sm:text-[13px]"
+                        >
+                          <span className="font-black" style={{ color: stat.labelColor }}>
+                            {stat.label}
+                          </span>
+                          <span className="text-[#64748b]">-&gt;</span>
+                          <span className="min-w-0 break-words font-bold" style={{ color: stat.valueColor }}>
+                            {stat.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={`${index}-${line.type}`}
+                  className="whitespace-pre-wrap break-words"
+                  style={{ color: lineColors[line.type] }}
+                >
+                  {line.segments
+                    ? line.segments.map((segment, segmentIndex) => (
+                      <span
+                        key={`${index}-${segmentIndex}`}
+                        style={{
+                          color: segment.color ?? (segment.type ? lineColors[segment.type] : "inherit"),
+                          fontWeight: segment.weight,
+                        }}
+                      >
+                        {segment.text}
+                      </span>
+                    ))
+                    : line.text || "\u00A0"}
+                </div>
+              );
+            })}
 
             {stage !== "boot" && stage !== "done" && (
               <div className="relative mt-1 flex items-center" style={{ color: stage === "idle" || stage === "await_go" ? palette.accent : palette.secondary }}>
@@ -1663,10 +2155,19 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
         <input
           ref={inputRef}
           aria-label="TypeForge terminal input"
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
           autoFocus
           className="sr-only"
+          enterKeyHint="send"
+          inputMode="text"
+          onBlur={() => {
+            window.setTimeout(focusTerminalInput, 0);
+          }}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          spellCheck={false}
           type={isPassword ? "password" : "text"}
           value={input}
         />

@@ -42,6 +42,10 @@ export default function Navbar() {
   const browseOpenRef = useRef(false)
   const mobileOpenRef = useRef(false)
 
+  const handleSignOut = useCallback(() => {
+    void signOut({ callbackUrl: '/login' })
+  }, [])
+
   useEffect(() => {
     browseOpenRef.current = isBrowseMenuOpen
   }, [isBrowseMenuOpen])
@@ -329,7 +333,7 @@ export default function Navbar() {
 
                   <NavUserActions
                     onSignIn={() => signIn()}
-                    onSignOut={() => signOut()}
+                    onSignOut={handleSignOut}
                     pathname={pathname}
                     session={session ?? null}
                   />
@@ -390,7 +394,7 @@ export default function Navbar() {
       <MobileNavDrawer
         onClose={() => setIsMobileMenuOpen(false)}
         onSignIn={() => signIn()}
-        onSignOut={() => signOut()}
+        onSignOut={handleSignOut}
         open={isMobileMenuOpen}
         pathname={pathname}
         session={session ?? null}

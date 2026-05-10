@@ -38,6 +38,19 @@ function getOAuthUsernameSeed(
   return createUsernameSeed(fallback)
 }
 
+function getOAuthDisplayName(
+  profile?: Record<string, unknown>,
+  fallback?: string | null
+) {
+  const name = typeof profile?.name === 'string' ? profile.name.trim() : ''
+  if (name) return name
+
+  const login = typeof profile?.login === 'string' ? profile.login.trim() : ''
+  if (login) return login
+
+  return fallback?.trim() || null
+}
+
 async function createAvailableUsername(baseValue: string, currentUserId: string) {
   let candidate = createUsernameSeed(baseValue)
   let suffix = 1
@@ -63,6 +76,7 @@ type ProfileSyncUser = {
   email?: string | null
   image?: string | null
   name?: string | null
+  nickname?: string | null
   username?: string | null
 }
 
@@ -71,6 +85,7 @@ async function syncProfileFields(
   currentUser: ProfileSyncUser | null | undefined,
   options: {
     avatarUrl?: string | null
+    displayName?: string | null
     usernameSeed?: string | null
   } = {}
 ) {
@@ -93,6 +108,11 @@ async function syncProfileFields(
       options.usernameSeed || currentUser.name || currentUser.email || 'typist',
       userId
     )
+  }
+
+  const nextDisplayName = options.displayName?.trim()
+  if (nextDisplayName && !currentUser.nickname && currentUser.name !== nextDisplayName) {
+    updateData.name = nextDisplayName
   }
 
   if (Object.keys(updateData).length === 0) {
@@ -191,7 +211,7 @@ export const authOptions: NextAuthOptions = {
 
       const dbUser = await prisma.user.findUnique({
         where: { id: user.id },
-        select: { avatarUrl: true, email: true, image: true, isBanned: true, name: true, username: true },
+        select: { avatarUrl: true, email: true, image: true, isBanned: true, name: true, nickname: true, username: true },
       });
 
       if (!dbUser) {
@@ -205,6 +225,7 @@ export const authOptions: NextAuthOptions = {
       const oauthAvatarUrl = getOAuthAvatarUrl(account?.provider, profile as Record<string, unknown> | undefined)
       await syncProfileFields(user.id, dbUser, {
         avatarUrl: oauthAvatarUrl,
+        displayName: getOAuthDisplayName(profile as Record<string, unknown> | undefined, user.name || user.email || null),
         usernameSeed: getOAuthUsernameSeed(
           account?.provider,
           profile as Record<string, unknown> | undefined,
@@ -249,10 +270,10 @@ export const authOptions: NextAuthOptions = {
           select: {
             avatarUrl: true,
             email: true,
-            handle: true,
-            image: true,
-            name: true,
-            nickname: true,
+              handle: true,
+              image: true,
+              name: true,
+              nickname: true,
             profileNudgeDismissed: true,
             role: true,
             username: true,
@@ -306,6 +327,7 @@ export const authOptions: NextAuthOptions = {
         },
         {
           avatarUrl: user.image,
+          displayName: user.name,
           usernameSeed: getOAuthUsernameSeed(undefined, undefined, user.name || user.email || null),
         }
       )

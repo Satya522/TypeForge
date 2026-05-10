@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import Providers from './providers';
 import AppChrome from '@/components/AppChrome';
+import { getServerAuthSession } from '@/lib/auth';
 
 // Load Inter variable font with latin subset
 const inter = Inter({ subsets: ['latin'] });
@@ -25,7 +26,9 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const session = await getServerAuthSession();
+
   return (
     <html lang="en" className={inter.className} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
@@ -58,7 +61,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       </head>
       <body className="min-h-screen flex flex-col bg-surface-100 dark" suppressHydrationWarning>
-        <Providers>
+        <Providers session={session}>
           <AppChrome>{children}</AppChrome>
         </Providers>
       </body>

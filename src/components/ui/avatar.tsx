@@ -53,7 +53,7 @@ function getInitials(name?: string | null) {
   const source = name?.trim() || 'U'
   const parts = source.split(/\s+/).filter(Boolean)
   if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase()
+    return parts[0].slice(0, 1).toUpperCase()
   }
 
   return parts
@@ -123,7 +123,10 @@ export function Avatar({
           src={src as string}
           alt={alt || name || 'Avatar'}
           className={cn('h-full w-full object-cover', imageClassName)}
+          decoding="async"
+          loading="lazy"
           onError={() => setImageFailed(true)}
+          referrerPolicy="no-referrer"
         />
       ) : (
         <span
