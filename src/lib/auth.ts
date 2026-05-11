@@ -335,4 +335,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const getServerAuthSession = () => getServerSession(authOptions);
+export function getServerAuthSession() {
+  return getServerSession(authOptions);
+}
