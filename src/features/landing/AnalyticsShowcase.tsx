@@ -74,11 +74,9 @@ export default function AnalyticsShowcase() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 sm:py-28 lg:py-32">
+    <section ref={sectionRef} className="relative py-14 sm:py-16 lg:py-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/3 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-accent-300/[0.025] blur-[140px]" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 
       <div className="section-shell">
         {/* Header */}

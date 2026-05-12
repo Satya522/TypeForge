@@ -100,12 +100,8 @@ export default function LearningPathsPreview() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 sm:py-28 lg:py-32">
-      {/* Background elements */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-0 top-1/4 h-[400px] w-[400px] rounded-full bg-accent-300/[0.03] blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-[#5f9aff]/[0.04] blur-[100px]" />
-      </div>
+    <section ref={sectionRef} className="relative py-14 sm:py-16 lg:py-20">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 
       <div className="section-shell">
         {/* Header */}

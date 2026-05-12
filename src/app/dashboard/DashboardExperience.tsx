@@ -2,7 +2,9 @@
 
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
+  Activity,
   ArrowRight,
   BarChart3,
   Check,
@@ -147,53 +149,84 @@ export default function DashboardExperience({ payload }: { payload: DashboardPay
       <div className="dash-grid-glow" aria-hidden="true" />
 
       <div className="dash-shell">
-        <section className="dash-hero dash-animate" style={{ "--dash-delay": "0s" } as CSSProperties}>
-          <div className="dash-hero-copy">
-            <div className="dash-kicker">Welcome back,</div>
-            <h1 className="dash-title">{name}.</h1>
-            <div className="dash-subline">
-              <p>Your command center is live.</p>
-              <span className="dash-live-pill">
-                <span className="dash-live-dot" />
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="dash-hero"
+        >
+          <div className="dash-hero-copy relative z-10">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.6 }} className="dash-kicker text-white/50 tracking-[0.3em]">WELCOME BACK,</motion.div>
+            <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="dash-title bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">{name}.</motion.h1>
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="dash-subline">
+              <p className="text-white/60 font-medium">Your command center is live.</p>
+              <span className="dash-live-pill backdrop-blur-md border border-emerald-500/40 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <span className="dash-live-dot bg-emerald-400 shadow-[0_0_10px_#34d399]" />
                 LIVE WORKSPACE
               </span>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="dash-hero-actions" aria-label="Dashboard actions">
-            <Link href="/practice" className="dash-button dash-button-primary">
-              <Play className="dash-button-icon" fill="currentColor" />
-              Start Next Run
-              <ArrowRight className="dash-button-arrow" />
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.6 }} className="dash-hero-actions" aria-label="Dashboard actions">
+            <Link href="/practice" className="dash-button dash-button-primary bg-gradient-to-r from-violet-600 via-blue-600 to-cyan-500 border border-white/20 shadow-[0_0_40px_rgba(124,58,237,0.4)] hover:shadow-[0_0_60px_rgba(6,182,212,0.6)] hover:border-white/40 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+              <Play className="dash-button-icon relative z-10" fill="currentColor" />
+              <span className="relative z-10 text-white font-black tracking-wide">Start Next Run</span>
+              <ArrowRight className="dash-button-arrow relative z-10 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/analytics" className="dash-button dash-button-secondary">
-              <BarChart3 className="dash-button-icon" />
-              Deep Analytics
+            <Link href="/analytics" className="dash-button dash-button-secondary backdrop-blur-md border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all">
+              <BarChart3 className="dash-button-icon text-white/70" />
+              <span className="text-white/90 font-bold">Deep Analytics</span>
             </Link>
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        <section className="dash-stats" aria-label="Typing status overview">
-          <article className="dash-card dash-stat-card dash-readiness-card dash-animate" style={{ "--dash-delay": "0.1s" } as CSSProperties}>
-            <div className="dash-ring-wrap" style={{ "--dash-ring-offset": readinessOffset } as CSSProperties}>
-              <svg className="dash-ring" viewBox="0 0 120 120" aria-hidden="true">
-                <defs>
-                  <linearGradient id="dash-readiness-gradient" x1="18" y1="18" x2="102" y2="102">
-                    <stop offset="0%" stopColor="#facc15" />
-                    <stop offset="45%" stopColor="#bef264" />
-                    <stop offset="100%" stopColor="#a3e635" />
-                  </linearGradient>
-                </defs>
-                <circle className="dash-ring-track" cx="60" cy="60" r="50" />
-                <circle className="dash-ring-value" cx="60" cy="60" r="50" />
-              </svg>
-              <div className="dash-ring-center">
-                <span className="dash-ring-number">{readiness}</span>
-                <span className="dash-ring-total">/ 100</span>
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" aria-label="Typing status overview">
+          <motion.article 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden group rounded-[20px] p-5 bg-[#0a0a0c]/80 border border-white/[0.05] flex flex-col justify-between min-h-[130px]"
+            style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 30px -10px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            
+            <div className="flex justify-between items-start relative z-10">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 group-hover:text-emerald-400 group-hover:bg-emerald-400/10 transition-all duration-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <Activity className="w-3.5 h-3.5" />
+                </div>
+                <p className="text-[10px] font-bold tracking-[0.2em] text-white/50 uppercase">Readiness</p>
+              </div>
+              <div className="flex items-center justify-center w-7 h-7">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-pulse" />
               </div>
             </div>
-            <p className="dash-stat-label dash-cyan">READINESS</p>
-          </article>
+
+            <div className="relative z-10 mt-4 flex items-end justify-between">
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+                  {readiness}
+                </span>
+                <span className="text-white/30 font-semibold text-xs mb-1">/ 100</span>
+              </div>
+              
+              <div className="w-11 h-11 relative" style={{ "--dash-ring-offset": readinessOffset } as CSSProperties}>
+                <svg className="w-full h-full -rotate-90 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" viewBox="0 0 120 120">
+                  <circle className="stroke-white/10" cx="60" cy="60" r="50" strokeWidth="10" fill="none" />
+                  <motion.circle 
+                    initial={{ strokeDashoffset: 314.16 }}
+                    animate={{ strokeDashoffset: readinessOffset }} 
+                    transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
+                    className="stroke-emerald-400"
+                    cx="60" cy="60" r="50" strokeWidth="10" fill="none"
+                    style={{ strokeDasharray: 314.16, strokeLinecap: "round" }}
+                  />
+                </svg>
+              </div>
+            </div>
+          </motion.article>
 
           <StatCard
             delay="0.2s"
@@ -211,53 +244,126 @@ export default function DashboardExperience({ payload }: { payload: DashboardPay
             tone="gold"
             hint="Complete sessions to earn"
           />
-          <article className="dash-card dash-stat-card dash-animate" style={{ "--dash-delay": "0.4s" } as CSSProperties}>
-            <div className="dash-stat-icon dash-tone-cyan">
-              <Zap />
+          
+          <motion.article 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden group rounded-[20px] p-5 bg-[#0a0a0c]/80 border border-white/[0.05] flex flex-col justify-between min-h-[130px]"
+            style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 30px -10px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            
+            <div className="flex justify-between items-start relative z-10">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 group-hover:text-cyan-400 group-hover:bg-cyan-400/10 transition-all duration-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <Zap className="w-3.5 h-3.5" />
+                </div>
+                <p className="text-[10px] font-bold tracking-[0.2em] text-white/50 uppercase">Active</p>
+              </div>
             </div>
-            <div className="dash-active-number">
-              <span>{activeSessions}</span>
-              <small>/30</small>
+
+            <div className="relative z-10 mt-4">
+              <div className="flex items-baseline gap-1 mb-3">
+                <span className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+                  {activeSessions}
+                </span>
+                <span className="text-white/30 font-semibold text-xs mb-1">/ 30</span>
+              </div>
+              <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(activeSessions / 30) * 100}%` }}
+                  transition={{ delay: 0.8, duration: 1 }}
+                  className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                />
+              </div>
             </div>
-            <p className="dash-stat-label">ACTIVE</p>
-            <div className="dash-mini-progress" aria-hidden="true">
-              <span style={{ width: `${(activeSessions / 30) * 100}%` }} />
-            </div>
-          </article>
+          </motion.article>
         </section>
 
         <section className="dash-two-col">
-          <article className="dash-card dash-rank-card dash-animate" style={{ "--dash-delay": "0.3s" } as CSSProperties}>
-            <header className="dash-card-header">
-              <div>
-                <p className="dash-section-label">Next Milestone</p>
-                <h2 className="dash-card-title">Bronze to Silver</h2>
-              </div>
-              <span className="dash-rank-badge">
-                <Trophy />
-                Bronze → Silver
-              </span>
-            </header>
-
-            <div className="dash-progress-stack">
-              <ProgressRow
-                label="Rank Points"
-                value={`${formatNumber(rankPoints)} / ${formatNumber(targetPoints)} pts`}
-                hint={`${formatNumber(Math.max(0, targetPoints - rankPoints))} pts to Silver`}
-                percent={rankPercent}
-                tone="violet"
-                delay="0.6s"
-              />
-              <ProgressRow
-                label="Speed Goal"
-                value={`${Math.round(currentWpm)} / ${targetWpm} WPM`}
-                hint={`+${Math.max(0, Math.round(targetWpm - currentWpm))} WPM to unlock Silver`}
-                percent={speedPercent}
-                tone="cyan"
-                delay="0.9s"
-              />
+          <motion.article 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden group rounded-[20px] p-5 md:p-6 bg-[#0B0D14] border border-white/5 flex flex-col justify-between"
+            style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 40px -10px rgba(0,0,0,0.5)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none">
+              <Trophy className="w-32 h-32 text-violet-400 blur-2xl transform rotate-12" />
             </div>
-          </article>
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Trophy className="w-3.5 h-3.5 text-violet-400" />
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-white/50 uppercase">Next Milestone</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-stone-400 to-stone-200">Bronze</h2>
+                  <ArrowRight className="w-4 h-4 text-white/20" />
+                  <h2 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-200 to-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Silver</h2>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 space-y-5">
+              {/* Rank Points Row */}
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <p className="text-[10px] font-bold tracking-widest text-white/50 uppercase">Rank Points</p>
+                  <div className="text-right flex items-baseline gap-1">
+                    <span className="text-sm font-black text-white">{formatNumber(rankPoints)}</span>
+                    <span className="text-[10px] font-bold text-white/40">/ {formatNumber(targetPoints)}</span>
+                  </div>
+                </div>
+                <div className="relative w-full h-1.5 bg-white/5 rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+PHJlY3QgeD0nMCcgeT0nMCcgd2lkdGg9JzEnIGhlaWdodD0nMTAnIGZpbGw9J3JnYmEoMjU1LDI1NSwyNTUsMC4wNSknLz48L3N2Zz4=')] opacity-50" />
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${rankPercent}%` }}
+                    transition={{ delay: 0.6, duration: 1.5, ease: "easeOut" }}
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-600 to-violet-400 rounded-full shadow-[0_0_8px_rgba(139,92,246,0.8)]"
+                  />
+                  <motion.div
+                    initial={{ left: "-10%" }}
+                    animate={{ left: `${rankPercent}%` }}
+                    transition={{ delay: 0.6, duration: 1.5, ease: "easeOut" }}
+                    className="absolute top-0 bottom-0 w-8 -ml-4 bg-white/40 blur-[2px] rounded-full mix-blend-overlay"
+                  />
+                </div>
+              </div>
+
+              {/* Speed Goal Row */}
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <p className="text-[10px] font-bold tracking-widest text-white/50 uppercase">Speed Goal</p>
+                  <div className="text-right flex items-baseline gap-1">
+                    <span className="text-sm font-black text-white">{Math.round(currentWpm)}</span>
+                    <span className="text-[10px] font-bold text-white/40">/ {targetWpm}</span>
+                  </div>
+                </div>
+                <div className="relative w-full h-1.5 bg-white/5 rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+PHJlY3QgeD0nMCcgeT0nMCcgd2lkdGg9JzEnIGhlaWdodD0nMTAnIGZpbGw9J3JnYmEoMjU1LDI1NSwyNTUsMC4wNSknLz48L3N2Zz4=')] opacity-50" />
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${speedPercent}%` }}
+                    transition={{ delay: 0.9, duration: 1.5, ease: "easeOut" }}
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+                  />
+                  <motion.div
+                    initial={{ left: "-10%" }}
+                    animate={{ left: `${speedPercent}%` }}
+                    transition={{ delay: 0.9, duration: 1.5, ease: "easeOut" }}
+                    className="absolute top-0 bottom-0 w-8 -ml-4 bg-white/40 blur-[2px] rounded-full mix-blend-overlay"
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.article>
 
           <article className="dash-card dash-route-card dash-animate" style={{ "--dash-delay": "0.4s" } as CSSProperties}>
             <header className="dash-card-header dash-tight-header">
@@ -1393,13 +1499,42 @@ function StatCard({
   tone: "warning" | "gold";
   value: string;
 }) {
+  const numericDelay = parseFloat(delay);
+  const isWarning = tone === "warning";
+  
+  const textHover = isWarning ? "group-hover:text-amber-400" : "group-hover:text-yellow-400";
+  const bgHover = isWarning ? "group-hover:bg-amber-400/10" : "group-hover:bg-yellow-400/10";
+  const gradient = isWarning ? "from-amber-500/10" : "from-yellow-500/10";
+  const borderTop = isWarning ? "via-amber-500/20" : "via-yellow-500/20";
+  const textColor = isWarning ? "text-amber-500/80" : "text-yellow-500/80";
+
   return (
-    <article className="dash-card dash-stat-card dash-animate" style={{ "--dash-delay": delay } as CSSProperties}>
-      <div className={`dash-stat-icon dash-tone-${tone}`}>{icon}</div>
-      <div className="dash-stat-value">{value}</div>
-      <p className="dash-stat-label">{label}</p>
-      <p className={`dash-stat-hint ${tone === "warning" ? "dash-stat-hint-warning" : ""}`}>{hint}</p>
-    </article>
+    <motion.article 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: numericDelay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="relative overflow-hidden group rounded-[20px] p-5 bg-[#0a0a0c]/80 border border-white/[0.05] flex flex-col justify-between min-h-[130px]"
+      style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 30px -10px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+      <div className={`absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent ${borderTop} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+      
+      <div className="flex justify-between items-start relative z-10">
+        <div className="flex items-center gap-2">
+          <div className={`w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 ${textHover} ${bgHover} transition-all duration-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]`}>
+            <div className="[&>svg]:w-3.5 [&>svg]:h-3.5">{icon}</div>
+          </div>
+          <p className="text-[10px] font-bold tracking-[0.2em] text-white/50 uppercase">{label}</p>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-4 flex flex-col justify-end">
+        <span className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 leading-none">
+          {value}
+        </span>
+        <span className={`text-[9px] font-bold uppercase tracking-wider mt-2 ${textColor}`}>{hint}</span>
+      </div>
+    </motion.article>
   );
 }
 

@@ -138,7 +138,7 @@ function FooterParticles() {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 80) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(79,141,253,${0.06 * (1 - dist / 80)})`;
+            ctx.strokeStyle = `rgba(57,255,20,${0.035 * (1 - dist / 80)})`;
             ctx.lineWidth = 0.5;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -219,35 +219,16 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer ref={footerRef} className="relative mt-auto overflow-hidden bg-[#02040a]">
-      {/* ── Particle canvas ── */}
-      <FooterParticles />
-
+    <footer ref={footerRef} className="relative mt-auto overflow-hidden bg-[#02050b]">
       {/* ── Background layers ── */}
       <div className="pointer-events-none absolute inset-0">
-        {/* Core neon glow bloom */}
-        <div
-          className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full"
-          style={{ background: 'radial-gradient(ellipse, rgba(79,141,253,0.06) 0%, transparent 65%)' }}
-        />
-        {/* Grid fabric */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)
-            `,
-            backgroundSize: '72px 72px',
-          }}
-        />
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030402] to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#02050b] to-transparent" />
       </div>
 
 
 
-      <div className="section-shell relative z-10 pb-0 pt-16 sm:pt-20 lg:pt-24">
+      <div className="section-shell relative z-10 pb-0 pt-12 sm:pt-14 lg:pt-16">
 
 
 

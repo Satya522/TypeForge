@@ -61,7 +61,7 @@ export default function QuickValueStrip() {
   }, []);
 
   return (
-    <section ref={stripRef} className="relative py-6 sm:py-10">
+    <section ref={stripRef} className="relative py-4 sm:py-6">
       {/* Divider glow */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-300/20 to-transparent" />
 

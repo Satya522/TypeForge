@@ -25,25 +25,11 @@ export default function HomeCTA() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 sm:py-28 lg:py-32">
+    <section ref={sectionRef} className="relative py-14 sm:py-16 lg:py-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
 
       <div className="section-shell">
         <div className="cta-content relative mx-auto max-w-4xl text-center" style={{ opacity: 0 }}>
-          {/* Background orbs */}
-          <div className="pointer-events-none absolute -z-10">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1], opacity: [0.04, 0.08, 0.04] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -left-40 -top-20 h-[400px] w-[400px] rounded-full bg-accent-300/[0.06] blur-[100px]"
-            />
-            <motion.div
-              animate={{ scale: [1, 1.15, 1], opacity: [0.03, 0.06, 0.03] }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              className="absolute -right-32 top-0 h-[350px] w-[350px] rounded-full bg-[#5f9aff]/[0.05] blur-[100px]"
-            />
-          </div>
-
           {/* Eyebrow */}
           <motion.div
             className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent-300/25 bg-accent-300/[0.06] px-4 py-2"

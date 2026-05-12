@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Zap, Target, Flame, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -100,27 +100,6 @@ function TypingSimulator() {
   );
 }
 
-/* ── Floating particle ── */
-function FloatingParticle({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) {
-  return (
-    <motion.div
-      className="absolute rounded-full bg-accent-300/20"
-      style={{ left: x, top: y, width: size, height: size }}
-      animate={{
-        y: [0, -30, 0],
-        opacity: [0.15, 0.4, 0.15],
-        scale: [1, 1.3, 1],
-      }}
-      transition={{
-        duration: 4 + Math.random() * 3,
-        repeat: Infinity,
-        delay,
-        ease: 'easeInOut',
-      }}
-    />
-  );
-}
-
 /* ── Main Hero ── */
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -177,61 +156,21 @@ export default function Hero() {
     <section
       ref={heroRef}
       onMouseMove={handleMouseMove}
-      className="relative isolate min-h-screen overflow-hidden pb-20 pt-24 sm:pt-28 lg:pt-32"
+      className="relative isolate min-h-[720px] overflow-hidden bg-[#02050b] pb-12 pt-20 sm:pt-24 lg:min-h-[760px] lg:pt-24"
     >
       {/* ── Cinematic background ── */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#040804] via-surface-100 to-surface-100" />
-
-        {/* Animated orbs */}
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -left-32 top-20 h-[500px] w-[500px] rounded-full bg-accent-300/[0.06] blur-[120px]"
-        />
-        <motion.div
-          animate={{ x: [0, -40, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute -right-32 top-40 h-[450px] w-[450px] rounded-full bg-emerald-500/[0.04] blur-[120px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.3, 1], opacity: [0.04, 0.08, 0.04] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-accent-300/[0.05] blur-[160px]"
-        />
-
-        {/* Grid pattern fading out */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(57,255,20,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.03) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-            maskImage: 'radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%)',
-          }}
-        />
-
-        {/* Floating particles */}
-        <FloatingParticle delay={0} x="10%" y="20%" size={4} />
-        <FloatingParticle delay={1.5} x="85%" y="15%" size={3} />
-        <FloatingParticle delay={0.8} x="70%" y="60%" size={5} />
-        <FloatingParticle delay={2.2} x="25%" y="70%" size={3} />
-        <FloatingParticle delay={3} x="55%" y="45%" size={4} />
-        <FloatingParticle delay={1} x="40%" y="25%" size={3} />
-        <FloatingParticle delay={2.5} x="15%" y="55%" size={4} />
-        <FloatingParticle delay={0.3} x="90%" y="40%" size={3} />
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="hero-premium-base absolute inset-0" />
       </div>
 
       {/* Mouse spotlight */}
       <motion.div
-        className="pointer-events-none absolute -z-5 h-[500px] w-[500px] rounded-full opacity-30"
+        className="hero-premium-cursor-sheen pointer-events-none absolute -z-5 h-[420px] w-[420px] opacity-30"
         style={{
           left: spotlightX,
           top: spotlightY,
           x: '-50%',
           y: '-50%',
-          background: 'radial-gradient(circle, rgba(57,255,20,0.08) 0%, transparent 70%)',
         }}
       />
 
@@ -252,7 +191,7 @@ export default function Hero() {
           {/* Headline with per-word animation */}
           <h1 ref={headlineRef} className="overflow-hidden text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl" style={{ perspective: '800px' }}>
             {headlineWords.map((word, i) => (
-              <span key={word} className="hero-headline-word mr-[0.3em] inline-block" style={{ opacity: 0 }}>
+              <span key={word} className="hero-headline-word mr-[0.3em] inline-block">
                 <span className={
                   i % 2 === 1
                     ? 'bg-gradient-to-r from-accent-300 via-emerald-400 to-accent-200 bg-clip-text text-transparent'
@@ -265,14 +204,14 @@ export default function Hero() {
           </h1>
 
           {/* Subheadline */}
-          <p className="hero-sub mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl" style={{ opacity: 0 }}>
+          <p className="hero-sub mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl">
             Master your keyboard through guided learning paths, real-time precision tracking,
             and AI-driven practice sessions that adapt to your rhythm.
           </p>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href="/learn" className="hero-cta w-full sm:w-auto" style={{ opacity: 0 }}>
+            <Link href="/learn" className="hero-cta w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
                 <Button variant="primary" size="lg" className="group relative w-full gap-2 overflow-hidden px-8 sm:w-auto" style={{ background: '#4f8dfd', color: '#ffffff' }}>
                   <span className="relative z-10 text-white">Start Training</span>
@@ -285,7 +224,7 @@ export default function Hero() {
                 </Button>
               </motion.div>
             </Link>
-            <Link href="/practice" className="hero-cta w-full sm:w-auto" style={{ opacity: 0 }}>
+            <Link href="/practice" className="hero-cta w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
                 <Button variant="secondary" size="lg" className="w-full gap-2 border-white/10 px-8 hover:border-accent-300/20 sm:w-auto">
                   Try Practice
@@ -297,9 +236,9 @@ export default function Hero() {
         </div>
 
         {/* ── Bottom: interactive showcase ── */}
-        <div className="mx-auto mt-20 max-w-5xl">
+        <div className="mx-auto mt-12 max-w-5xl">
           {/* Stats row − clean, no boxes */}
-          <div className="mb-12 flex items-center justify-center gap-8 sm:gap-16">
+          <div className="mb-7 flex items-center justify-center gap-8 sm:gap-14">
             {floatingStats.map((stat, i) => {
               const Icon = stat.icon;
               return (
@@ -307,7 +246,6 @@ export default function Hero() {
                   key={stat.label}
                   className="hero-stat-card group flex flex-col items-center"
                   whileHover={{ y: -8, scale: 1.05 }}
-                  style={{ opacity: 0 }}
                 >
                   <div className="relative mb-3">
                     <Icon className={`h-5 w-5 ${stat.color} transition-all group-hover:scale-110`} />
@@ -331,7 +269,6 @@ export default function Hero() {
               className="hero-terminal group relative overflow-hidden rounded-2xl border border-white/[0.06]"
               whileHover={{ borderColor: 'rgba(57,255,20,0.15)' }}
               style={{
-                opacity: 0,
                 background: 'linear-gradient(135deg, rgba(13,17,11,0.9) 0%, rgba(6,9,8,0.95) 100%)',
                 backdropFilter: 'blur(20px)',
               }}
@@ -369,7 +306,7 @@ export default function Hero() {
             </motion.div>
 
             {/* Keyboard visualization */}
-            <div className="hero-keyboard relative" style={{ opacity: 0 }}>
+            <div className="hero-keyboard relative">
               <div
                 className="relative overflow-hidden rounded-2xl border border-white/[0.06] p-4 sm:p-5"
                 style={{
@@ -429,6 +366,16 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <style>{`
+        .hero-premium-base {
+          background: #02050b;
+        }
+
+        .hero-premium-cursor-sheen {
+          background: radial-gradient(circle, rgba(57, 255, 20, 0.075), transparent 64%);
+          filter: blur(28px);
+        }
+      `}</style>
     </section>
   );
 }
