@@ -29,6 +29,63 @@ const keyRows = [
   ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ];
 const homeRowKeys = new Set(['A', 'S', 'D', 'F', 'J', 'K', 'L']);
+const keyToneGroups = [
+  {
+    keys: new Set(['Q', 'W', 'A', 'S', 'Z', 'X']),
+    idle: 'border-[#30363d] bg-[#0d1117] text-[#79c0ff] hover:border-[#58a6ff]/55 hover:bg-[#111827]',
+    active: 'border-[#58a6ff]/80 bg-[#1f6feb]/24 text-[#dff0ff] shadow-[0_0_20px_rgba(88,166,255,0.28)]',
+    marker: 'bg-[#58a6ff]/70',
+  },
+  {
+    keys: new Set(['E', 'R', 'D', 'F', 'C', 'V']),
+    idle: 'border-[#30363d] bg-[#0d1117] text-[#a5d6ff] hover:border-[#79c0ff]/50 hover:bg-[#111827]',
+    active: 'border-[#79c0ff]/78 bg-[#388bfd]/20 text-[#e6f4ff] shadow-[0_0_20px_rgba(121,192,255,0.24)]',
+    marker: 'bg-[#79c0ff]/65',
+  },
+  {
+    keys: new Set(['T', 'Y', 'G', 'H', 'B', 'N']),
+    idle: 'border-[#30363d] bg-[#0d1117] text-[#7ee787] hover:border-[#56d364]/45 hover:bg-[#0f1a14]',
+    active: 'border-[#56d364]/72 bg-[#238636]/22 text-[#eaffef] shadow-[0_0_20px_rgba(86,211,100,0.22)]',
+    marker: 'bg-[#56d364]/58',
+  },
+  {
+    keys: new Set(['U', 'I', 'J', 'K', 'M']),
+    idle: 'border-[#30363d] bg-[#0d1117] text-[#d2a8ff] hover:border-[#bc8cff]/48 hover:bg-[#17111f]',
+    active: 'border-[#bc8cff]/74 bg-[#8957e5]/22 text-[#f1e5ff] shadow-[0_0_20px_rgba(188,140,255,0.24)]',
+    marker: 'bg-[#bc8cff]/62',
+  },
+  {
+    keys: new Set(['O', 'P', 'L']),
+    idle: 'border-[#30363d] bg-[#0d1117] text-[#ffa657] hover:border-[#ffa657]/44 hover:bg-[#1f1710]',
+    active: 'border-[#ffa657]/70 bg-[#9e6a03]/24 text-[#fff2df] shadow-[0_0_20px_rgba(255,166,87,0.22)]',
+    marker: 'bg-[#ffa657]/58',
+  },
+];
+
+function getKeyTone(key: string) {
+  return keyToneGroups.find((group) => group.keys.has(key)) ?? keyToneGroups[0];
+}
+
+function renderCodeLine(line: string) {
+  const tokens = line.split(/('(?:[^']*)'?|\bconst\b|\bif\b|\bunlock\b|\bmeasure\b|\bset\b|\bpush\b|\bkeyboard\b|\bfocus\b|\bstreak\b|\bspeed\b|\bday\b|\bacc\b|\bwpm\b|\bprecision\b|\badvanced\b|\d+)/g).filter(Boolean);
+
+  return tokens.map((token, index) => {
+    let color = 'text-[#c9d1d9]';
+
+    if (token === 'const' || token === 'if') color = 'text-[#ff7b72]';
+    else if (token.startsWith("'")) color = 'text-[#a5d6ff]';
+    else if (['unlock', 'measure', 'set', 'push'].includes(token)) color = 'text-[#d2a8ff]';
+    else if (['keyboard', 'focus', 'streak', 'speed'].includes(token)) color = 'text-[#79c0ff]';
+    else if (['day', 'acc', 'wpm', 'precision', 'advanced'].includes(token)) color = 'text-[#ffa657]';
+    else if (/^\d+$/.test(token)) color = 'text-[#79c0ff]';
+
+    return (
+      <span key={`${token}-${index}`} className={color}>
+        {token}
+      </span>
+    );
+  });
+}
 
 /* ── Animated counter hook ── */
 function useAnimatedCounter(target: number, duration = 2000, delay = 800) {
@@ -82,18 +139,18 @@ function TypingSimulator() {
   return (
     <div className="font-mono text-[13px] leading-relaxed sm:text-sm">
       {displayedLines.map((line, i) => (
-        <div key={i} className="text-gray-500/70 transition-colors duration-500">
-          <span className="mr-3 select-none text-gray-600/40">{i + 1}</span>
-          {line}
+        <div key={i} className="text-[#8b949e]/70 opacity-70 transition-colors duration-500">
+          <span className="mr-3 select-none text-[#484f58]">{i + 1}</span>
+          {renderCodeLine(line)}
         </div>
       ))}
-      <div className="text-accent-300/90">
-        <span className="mr-3 select-none text-accent-300/30">{displayedLines.length + 1}</span>
-        {currentText}
+      <div className="text-[#c9d1d9]">
+        <span className="mr-3 select-none text-[#58a6ff]/55">{displayedLines.length + 1}</span>
+        {renderCodeLine(currentText)}
         <motion.span
           animate={{ opacity: [1, 0] }}
           transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
-          className="inline-block h-[18px] w-[2px] translate-y-[3px] bg-accent-300 shadow-[0_0_8px_rgba(57,255,20,0.6)]"
+          className="inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#58a6ff] shadow-[0_0_8px_rgba(88,166,255,0.55)]"
         />
       </div>
     </div>
@@ -266,39 +323,39 @@ export default function Hero() {
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             {/* Terminal */}
             <motion.div
-              className="hero-terminal group relative overflow-hidden rounded-2xl border border-white/[0.06]"
-              whileHover={{ borderColor: 'rgba(57,255,20,0.15)' }}
+              className="hero-terminal group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl border border-[#30363d]"
+              whileHover={{ borderColor: 'rgba(88,166,255,0.28)' }}
               style={{
-                background: 'linear-gradient(135deg, rgba(13,17,11,0.9) 0%, rgba(6,9,8,0.95) 100%)',
+                background: 'radial-gradient(circle at 18% 12%, rgba(88,166,255,0.075), transparent 38%), radial-gradient(circle at 82% 20%, rgba(126,231,135,0.04), transparent 36%), linear-gradient(180deg, rgba(13,17,23,0.96) 0%, rgba(3,7,10,0.98) 100%)',
                 backdropFilter: 'blur(20px)',
               }}
             >
               {/* Top glow line */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-300/40 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#58a6ff]/26 to-transparent" />
 
               {/* Terminal header */}
-              <div className="flex items-center gap-2 border-b border-white/[0.04] px-5 py-3">
+              <div className="flex items-center gap-2 border-b border-[#30363d]/70 px-5 py-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
                 <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
                 <div className="h-2.5 w-2.5 rounded-full bg-green-500/60" />
-                <span className="ml-3 text-[11px] font-medium text-gray-500">typeforge://session</span>
+                <span className="ml-3 text-[11px] font-medium text-[#8b949e]">typeforge://session</span>
                 <motion.div
-                  className="ml-auto h-1.5 w-1.5 rounded-full bg-accent-300"
+                  className="ml-auto h-1.5 w-1.5 rounded-full bg-[#58a6ff] shadow-[0_0_10px_rgba(88,166,255,0.65)]"
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </div>
 
               {/* Terminal body */}
-              <div className="p-5 sm:p-6">
+              <div className="flex flex-1 items-start p-5 pt-7 sm:p-6 sm:pt-8">
                 <TypingSimulator />
               </div>
 
               {/* Bottom status bar */}
-              <div className="flex items-center justify-between border-t border-white/[0.04] px-5 py-2 text-[10px] uppercase tracking-[0.2em] text-gray-600">
+              <div className="mt-auto flex items-center justify-between border-t border-[#30363d]/70 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-[#8b949e]">
                 <span>UTF-8</span>
                 <span className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-300/50" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#58a6ff]/70" />
                   Live
                 </span>
                 <span>Ln 1, Col 1</span>
@@ -308,18 +365,21 @@ export default function Hero() {
             {/* Keyboard visualization */}
             <div className="hero-keyboard relative">
               <div
-                className="relative overflow-hidden rounded-2xl border border-white/[0.06] p-4 sm:p-5"
+                className="group relative overflow-hidden rounded-2xl border border-white/[0.065] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-5"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(13,17,11,0.7) 0%, rgba(6,9,8,0.85) 100%)',
+                  background: 'radial-gradient(circle at 18% 12%, rgba(88,166,255,0.08), transparent 38%), radial-gradient(circle at 84% 20%, rgba(126,231,135,0.045), transparent 36%), linear-gradient(180deg, rgba(13,17,23,0.96) 0%, rgba(3,7,10,0.98) 100%)',
                   backdropFilter: 'blur(20px)',
                 }}
               >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#58a6ff]/26 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-[#30363d] to-transparent" />
 
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">Keyboard Heatmap</span>
-                  <span className="flex items-center gap-1.5 text-[11px] text-accent-300/70">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-300" />
+                  <span className="bg-gradient-to-r from-[#79c0ff] via-[#a5d6ff] to-[#7ee787] bg-clip-text text-xs font-semibold uppercase tracking-[0.22em] text-transparent">
+                    Keyboard Heatmap
+                  </span>
+                  <span className="flex items-center gap-1.5 rounded-full border border-[#30363d] bg-[#0d1117] px-2.5 py-1 text-[11px] font-medium text-[#79c0ff]/90">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#58a6ff] shadow-[0_0_10px_rgba(88,166,255,0.68)]" />
                     Tracking
                   </span>
                 </div>
@@ -330,25 +390,26 @@ export default function Hero() {
                       {row.map((key) => {
                         const isHome = homeRowKeys.has(key);
                         const isActive = activeKey === key;
+                        const tone = getKeyTone(key);
 
                         return (
                           <motion.div
                             key={key}
-                            animate={isActive ? { scale: [1, 0.9, 1], y: [0, 2, 0] } : {}}
-                            transition={{ duration: 0.15 }}
+                            animate={isActive ? { scale: [1, 0.92, 1.04], y: [0, 2, -1] } : {}}
+                            transition={{ duration: 0.18 }}
                             className={`
-                              relative flex h-9 w-9 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-150 sm:h-10 sm:w-10 sm:text-sm
+                              relative flex h-9 w-9 items-center justify-center rounded-lg border font-mono text-xs font-semibold shadow-[inset_0_-1px_0_rgba(0,0,0,0.7),0_8px_18px_rgba(0,0,0,0.14)] transition-all duration-200 sm:h-10 sm:w-10 sm:text-sm
                               ${isActive
-                                ? 'bg-accent-300/25 text-accent-100 shadow-[0_0_20px_rgba(57,255,20,0.3)] border-accent-300/40'
+                                ? tone.active
                                 : isHome
-                                  ? 'bg-accent-300/[0.08] text-accent-200/80 border border-accent-300/15'
-                                  : 'bg-white/[0.03] text-gray-500 border border-white/[0.06]'
+                                  ? tone.idle
+                                  : `${tone.idle} opacity-75`
                               }
                             `}
                           >
                             {key}
                             {isHome && !isActive && (
-                              <span className="absolute bottom-1 left-1/2 h-0.5 w-2 -translate-x-1/2 rounded-full bg-accent-300/30" />
+                              <span className={`absolute bottom-1 left-1/2 h-0.5 w-2 -translate-x-1/2 rounded-full ${tone.marker}`} />
                             )}
                           </motion.div>
                         );
@@ -359,7 +420,7 @@ export default function Hero() {
 
                 {/* Space bar */}
                 <div className="mt-2 flex justify-center" style={{ paddingLeft: '36px' }}>
-                  <div className="h-9 w-48 rounded-lg border border-white/[0.06] bg-white/[0.02] sm:h-10 sm:w-56" />
+                  <div className="h-9 w-48 rounded-lg border border-[#30363d] bg-[#0d1117] shadow-[inset_0_-1px_0_rgba(0,0,0,0.72),0_8px_20px_rgba(0,0,0,0.14)] sm:h-10 sm:w-56" />
                 </div>
               </div>
             </div>
