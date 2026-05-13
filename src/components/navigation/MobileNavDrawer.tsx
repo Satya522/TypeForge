@@ -21,10 +21,10 @@ import {
   Wrench,
   X,
   type LucideIcon,
+  ArrowRight,
 } from 'lucide-react';
 import { useState } from 'react';
 import BrandLogo from '@/components/BrandLogo';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { browseAllSectionsLink, browseColumns, isNavPathActive, primaryNavLinks, userNavLinks } from './nav-data';
 
@@ -110,58 +110,45 @@ export default function MobileNavDrawer({
     <AnimatePresence>
       {open && (
         <>
+          {/* Backdrop */}
           <motion.button
             type="button"
             aria-label="Close mobile navigation"
-            className="fixed inset-0 z-40 bg-[#020403]/75 backdrop-blur-md lg:hidden"
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
 
+          {/* Drawer panel */}
           <motion.aside
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-y-0 right-0 z-50 w-full overflow-hidden border-l border-white/[0.08] bg-[#050807]/96 shadow-[0_0_90px_rgba(0,0,0,0.65)] backdrop-blur-2xl sm:max-w-[30rem] lg:hidden"
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-y-0 right-0 z-50 w-full overflow-hidden border-l border-gray-200 bg-white shadow-[0_0_60px_rgba(0,0,0,0.08)] sm:max-w-[26rem] lg:hidden"
           >
-            <div className="pointer-events-none absolute inset-0">
-              <motion.div
-                className="absolute -right-28 top-0 h-72 w-72 rounded-full bg-accent-300/20 blur-3xl"
-                animate={{ opacity: [0.16, 0.32, 0.16], x: [0, -18, 0], y: [0, 16, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.div
-                className="absolute -left-20 bottom-24 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
-                animate={{ opacity: [0.1, 0.22, 0.1], x: [0, 16, 0], y: [0, -14, 0] }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <div className="absolute inset-0 opacity-[0.045]" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px)',
-                backgroundSize: '32px 32px',
-              }} />
-            </div>
-
             <div className="relative flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-4 sm:px-5">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3.5 sm:px-5">
                 <BrandLogo
-                  size="md"
-                  markClassName="border-accent-300/30 bg-black shadow-[0_0_24px_rgba(79,141,253,0.18)]"
-                  taglineClassName="block text-[11px] text-gray-400"
-                  wordmarkClassName="text-accent-300"
+                  size="sm"
+                  showTagline={false}
+                  markClassName="border-gray-200 bg-white shadow-sm"
+                  wordmarkClassName="text-gray-900"
                 />
                 <button
                   type="button"
                   aria-label="Close navigation"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.04] text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-white/20 hover:bg-white/[0.07]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-500 transition hover:border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                   onClick={onClose}
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4.5 w-4.5" />
                 </button>
               </div>
 
+              {/* Scrollable content */}
               <div
                 data-lenis-prevent=""
                 data-lenis-prevent-wheel=""
@@ -169,112 +156,115 @@ export default function MobileNavDrawer({
                 className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-4 py-4 sm:px-5"
                 style={{ WebkitOverflowScrolling: 'touch', scrollbarGutter: 'stable' }}
               >
+                {/* Primary links */}
                 <motion.section
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.06 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1], delay: 0.06 }}
                 >
-                  <p className="px-1 text-[10px] font-black uppercase tracking-[0.26em] text-gray-500">Primary</p>
+                  <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Primary</p>
                   <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {primaryNavLinks.map((link, index) => (
-                      (() => {
-                        const Icon = primaryIconMap[link.label] ?? Sparkles;
-                        const active = isNavPathActive(pathname, link.href);
+                    {primaryNavLinks.map((link, index) => {
+                      const Icon = primaryIconMap[link.label] ?? Sparkles;
+                      const active = isNavPathActive(pathname, link.href);
 
-                        return (
-                          <motion.div
-                            key={link.href}
-                            initial={{ opacity: 0, y: 16, scale: 0.94 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1], delay: 0.1 + index * 0.035 }}
-                            whileTap={{ scale: 0.97 }}
+                      return (
+                        <motion.div
+                          key={link.href}
+                          initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.08 + index * 0.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <Link
+                            href={link.href}
+                            onClick={onClose}
+                            className={cn(
+                              'group relative flex min-h-[68px] flex-col items-center justify-center gap-2 rounded-xl border px-1 py-1 text-center text-[11px] font-semibold transition-all duration-200',
+                              active
+                                ? 'border-gray-900 bg-gray-900 text-white'
+                                : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200 hover:bg-gray-100 hover:text-gray-900'
+                            )}
                           >
-                            <Link
-                              href={link.href}
-                              onClick={onClose}
+                            <span
                               className={cn(
-                                'group relative flex min-h-[74px] flex-col items-center justify-center gap-2 px-1 py-1 text-center text-[12px] font-black transition-all duration-200',
+                                'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
                                 active
-                                  ? 'text-accent-300'
-                                  : 'text-white hover:text-accent-300'
+                                  ? 'bg-white/15 text-white'
+                                  : 'bg-white text-gray-500 shadow-sm group-hover:text-gray-700'
                               )}
                             >
-                              <span
-                                className={cn(
-                                  'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300 group-hover:-translate-y-0.5',
-                                  active
-                                    ? 'border-accent-300/70 bg-black/70 text-accent-300 shadow-[0_0_24px_rgba(79,141,253,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]'
-                                    : 'border-white/[0.07] bg-black/45 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_18px_rgba(79,141,253,0.08)] group-hover:border-accent-300/32 group-hover:bg-black/70 group-hover:text-accent-300 group-hover:shadow-[0_0_24px_rgba(79,141,253,0.18)]'
-                                )}
-                              >
-                                <Icon className="h-[18px] w-[18px]" />
-                              </span>
-                              <span className="max-w-full truncate leading-none">{link.label}</span>
-                            </Link>
-                          </motion.div>
-                        );
-                      })()
-                    ))}
+                              <Icon className="h-4 w-4" />
+                            </span>
+                            <span className="max-w-full truncate leading-none">{link.label}</span>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </motion.section>
 
+                {/* Quick action row */}
                 <motion.div
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1], delay: 0.34 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.28 }}
                   className="mt-3 grid grid-cols-2 gap-2"
                 >
                   <Link
                     href={browseAllSectionsLink.href}
                     onClick={onClose}
                     className={cn(
-                      'group flex items-center gap-2.5 rounded-full border bg-black/45 px-3 py-2.5 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_18px_rgba(79,141,253,0.05)] transition-colors',
+                      'group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-all duration-200',
                       fullMapActive
-                        ? 'border-accent-300/45 bg-black/70 text-accent-300 ring-1 ring-accent-300/30'
-                        : 'border-white/[0.07] text-white hover:border-accent-300/45 hover:bg-black/70 hover:text-accent-300'
+                        ? 'border-gray-900 bg-gray-900 text-white'
+                        : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200 hover:bg-gray-100 hover:text-gray-900'
                     )}
                   >
-                    <span className="flex items-center gap-2.5">
-                      <span
-                        className={cn(
-                          'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_18px_rgba(79,141,253,0.08)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-accent-300/45 group-hover:text-accent-300 group-hover:shadow-[0_0_24px_rgba(79,141,253,0.18)]',
-                          fullMapActive ? 'border-accent-300/45 text-accent-300' : 'border-white/[0.07] text-white'
-                        )}
-                      >
-                        <PanelTopOpen className="h-4 w-4" />
-                      </span>
-                      <span className={cn('min-w-0 truncate font-black transition-colors group-hover:text-accent-300', fullMapActive ? 'text-accent-300' : 'text-white')}>Full Map</span>
+                    <span
+                      className={cn(
+                        'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
+                        fullMapActive
+                          ? 'bg-white/15 text-white'
+                          : 'bg-white text-gray-400 shadow-sm group-hover:text-gray-600'
+                      )}
+                    >
+                      <PanelTopOpen className="h-3.5 w-3.5" />
                     </span>
+                    <span className="font-semibold">Full Map</span>
                   </Link>
                   <Link
                     href="/achievements?view=challenges"
                     onClick={onClose}
                     className={cn(
-                      'group flex items-center gap-2.5 rounded-full border bg-black/45 px-3 py-2.5 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_18px_rgba(79,141,253,0.05)] transition-colors',
+                      'group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-all duration-200',
                       challengesActive
-                        ? 'border-accent-300/45 bg-black/70 text-accent-300 ring-1 ring-accent-300/30'
-                        : 'border-white/[0.07] text-white hover:border-accent-300/45 hover:bg-black/70 hover:text-accent-300'
+                        ? 'border-gray-900 bg-gray-900 text-white'
+                        : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200 hover:bg-gray-100 hover:text-gray-900'
                     )}
                   >
                     <span
                       className={cn(
-                        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_18px_rgba(79,141,253,0.08)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-accent-300/45 group-hover:text-accent-300 group-hover:shadow-[0_0_24px_rgba(79,141,253,0.18)]',
-                        challengesActive ? 'border-accent-300/45 text-accent-300' : 'border-white/[0.07] text-white'
+                        'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
+                        challengesActive
+                          ? 'bg-white/15 text-white'
+                          : 'bg-white text-gray-400 shadow-sm group-hover:text-gray-600'
                       )}
                     >
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-3.5 w-3.5" />
                     </span>
-                    <span className={cn('min-w-0 truncate font-black transition-colors group-hover:text-accent-300', challengesActive ? 'text-accent-300' : 'text-white')}>Challenges</span>
+                    <span className="font-semibold">Challenges</span>
                   </Link>
                 </motion.div>
 
+                {/* Expandable browse sections */}
                 <motion.div
                   className="mt-4 space-y-2"
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1], delay: 0.38 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.32 }}
                 >
-                  <p className="px-1 text-[10px] font-black uppercase tracking-[0.26em] text-gray-500">More</p>
+                  <p className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">More</p>
                   {mobileBrowseColumns.map((column) => {
                     const openSection = expandedSection === column.id;
                     const ColumnIcon = browseIconMap[column.id] ?? Sparkles;
@@ -283,8 +273,10 @@ export default function MobileNavDrawer({
                       <div
                         key={column.id}
                         className={cn(
-                          'group overflow-hidden rounded-[1.65rem] border bg-black/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_18px_rgba(79,141,253,0.04)] transition-colors hover:border-accent-300/45 hover:bg-black/70',
-                          openSection ? 'border-accent-300/45 bg-black/70' : 'border-white/[0.07]'
+                          'group overflow-hidden rounded-xl border transition-all duration-200',
+                          openSection
+                            ? 'border-gray-200 bg-gray-50'
+                            : 'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:bg-gray-50'
                         )}
                       >
                         <button
@@ -294,21 +286,29 @@ export default function MobileNavDrawer({
                           className="flex w-full items-center justify-between gap-4 px-3 py-2.5 text-left"
                           onClick={() => toggleSection(column.id)}
                         >
-                          <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex min-w-0 items-center gap-2.5">
                             <span
                               className={cn(
-                                'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-black/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_18px_rgba(79,141,253,0.08)] transition-colors group-hover:border-accent-300/45 group-hover:text-accent-300',
-                                openSection ? 'border-accent-300/45 text-accent-300' : 'border-white/[0.07] text-white'
+                                'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-200',
+                                openSection
+                                  ? 'border-gray-300 bg-white text-gray-700 shadow-sm'
+                                  : 'border-gray-200 bg-white text-gray-400 group-hover:text-gray-600'
                               )}
                             >
-                              <ColumnIcon className="h-4 w-4" />
+                              <ColumnIcon className="h-3.5 w-3.5" />
                             </span>
-                            <div className="min-w-0">
-                              <p className={cn('truncate text-sm font-bold transition-colors group-hover:text-accent-300', openSection ? 'text-accent-300' : 'text-white')}>{column.title}</p>
-                            </div>
+                            <p className={cn(
+                              'truncate text-sm font-semibold transition-colors',
+                              openSection ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
+                            )}>
+                              {column.title}
+                            </p>
                           </div>
                           <ChevronDown
-                            className={cn('h-4 w-4 shrink-0 text-gray-400 transition-all duration-200 group-hover:text-accent-300', openSection && 'rotate-180 text-accent-300')}
+                            className={cn(
+                              'h-4 w-4 shrink-0 text-gray-400 transition-all duration-200',
+                              openSection && 'rotate-180 text-gray-600'
+                            )}
                           />
                         </button>
 
@@ -319,23 +319,23 @@ export default function MobileNavDrawer({
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.18, ease: 'easeOut' }}
+                              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                               className="overflow-hidden"
                             >
-                              <div className="space-y-1 border-t border-white/[0.07] px-2.5 pb-3 pt-2">
+                              <div className="space-y-0.5 border-t border-gray-100 px-2.5 pb-3 pt-2">
                                 {column.links.map((link) => (
                                   <Link
                                     key={link.href}
                                     href={link.href}
                                     onClick={onClose}
                                     className={cn(
-                                      'block rounded-full px-3.5 py-2.5 transition-colors',
+                                      'block rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150',
                                       isNavPathActive(pathname, link.href)
-                                        ? 'bg-black/70 text-accent-300 ring-1 ring-accent-300/20'
-                                        : 'text-white hover:bg-black/70 hover:text-accent-300 hover:ring-1 hover:ring-accent-300/18'
+                                        ? 'bg-gray-900 text-white'
+                                        : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm'
                                     )}
                                   >
-                                    <p className="text-sm font-medium">{link.label}</p>
+                                    {link.label}
                                   </Link>
                                 ))}
                               </div>
@@ -348,15 +348,16 @@ export default function MobileNavDrawer({
                 </motion.div>
               </div>
 
-              <div className="border-t border-white/[0.07] bg-black/20 px-4 py-3 sm:px-5">
+              {/* Footer auth area */}
+              <div className="border-t border-gray-100 bg-gray-50/80 px-4 py-3 sm:px-5">
                 {session ? (
                   <>
-                    <div className="group mb-2 flex items-center gap-3 rounded-full border border-white/[0.07] bg-black/45 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_18px_rgba(79,141,253,0.04)] transition-colors hover:border-accent-300/35 hover:bg-black/60">
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.07] bg-black/55 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors group-hover:text-accent-300">
+                    <div className="group mb-2 flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 shadow-sm">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-500">
                         <User className="h-4 w-4" />
                       </span>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-bold text-white transition-colors group-hover:text-accent-300">
+                        <span className="block truncate text-sm font-semibold text-gray-900">
                           {session.user?.name || session.user?.email || 'TypeForge user'}
                         </span>
                       </span>
@@ -368,32 +369,41 @@ export default function MobileNavDrawer({
                           href={link.href}
                           onClick={onClose}
                           className={cn(
-                            'inline-flex items-center justify-center gap-1.5 rounded-full px-2.5 py-3 text-center text-xs font-bold transition-colors sm:text-sm',
+                            'inline-flex items-center justify-center gap-1.5 rounded-xl border px-2.5 py-2.5 text-center text-xs font-semibold transition-all duration-200 sm:text-sm',
                             isNavPathActive(pathname, link.href)
-                              ? 'bg-black/70 text-accent-300 ring-1 ring-accent-300/40'
-                              : 'bg-black/45 text-white hover:bg-black/70 hover:text-accent-300 hover:ring-1 hover:ring-accent-300/30'
+                              ? 'border-gray-900 bg-gray-900 text-white'
+                              : 'border-gray-100 bg-white text-gray-700 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900'
                           )}
                         >
                           {link.href === '/dashboard' ? <LayoutDashboard className="h-4 w-4" /> : <User className="h-4 w-4" />}
                           {link.label}
                         </Link>
                       ))}
-                      <Button variant="ghost" size="md" onClick={onSignOut} className="h-auto gap-1.5 rounded-full border border-white/[0.07] bg-black/45 px-2.5 py-3 text-xs text-white hover:border-accent-300/40 hover:bg-black/70 hover:text-accent-300 sm:text-sm">
+                      <button
+                        type="button"
+                        onClick={onSignOut}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-100 bg-white px-2.5 py-2.5 text-xs font-semibold text-gray-500 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600 sm:text-sm"
+                      >
                         <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </Button>
+                        Logout
+                      </button>
                     </div>
                   </>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="ghost" size="md" onClick={onSignIn} className="gap-2 rounded-full">
+                    <button
+                      type="button"
+                      onClick={onSignIn}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                    >
                       <LogIn className="h-4 w-4" />
-                      <span>Login</span>
-                    </Button>
+                      Log in
+                    </button>
                     <Link href="/register" onClick={onClose}>
-                      <Button variant="primary" size="md" className="w-full rounded-full">
-                        Sign Up
-                      </Button>
+                      <span className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-gray-800">
+                        Start typing
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </span>
                     </Link>
                   </div>
                 )}

@@ -4,11 +4,6 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Ref } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  motionDurations,
-  motionEasing,
-  motionGroupStaggerMs,
-} from '@/components/motion'
 import BrowseColumn from './BrowseColumn'
 import { browseAllSectionsLink, browseColumns } from './nav-data'
 
@@ -21,42 +16,43 @@ type BrowseMegaMenuProps = {
   pathname: string
 }
 
-/* Staggered reveal variants */
 const containerVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: motionDurations.medium,
-      ease: motionEasing.premium,
-      staggerChildren: motionGroupStaggerMs.panel / 1000,
-      delayChildren: 0.04,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 8,
-    transition: { duration: motionDurations.fast, ease: motionEasing.micro },
-  },
-}
-
-const columnVariants = {
-  hidden: { opacity: 0, y: 14, scale: 0.985 },
+  hidden: { opacity: 0, y: 8, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: motionDurations.base, ease: motionEasing.premium },
+    transition: {
+      duration: 0.22,
+      ease: [0.22, 1, 0.36, 1],
+      staggerChildren: 0.04,
+      delayChildren: 0.03,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: 6,
+    scale: 0.98,
+    transition: { duration: 0.15, ease: [0.22, 1, 0.36, 1] },
+  },
+}
+
+const columnVariants = {
+  hidden: { opacity: 0, y: 10, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
   },
 }
 
 const headerVariants = {
-  hidden: { opacity: 0, x: -8 },
+  hidden: { opacity: 0, x: -6 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: motionDurations.medium, ease: motionEasing.micro },
+    transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
   },
 }
 
@@ -77,60 +73,45 @@ export default function BrowseMegaMenu({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="absolute inset-x-0 top-full z-[60] pt-4"
+          className="absolute inset-x-0 top-full z-[60] pt-2"
           onMouseEnter={onHoverStart}
           onMouseLeave={onHoverEnd}
           role="dialog"
           aria-modal="false"
           aria-label="Browse TypeForge sections"
         >
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/60 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-            {/* Decorative gradient orbs */}
-            <div
-              className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-full bg-accent-300/8 blur-3xl"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-accent-300/5 blur-3xl"
-              aria-hidden="true"
-            />
-
-            {/* Top shine line */}
-            <div
-              className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
-              aria-hidden="true"
-            />
-
+          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)]">
             {/* Header */}
             <motion.div
               variants={headerVariants}
-              className="relative flex flex-wrap items-center justify-between gap-4 border-b border-white/8 pb-4"
+              className="relative flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-4"
             >
               <div>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-gray-900">
                   Explore TypeForge
                 </p>
-                <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
+                <p className="text-xs text-gray-400 mt-0.5">
                   Fast access to every mode and tool
                 </p>
               </div>
               <Link
                 href={browseAllSectionsLink.href}
                 onClick={onClose}
-                className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent-300/50"
+                className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 <motion.div
-                  whileHover={{ y: -1 }}
+                  whileHover={{ y: -1, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{
-                    duration: motionDurations.fast,
-                    ease: motionEasing.micro,
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 25,
                   }}
                 >
                   <Button
                     variant="primary"
                     size="sm"
-                    className="rounded-full px-4"
+                    className="rounded-xl bg-gray-900 px-4 text-white hover:bg-gray-800 shadow-sm"
                   >
                     {browseAllSectionsLink.label}
                   </Button>
@@ -138,8 +119,8 @@ export default function BrowseMegaMenu({
               </Link>
             </motion.div>
 
-            {/* Columns grid - Forcing 4 columns uniformly */}
-            <div className="relative mt-5 grid gap-4 grid-cols-4 w-full">
+            {/* Columns grid */}
+            <div className="relative mt-4 grid gap-3 grid-cols-4 w-full">
               {browseColumns.map((column, index) => (
                 <motion.div key={column.id} variants={columnVariants}>
                   <BrowseColumn
@@ -151,6 +132,28 @@ export default function BrowseMegaMenu({
                 </motion.div>
               ))}
             </div>
+
+            {/* Footer strip */}
+            <motion.div
+              variants={headerVariants}
+              className="relative mt-4 flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-2.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="rounded-md bg-gray-900 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                  New
+                </span>
+                <span className="text-xs text-gray-500 font-medium">
+                  New typing analytics dashboard is live
+                </span>
+              </div>
+              <Link
+                href="/analytics"
+                onClick={onClose}
+                className="text-xs font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+              >
+                Explore features →
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       )}

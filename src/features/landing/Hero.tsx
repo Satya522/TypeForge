@@ -5,7 +5,6 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Zap, Target, Flame, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import gsap from 'gsap';
 
 /* ── Typing simulation text ── */
 const typingLines = [
@@ -157,6 +156,60 @@ function TypingSimulator() {
   );
 }
 
+/* ── Hero phrase data ── */
+const heroPhrasesData = [
+  { before: "Type ", highlight: "faster", after: "." },
+  { before: "Think ", highlight: "sharper", after: "." },
+  { before: "Build ", highlight: "mastery", after: "." },
+];
+
+/* ── Framer Motion animation config ── */
+const smoothSpring = { type: 'spring' as const, stiffness: 360, damping: 34, mass: 0.8 };
+const softEase = [0.22, 1, 0.36, 1] as const;
+
+const heroContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.18,
+    },
+  },
+};
+
+const phraseVariants = {
+  hidden: { opacity: 0, y: 34, filter: 'blur(10px)' },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: smoothSpring },
+};
+
+const badgeVariants = {
+  hidden: { opacity: 0, y: 18, filter: 'blur(8px)', scale: 0.94 },
+  visible: {
+    opacity: 1, y: 0, filter: 'blur(0px)', scale: 1,
+    transition: { duration: 0.5, ease: softEase },
+  },
+};
+
+const statsContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 1.1,
+    },
+  },
+};
+
+const statItemVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.8 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, ease: softEase } },
+};
+
+const showcaseVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { delay: 1.2, duration: 0.9, ease: softEase } },
+};
+
 /* ── Main Hero ── */
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -190,25 +243,6 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, []);
 
-  /* GSAP entrance */
-  useEffect(() => {
-    if (!heroRef.current) return;
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      tl.fromTo('.hero-eyebrow', { y: 30, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.8 })
-        .fromTo('.hero-headline-word', { y: 80, opacity: 0, rotateX: 45 }, { y: 0, opacity: 1, rotateX: 0, duration: 1, stagger: 0.08 }, '-=0.4')
-        .fromTo('.hero-sub', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.5')
-        .fromTo('.hero-cta', { y: 20, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.1 }, '-=0.4')
-        .fromTo('.hero-stat-card', { y: 40, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.12 }, '-=0.3')
-        .fromTo('.hero-terminal', { y: 50, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 1 }, '-=0.5')
-        .fromTo('.hero-keyboard', { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1 }, '-=0.6');
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
-
-  const headlineWords = ['Type', 'faster.', 'Think', 'sharper.', 'Build', 'mastery.'];
-
   return (
     <section
       ref={heroRef}
@@ -234,8 +268,13 @@ export default function Hero() {
       <div className="section-shell relative">
         {/* ── Top: centered headline block ── */}
         <div className="mx-auto max-w-4xl text-center">
-          {/* Eyebrow */}
-          <div className="hero-eyebrow mb-8 inline-flex items-center gap-2 rounded-full border border-accent-300/25 bg-accent-300/[0.06] px-4 py-2 backdrop-blur-sm">
+          {/* Eyebrow badge — appears first */}
+          <motion.div
+            variants={badgeVariants}
+            initial="hidden"
+            animate="visible"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent-300/25 bg-accent-300/[0.06] px-4 py-2 backdrop-blur-sm"
+          >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-300 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-300" />
@@ -243,32 +282,51 @@ export default function Hero() {
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-100">
               Precision-first typing platform
             </span>
-          </div>
+          </motion.div>
 
-          {/* Headline with per-word animation */}
-          <h1 ref={headlineRef} className="overflow-hidden text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl" style={{ perspective: '800px' }}>
-            {headlineWords.map((word, i) => (
-              <span key={word} className="hero-headline-word mr-[0.3em] inline-block">
-                <span className={
-                  i % 2 === 1
-                    ? 'bg-gradient-to-r from-accent-300 via-emerald-400 to-accent-200 bg-clip-text text-transparent'
-                    : 'text-white'
-                }>
-                  {word}
+          {/* Headline — phrase-by-phrase reveal */}
+          <motion.h1
+            ref={headlineRef}
+            variants={heroContainerVariants}
+            initial="hidden"
+            animate="visible"
+            className="overflow-hidden text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl"
+          >
+            {heroPhrasesData.map((phrase, i) => (
+              <motion.span
+                key={i}
+                variants={phraseVariants}
+                className="inline-block"
+                style={{ marginRight: i < heroPhrasesData.length - 1 ? '0.25em' : '0' }}
+              >
+                <span className="text-white">{phrase.before}</span>
+                <span className="hero-gradient-word bg-gradient-to-r from-blue-400 via-emerald-400 to-sky-300 bg-[length:200%_100%] bg-clip-text text-transparent">
+                  {phrase.highlight}
                 </span>
-              </span>
+                <span className="text-white">{phrase.after}</span>
+              </motion.span>
             ))}
-          </h1>
+          </motion.h1>
 
-          {/* Subheadline */}
-          <p className="hero-sub mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl">
+          {/* Subheadline — fades in after heading */}
+          <motion.p
+            initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ delay: 0.75, duration: 0.45, ease: softEase }}
+            className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl"
+          >
             Master your keyboard through guided learning paths, real-time precision tracking,
             and AI-driven practice sessions that adapt to your rhythm.
-          </p>
+          </motion.p>
 
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href="/learn" className="hero-cta w-full sm:w-auto">
+          {/* CTAs — appear after subtitle */}
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.96, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            transition={{ delay: 0.95, type: 'spring', stiffness: 380, damping: 30 }}
+            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Link href="/learn" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
                 <Button variant="primary" size="lg" className="group relative w-full gap-2 overflow-hidden px-8 sm:w-auto" style={{ background: '#4f8dfd', color: '#ffffff' }}>
                   <span className="relative z-10 text-white">Start Training</span>
@@ -281,7 +339,7 @@ export default function Hero() {
                 </Button>
               </motion.div>
             </Link>
-            <Link href="/practice" className="hero-cta w-full sm:w-auto">
+            <Link href="/practice" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
                 <Button variant="secondary" size="lg" className="w-full gap-2 border-white/10 px-8 hover:border-accent-300/20 sm:w-auto">
                   Try Practice
@@ -289,19 +347,25 @@ export default function Hero() {
                 </Button>
               </motion.div>
             </Link>
-          </div>
+          </motion.div>
         </div>
 
         {/* ── Bottom: interactive showcase ── */}
         <div className="mx-auto mt-12 max-w-5xl">
           {/* Stats row − clean, no boxes */}
-          <div className="mb-7 flex items-center justify-center gap-8 sm:gap-14">
+          <motion.div
+            variants={statsContainerVariants}
+            initial="hidden"
+            animate="visible"
+            className="mb-7 flex items-center justify-center gap-8 sm:gap-14"
+          >
             {floatingStats.map((stat, i) => {
               const Icon = stat.icon;
               return (
                 <motion.div
                   key={stat.label}
-                  className="hero-stat-card group flex flex-col items-center"
+                  variants={statItemVariants}
+                  className="group flex flex-col items-center"
                   whileHover={{ y: -8, scale: 1.05 }}
                 >
                   <div className="relative mb-3">
@@ -317,13 +381,18 @@ export default function Hero() {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Terminal + Keyboard combined view */}
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <motion.div
+            variants={showcaseVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]"
+          >
             {/* Terminal */}
             <motion.div
-              className="hero-terminal group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl border border-[#30363d]"
+              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl border border-[#30363d]"
               whileHover={{ borderColor: 'rgba(88,166,255,0.28)' }}
               style={{
                 background: 'radial-gradient(circle at 18% 12%, rgba(88,166,255,0.075), transparent 38%), radial-gradient(circle at 82% 20%, rgba(126,231,135,0.04), transparent 36%), linear-gradient(180deg, rgba(13,17,23,0.96) 0%, rgba(3,7,10,0.98) 100%)',
@@ -363,7 +432,7 @@ export default function Hero() {
             </motion.div>
 
             {/* Keyboard visualization */}
-            <div className="hero-keyboard relative">
+            <div className="relative">
               <div
                 className="group relative overflow-hidden rounded-2xl border border-white/[0.065] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-5"
                 style={{
@@ -424,7 +493,7 @@ export default function Hero() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
       <style>{`
@@ -435,6 +504,22 @@ export default function Hero() {
         .hero-premium-cursor-sheen {
           background: radial-gradient(circle, rgba(57, 255, 20, 0.075), transparent 64%);
           filter: blur(28px);
+        }
+
+        @keyframes gradient-shine {
+          0% { background-position: 200% center; }
+          100% { background-position: 0% center; }
+        }
+
+        .hero-gradient-word {
+          animation: gradient-shine 2.5s ease-in-out infinite;
+          animation-delay: 1.2s;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-gradient-word {
+            animation: none;
+          }
         }
       `}</style>
     </section>

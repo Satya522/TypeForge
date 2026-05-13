@@ -16,9 +16,9 @@ type BrowseColumnProps = {
 
 export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathname }: BrowseColumnProps) {
   return (
-    <div className="group/col rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.045] hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent-100">{column.title}</p>
-      <div className="space-y-1.5">
+    <div className="group/col rounded-xl border border-gray-100 bg-gray-50/50 p-3.5 transition-all duration-200 hover:border-gray-200 hover:bg-gray-50 hover:shadow-sm">
+      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-gray-400">{column.title}</p>
+      <div className="space-y-0.5">
         {column.links.map((link) => {
           const active = isNavPathActive(pathname, link.href);
 
@@ -29,22 +29,30 @@ export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathnam
               ref={firstLinkRef && column.links[0]?.href === link.href ? firstLinkRef : undefined}
               onClick={onNavigate}
               className={cn(
-                'group flex items-start justify-between gap-3 rounded-2xl px-3 py-3 transition-all duration-200 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300/50',
+                'group flex items-start justify-between gap-2 rounded-lg px-2.5 py-2 transition-all duration-150 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300',
                 active
-                  ? 'bg-accent-300/10 text-white ring-1 ring-accent-300/20'
-                  : 'text-gray-300 hover:bg-accent-300/[0.05] hover:text-accent-300 focus:bg-accent-300/[0.05] focus:text-accent-300'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm'
               )}
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{link.label}</p>
-                {link.description && <p className="mt-1 truncate text-xs text-gray-400">{link.description}</p>}
+                <p className="truncate text-[13px] font-medium">{link.label}</p>
+                {link.description && (
+                  <p className={cn(
+                    'mt-0.5 truncate text-[11px]',
+                    active ? 'text-gray-300' : 'text-gray-400'
+                  )}>{link.description}</p>
+                )}
               </div>
               <motion.span
                 className="mt-0.5 shrink-0"
-                whileHover={{ x: 3 }}
+                whileHover={{ x: 2 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 25 }}
               >
-                <ArrowRight className="h-4 w-4 text-gray-500 transition-colors duration-200 group-hover:text-accent-100" />
+                <ArrowRight className={cn(
+                  'h-3.5 w-3.5 transition-colors duration-150',
+                  active ? 'text-gray-300' : 'text-gray-300 group-hover:text-gray-500'
+                )} />
               </motion.span>
             </Link>
           );

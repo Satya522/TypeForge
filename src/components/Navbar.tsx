@@ -2,8 +2,12 @@
 
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Menu } from 'lucide-react'
+import Link from 'next/link'
+import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
+import {
+  Menu,
+  ArrowRight,
+} from 'lucide-react'
 import {
   KeyboardEvent as ReactKeyboardEvent,
   useCallback,
@@ -11,73 +15,121 @@ import {
   useRef,
   useState,
 } from 'react'
-import gsap from 'gsap'
 import { cn } from '@/lib/utils'
-import { motionDurations, motionEasing } from '@/components/motion'
 import BrowseMegaMenu from '@/components/navigation/BrowseMegaMenu'
 import MobileNavDrawer from '@/components/navigation/MobileNavDrawer'
-import NavAurora from '@/components/navigation/NavAurora'
 import NavBrand from '@/components/navigation/NavBrand'
 import NavPrimaryLinks from '@/components/navigation/NavPrimaryLinks'
 import NavUserActions from '@/components/navigation/NavUserActions'
+
+const smoothSpring = {
+  type: 'spring' as const,
+  stiffness: 360,
+  damping: 34,
+  mass: 0.8,
+}
+
+const softEase = [0.22, 1, 0.36, 1] as const
+
+const fullHeaderVariants: Variants = {
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: smoothSpring,
+  },
+  hidden: {
+    opacity: 0,
+    y: -26,
+    scale: 0.965,
+    filter: 'blur(6px)',
+    transition: { duration: 0.26, ease: softEase },
+  },
+}
+
+const compactVariants: Variants = {
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: { ...smoothSpring, delay: 0.04 },
+  },
+  hidden: {
+    opacity: 0,
+    y: -14,
+    scale: 0.92,
+    filter: 'blur(6px)',
+    transition: { duration: 0.2, ease: softEase },
+  },
+}
 
 export default function Navbar() {
   const { data: session } = useSession()
   const pathname = usePathname() ?? '/'
   const prefersReducedMotion = useReducedMotion()
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isBrowseMenuOpen, setIsBrowseMenuOpen] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isNavAutoHidden, setIsNavAutoHidden] = useState(false)
-  const [mousePos, setMousePos] = useState({ x: -200, y: -200 })
-  const [isNavHovered, setIsNavHovered] = useState(false)
 
-  const navRef = useRef<HTMLDivElement>(null)
-  const navShellRef = useRef<HTMLDivElement>(null)
+  const [navHidden, setNavHidden] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const lastScrollYRef = useRef(0)
+  const tickingRef = useRef(false)
+
+
+
+  const [isBrowseMenuOpen, setIsBrowseMenuOpen] = useState(false)
+  const browseCloseTimerRef = useRef<number | null>(null)
   const browseTriggerRef = useRef<HTMLButtonElement>(null)
   const firstBrowseItemRef = useRef<HTMLAnchorElement>(null)
-  const browseCloseTimerRef = useRef<number | null>(null)
-  const navIdleTimerRef = useRef<number | null>(null)
-  const lastScrollYRef = useRef(0)
-  const browseOpenRef = useRef(false)
-  const mobileOpenRef = useRef(false)
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const navRef = useRef<HTMLDivElement>(null)
 
   const handleSignOut = useCallback(() => {
     void signOut({ callbackUrl: '/login' })
   }, [])
 
+  /* ── Scroll direction detection with 6px deadzone ── */
   useEffect(() => {
-    browseOpenRef.current = isBrowseMenuOpen
-  }, [isBrowseMenuOpen])
+    const HIDE_THRESHOLD = 80
+    const SHOW_THRESHOLD = 40
+    const DELTA_THRESHOLD = 6
 
-  useEffect(() => {
-    mobileOpenRef.current = isMobileMenuOpen
-  }, [isMobileMenuOpen])
+    const updateScroll = () => {
+      const currentY = window.scrollY
+      const prevY = lastScrollYRef.current
+      const delta = currentY - prevY
 
-  useEffect(() => {
-    if (!navShellRef.current) return
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        navShellRef.current,
-        { y: -24, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: prefersReducedMotion ? 0.18 : 0.72,
-          ease: 'power3.out',
-          delay: 0.08,
-        }
-      )
-    })
-    return () => ctx.revert()
-  }, [prefersReducedMotion])
+      setIsScrolled(currentY > 10)
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!navRef.current) return
-    const rect = navRef.current.getBoundingClientRect()
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+      if (currentY < SHOW_THRESHOLD) {
+        setNavHidden(false)
+      } else if (delta > DELTA_THRESHOLD && currentY > HIDE_THRESHOLD) {
+        setNavHidden(true)
+        setIsBrowseMenuOpen(false)
+      } else if (delta < -DELTA_THRESHOLD) {
+        setNavHidden(false)
+      }
+
+      lastScrollYRef.current = currentY
+      tickingRef.current = false
+    }
+
+    const onScroll = () => {
+      if (!tickingRef.current) {
+        tickingRef.current = true
+        requestAnimationFrame(updateScroll)
+      }
+    }
+
+    lastScrollYRef.current = window.scrollY
+    updateScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  /* ── Browse menu helpers ── */
   const clearBrowseCloseTimer = () => {
     if (browseCloseTimerRef.current) {
       window.clearTimeout(browseCloseTimerRef.current)
@@ -102,79 +154,25 @@ export default function Navbar() {
     clearBrowseCloseTimer()
     browseCloseTimerRef.current = window.setTimeout(() => {
       setIsBrowseMenuOpen(false)
-    }, 120)
+    }, 150)
   }
 
-  const clearNavIdleTimer = () => {
-    if (navIdleTimerRef.current) {
-      window.clearTimeout(navIdleTimerRef.current)
-      navIdleTimerRef.current = null
+  const handleBrowseTriggerKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement>
+  ) => {
+    if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      openBrowseMenu()
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      closeBrowseMenu({ returnFocus: true })
     }
   }
-
-  const scheduleNavIdleHide = () => {
-    clearNavIdleTimer()
-    navIdleTimerRef.current = window.setTimeout(() => {
-      if (!browseOpenRef.current && !mobileOpenRef.current) {
-        setIsNavAutoHidden(true)
-      }
-    }, 4000)
-  }
-
-  const revealNav = () => {
-    setIsNavAutoHidden(false)
-    scheduleNavIdleHide()
-  }
-
-  useEffect(() => {
-    const onScroll = () => {
-      const currentScrollY = window.scrollY
-      const scrolled = currentScrollY > 14
-      const isScrollingUp = currentScrollY < lastScrollYRef.current
-
-      setIsScrolled(scrolled)
-
-      if (!scrolled || isScrollingUp) {
-        revealNav()
-      } else if (!browseOpenRef.current && !mobileOpenRef.current) {
-        setIsNavAutoHidden(true)
-      }
-
-      lastScrollYRef.current = currentScrollY
-    }
-
-    lastScrollYRef.current = window.scrollY
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    const handlePointerMove = (event: MouseEvent) => {
-      if (event.clientY <= 28) {
-        revealNav()
-      }
-    }
-
-    const handleActivity = () => revealNav()
-
-    scheduleNavIdleHide()
-    window.addEventListener('mousemove', handlePointerMove, { passive: true })
-    window.addEventListener('keydown', handleActivity)
-    window.addEventListener('focusin', handleActivity)
-
-    return () => {
-      clearNavIdleTimer()
-      window.removeEventListener('mousemove', handlePointerMove)
-      window.removeEventListener('keydown', handleActivity)
-      window.removeEventListener('focusin', handleActivity)
-    }
-  }, [isBrowseMenuOpen, isMobileMenuOpen])
 
   useEffect(() => {
     closeBrowseMenu()
     setIsMobileMenuOpen(false)
-    revealNav()
   }, [pathname])
 
   useEffect(() => {
@@ -191,6 +189,7 @@ export default function Navbar() {
       if (isBrowseMenuOpen && !navRef.current?.contains(event.target as Node)) {
         closeBrowseMenu()
       }
+
     }
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -209,30 +208,10 @@ export default function Navbar() {
   useEffect(
     () => () => {
       clearBrowseCloseTimer()
-      clearNavIdleTimer()
     },
     []
   )
 
-  const handleBrowseTriggerKeyDown = (
-    event: ReactKeyboardEvent<HTMLButtonElement>
-  ) => {
-    if (
-      event.key === 'ArrowDown' ||
-      event.key === 'Enter' ||
-      event.key === ' '
-    ) {
-      event.preventDefault()
-      openBrowseMenu()
-    }
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      closeBrowseMenu({ returnFocus: true })
-    }
-  }
-
-  const shouldHideNav =
-    isNavAutoHidden && !isBrowseMenuOpen && !isMobileMenuOpen
   const isAuthRoute =
     pathname === '/login' ||
     pathname === '/register' ||
@@ -243,153 +222,141 @@ export default function Navbar() {
     return null
   }
 
+  const fullNavIsHidden = navHidden && !isBrowseMenuOpen
+
   return (
     <>
-      <header
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 w-full group/nav',
-          shouldHideNav ? 'h-3' : 'h-auto'
-        )}
-        onMouseEnter={revealNav}
-        onFocus={revealNav}
+      {/* ═══════════════════════════════════════════════════════════
+       *  FULL DESKTOP HEADER — Brand outside + Nav Pill
+       *  Hides on scroll down with blur + spring
+       * ═══════════════════════════════════════════════════════════ */}
+      <motion.header
+        ref={navRef}
+        variants={prefersReducedMotion ? undefined : fullHeaderVariants}
+        initial="visible"
+        animate={fullNavIsHidden ? 'hidden' : 'visible'}
+        style={{ pointerEvents: fullNavIsHidden ? 'none' : 'auto' }}
+        className="fixed top-0 left-0 right-0 z-50 hidden pt-3.5 lg:block"
       >
-        <div
-          className={cn(
-            'transition-transform duration-500 origin-top',
-            shouldHideNav && !isBrowseMenuOpen
-              ? '-translate-y-[calc(100%-3px)]'
-              : 'translate-y-0'
-          )}
-        >
-          <nav className="w-full relative">
-            <div ref={navShellRef} style={{ opacity: 0 }}>
-              <div
-                ref={navRef}
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => setIsNavHovered(true)}
-                onMouseLeave={() => {
-                  setIsNavHovered(false)
-                  setMousePos({ x: -200, y: -200 })
-                }}
-                className={cn(
-                  'relative nav-noise border-b transition-all duration-500 ease-out',
-                  isScrolled
-                    ? 'bg-[#050706] border-transparent shadow-none'
-                    : 'bg-[#050706] border-transparent shadow-none'
-                )}
-              >
-                <div
-                  className={cn(
-                    'pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-b-[2rem] transition-opacity duration-500',
-                    isScrolled ? 'opacity-30' : 'opacity-45'
-                  )}
-                >
-                  <NavAurora />
-                  <div
-                    className="absolute inset-0 transition-opacity duration-300"
-                    aria-hidden="true"
-                    style={{
-                      opacity: isNavHovered ? 1 : 0,
-                      background: `radial-gradient(520px circle at ${mousePos.x}px ${mousePos.y}px, rgba(125,255,77,0.055), transparent 42%)`,
-                    }}
-                  />
-                </div>
+        <div className="mx-auto flex w-[min(calc(100%-32px),1240px)] items-center justify-center">
+          {/* ── Brand: OUTSIDE the pill, anchored left ── */}
+          <div className="absolute left-[max(16px,calc((100%-1240px)/2))]">
+            <NavBrand pathname={pathname} />
+          </div>
 
-                <div
-                  className={cn(
-                    'pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent transition-opacity duration-500',
-                    isScrolled ? 'opacity-100' : 'opacity-55'
-                  )}
-                  aria-hidden="true"
-                />
+          {/* ── Main Nav Pill ── */}
+          <nav
+            className={cn(
+              'relative flex items-center rounded-full border backdrop-blur-xl transition-all duration-500 ease-out',
+              isScrolled
+                ? 'border-black/[0.07] bg-white/95 shadow-[0_6px_28px_rgba(0,0,0,0.10),0_1.5px_6px_rgba(0,0,0,0.05)]'
+                : 'border-black/[0.05] bg-white/90 shadow-[0_18px_55px_rgba(0,0,0,0.10)]'
+            )}
+          >
+            <div className="flex items-center gap-0.5 px-2.5 py-1.5">
+              {/* Nav links */}
+              <NavPrimaryLinks
+                browseTriggerRef={browseTriggerRef}
+                isBrowseOpen={isBrowseMenuOpen}
+                onBrowseTriggerClick={() => setIsBrowseMenuOpen((o) => !o)}
+                onBrowseTriggerEnter={openBrowseMenu}
+                onBrowseTriggerKeyDown={handleBrowseTriggerKeyDown}
+                onBrowseTriggerLeave={scheduleBrowseMenuClose}
+                pathname={pathname}
+              />
 
-                <div
-                  className={cn(
-                    'pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.03] to-transparent transition-opacity duration-500',
-                    isScrolled ? 'opacity-100' : 'opacity-50'
-                  )}
-                  aria-hidden="true"
-                />
+              {/* Divider */}
+              <div className="mx-1 h-5 w-px bg-gray-200/80" aria-hidden="true" />
 
-                <div
-                  className={cn(
-                    'mx-auto relative z-10 flex max-w-7xl items-center justify-between transition-[height,padding] duration-500 ease-out',
-                    isScrolled
-                      ? 'h-[3.7rem] px-4 sm:px-5 lg:px-7'
-                      : 'h-[4.2rem] px-4 sm:px-6 lg:px-8'
-                  )}
-                >
-                  <NavBrand pathname={pathname} />
-
-                  <NavPrimaryLinks
-                    browseTriggerRef={browseTriggerRef}
-                    isBrowseOpen={isBrowseMenuOpen}
-                    onBrowseTriggerClick={() => setIsBrowseMenuOpen((o) => !o)}
-                    onBrowseTriggerEnter={openBrowseMenu}
-                    onBrowseTriggerKeyDown={handleBrowseTriggerKeyDown}
-                    onBrowseTriggerLeave={scheduleBrowseMenuClose}
-                    pathname={pathname}
-                  />
-
-                  <NavUserActions
-                    onSignIn={() => signIn()}
-                    onSignOut={handleSignOut}
-                    pathname={pathname}
-                    session={session ?? null}
-                  />
-
-                  <motion.button
-                    type="button"
-                    whileHover={
-                      prefersReducedMotion ? undefined : { y: -1, scale: 1.02 }
-                    }
-                    whileTap={
-                      prefersReducedMotion ? undefined : { scale: 0.98 }
-                    }
-                    onClick={() => setIsMobileMenuOpen(true)}
-                    transition={{
-                      duration: motionDurations.fast,
-                      ease: motionEasing.micro,
-                    }}
-                    className="ml-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-gray-200 transition-colors hover:border-white/16 hover:bg-white/[0.06] lg:hidden"
-                    aria-expanded={isMobileMenuOpen}
-                    aria-label="Open navigation menu"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </motion.button>
-                </div>
-
-                <BrowseMegaMenu
-                  firstItemRef={firstBrowseItemRef}
-                  onClose={closeBrowseMenu}
-                  onHoverEnd={scheduleBrowseMenuClose}
-                  onHoverStart={openBrowseMenu}
-                  open={isBrowseMenuOpen}
-                  pathname={pathname}
-                />
-              </div>
+              {/* Auth actions */}
+              <NavUserActions
+                onSignIn={() => signIn()}
+                onSignOut={handleSignOut}
+                pathname={pathname}
+                session={session ?? null}
+              />
             </div>
+
+            {/* Browse mega menu anchored to pill */}
+            <BrowseMegaMenu
+              firstItemRef={firstBrowseItemRef}
+              onClose={closeBrowseMenu}
+              onHoverEnd={scheduleBrowseMenuClose}
+              onHoverStart={openBrowseMenu}
+              open={isBrowseMenuOpen}
+              pathname={pathname}
+            />
           </nav>
         </div>
-      </header>
+      </motion.header>
 
+      {/* Browse backdrop */}
       <AnimatePresence>
         {isBrowseMenuOpen && (
           <motion.button
             type="button"
             aria-label="Close browse menu"
-            className="fixed inset-0 z-40 hidden bg-[#060908]/70 backdrop-blur-md lg:block"
+            className="fixed inset-0 z-40 hidden bg-black/20 backdrop-blur-sm lg:block"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{
-              duration: motionDurations.fast,
-              ease: motionEasing.micro,
-            }}
+            transition={{ duration: 0.2, ease: softEase }}
             onClick={() => closeBrowseMenu()}
           />
         )}
       </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════════════════════
+       *  COMPACT CONTROLS — Black CTA pill + Hamburger circle
+       *  Hamburger click restores the full navbar
+       * ═══════════════════════════════════════════════════════════ */}
+      <motion.div
+        variants={prefersReducedMotion ? undefined : compactVariants}
+        initial="hidden"
+        animate={fullNavIsHidden ? 'visible' : 'hidden'}
+        style={{ pointerEvents: fullNavIsHidden ? 'auto' : 'none' }}
+        className="fixed top-4 right-5 z-50 hidden items-center gap-2.5 lg:flex"
+      >
+        <Link href="/register">
+          <motion.span
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.035, y: -1 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.975 }}
+            className="group inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-5 py-3 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15),0_12px_36px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-gray-800 hover:shadow-[0_4px_12px_rgba(0,0,0,0.2),0_16px_44px_rgba(0,0,0,0.16)]"
+          >
+            Start typing
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </motion.span>
+        </Link>
+
+        <motion.button
+          type="button"
+          onClick={() => setNavHidden(false)}
+          whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
+          aria-label="Show navigation"
+          className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-black/[0.06] bg-white/92 shadow-[0_12px_36px_rgba(0,0,0,0.10)] backdrop-blur-xl transition-all duration-200 hover:bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.14)]"
+        >
+          <Menu className="h-[18px] w-[18px] text-gray-700" />
+        </motion.button>
+      </motion.div>
+
+      {/* ═══════════════════════════════════════════════════════════
+       *  MOBILE: Brand + hamburger → drawer
+       * ═══════════════════════════════════════════════════════════ */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 pt-3 lg:hidden">
+        <NavBrand pathname={pathname} />
+        <motion.button
+          type="button"
+          whileHover={prefersReducedMotion ? undefined : { scale: 1.06 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-black/[0.06] bg-white/92 text-gray-600 shadow-[0_8px_24px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-all hover:bg-white hover:text-gray-900 hover:shadow-[0_8px_28px_rgba(0,0,0,0.12)]"
+          aria-expanded={isMobileMenuOpen}
+          aria-label="Open navigation menu"
+        >
+          <Menu className="h-[18px] w-[18px]" />
+        </motion.button>
+      </header>
 
       <MobileNavDrawer
         onClose={() => setIsMobileMenuOpen(false)}

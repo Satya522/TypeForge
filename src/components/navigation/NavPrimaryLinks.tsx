@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { KeyboardEvent, Ref, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { isBrowsePathActive, isNavPathActive, primaryNavLinks } from './nav-data';
 
@@ -18,6 +19,13 @@ type NavPrimaryLinksProps = {
 
 const BROWSE_KEY = '__browse__';
 
+const pillSpring = {
+  type: 'spring' as const,
+  stiffness: 500,
+  damping: 38,
+  mass: 0.65,
+};
+
 export default function NavPrimaryLinks({
   browseTriggerRef,
   isBrowseOpen,
@@ -27,6 +35,7 @@ export default function NavPrimaryLinks({
   onBrowseTriggerLeave,
   pathname,
 }: NavPrimaryLinksProps) {
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [pendingActiveKey, setPendingActiveKey] = useState<string | null>(null);
   const pendingClearTimerRef = useRef<number | null>(null);
 
@@ -34,7 +43,9 @@ export default function NavPrimaryLinks({
   const activeKey = browseActive
     ? BROWSE_KEY
     : primaryNavLinks.find((link) => isNavPathActive(pathname, link.href))?.href ?? null;
-  const indicatorKey = pendingActiveKey || activeKey;
+  const routeActiveKey = pendingActiveKey || activeKey;
+
+  const pillKey = hoveredKey || routeActiveKey;
 
   useEffect(() => {
     if (pendingActiveKey && pendingActiveKey === activeKey) {
@@ -62,71 +73,97 @@ export default function NavPrimaryLinks({
     }, 1500);
   };
 
-  return (
-    <div className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
-      <div className="relative mx-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/[0.08] bg-[#3c4043]/95 p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {primaryNavLinks.map((link) => {
-          const active = indicatorKey === link.href;
+  const allItems = [
+    ...primaryNavLinks.map((link) => ({ key: link.href, label: link.label, type: 'link' as const, href: link.href })),
+    { key: BROWSE_KEY, label: 'Browse', type: 'browse' as const, href: '' },
+  ];
 
+  return (
+    <div
+      className="relative flex items-center gap-0.5"
+      onMouseLeave={() => setHoveredKey(null)}
+    >
+      {allItems.map((item) => {
+        const isActive = routeActiveKey === item.key;
+        const isPillTarget = pillKey === item.key;
+
+        if (item.type === 'browse') {
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={isNavPathActive(pathname, link.href) ? 'page' : undefined}
-              onClick={() => lockPendingTarget(link.href)}
-              className="relative shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/50"
+            <button
+              key={item.key}
+              ref={browseTriggerRef}
+              type="button"
+              aria-controls="browse-mega-menu"
+              aria-expanded={isBrowseOpen}
+              aria-haspopup="dialog"
+              aria-label="Browse all TypeForge sections"
+              className="relative inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-gray-400/40"
+              onClick={() => {
+                lockPendingTarget(BROWSE_KEY);
+                onBrowseTriggerClick();
+              }}
+              onKeyDown={onBrowseTriggerKeyDown}
+              onMouseEnter={() => {
+                setHoveredKey(BROWSE_KEY);
+                onBrowseTriggerEnter();
+              }}
+              onMouseLeave={() => {
+                onBrowseTriggerLeave();
+              }}
             >
-              {active && (
-                <span className="absolute inset-0 rounded-full bg-black shadow-sm" />
+              {isPillTarget && (
+                <motion.span
+                  layoutId="nav-hover-pill"
+                  className="absolute inset-0 rounded-lg bg-gray-100"
+                  transition={pillSpring}
+                />
               )}
               <span
                 className={cn(
                   'relative z-10 transition-colors duration-150',
-                  active ? 'text-white' : 'text-[#b8bdc1] hover:text-white'
+                  isActive ? 'text-gray-900' : 'text-gray-500 hover:text-gray-800'
                 )}
               >
-                {link.label}
+                {item.label}
               </span>
-            </Link>
+              <ChevronDown
+                className={cn(
+                  'relative z-10 h-3.5 w-3.5 transition-all duration-200',
+                  isBrowseOpen && 'rotate-180',
+                  isActive ? 'text-gray-900' : 'text-gray-400'
+                )}
+              />
+            </button>
           );
-        })}
+        }
 
-        <button
-          ref={browseTriggerRef}
-          type="button"
-          aria-controls="browse-mega-menu"
-          aria-expanded={isBrowseOpen}
-          aria-haspopup="dialog"
-          aria-label="Browse all TypeForge sections"
-          className="relative inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[14px] font-semibold outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/50"
-          onClick={() => {
-            lockPendingTarget(BROWSE_KEY);
-            onBrowseTriggerClick();
-          }}
-          onKeyDown={onBrowseTriggerKeyDown}
-          onMouseEnter={onBrowseTriggerEnter}
-          onMouseLeave={onBrowseTriggerLeave}
-        >
-          {indicatorKey === BROWSE_KEY && (
-            <span className="absolute inset-0 rounded-full bg-black shadow-sm" />
-          )}
-          <span
-            className={cn(
-              'relative z-10 transition-colors duration-150',
-              indicatorKey === BROWSE_KEY ? 'text-white' : 'text-[#b8bdc1]'
-            )}
+        return (
+          <Link
+            key={item.key}
+            href={item.href}
+            aria-current={isNavPathActive(pathname, item.href) ? 'page' : undefined}
+            onClick={() => lockPendingTarget(item.key)}
+            onMouseEnter={() => setHoveredKey(item.key)}
+            className="relative shrink-0 rounded-lg px-3 py-2 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-gray-400/40"
           >
-            Browse
-          </span>
-          <ChevronDown
-            className={cn(
-              'relative z-10 h-4 w-4 transition-transform duration-150',
-              isBrowseOpen && 'rotate-180',
-              indicatorKey === BROWSE_KEY ? 'text-white' : 'text-[#b8bdc1]'
+            {isPillTarget && (
+              <motion.span
+                layoutId="nav-hover-pill"
+                className="absolute inset-0 rounded-lg bg-gray-100"
+                transition={pillSpring}
+              />
             )}
-          />
-        </button>
-      </div>
+            <span
+              className={cn(
+                'relative z-10 transition-colors duration-150',
+                isActive ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-800'
+              )}
+            >
+              {item.label}
+            </span>
+          </Link>
+        );
+      })}
     </div>
   );
 }
