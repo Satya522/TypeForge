@@ -1,7 +1,6 @@
-
 import Footer from '@/components/Footer';
 import Hero from '@/features/landing/Hero';
-import QuickValueStrip from '@/features/landing/QuickValueStrip';
+import PremiumFeatureSection from '@/features/landing/PremiumFeatureSection';
 import LearningPathsPreview from '@/features/landing/LearningPathsPreview';
 import PracticeModesPreview from '@/features/landing/PracticeModesPreview';
 import AnalyticsShowcase from '@/features/landing/AnalyticsShowcase';
@@ -30,7 +29,7 @@ export default function Home() {
       
       <main className="flex flex-col overflow-hidden bg-[#02050b]">
         <Hero />
-        <QuickValueStrip />
+        <PremiumFeatureSection />
         <LearningPathsPreview />
         <PracticeModesPreview />
         <AnalyticsShowcase />

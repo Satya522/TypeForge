@@ -44,8 +44,7 @@ export default function NavPrimaryLinks({
     ? BROWSE_KEY
     : primaryNavLinks.find((link) => isNavPathActive(pathname, link.href))?.href ?? null;
   const routeActiveKey = pendingActiveKey || activeKey;
-
-  const pillKey = hoveredKey || routeActiveKey;
+  const pillKey = routeActiveKey;
 
   useEffect(() => {
     if (pendingActiveKey && pendingActiveKey === activeKey) {
@@ -79,10 +78,7 @@ export default function NavPrimaryLinks({
   ];
 
   return (
-    <div
-      className="relative flex items-center gap-0.5"
-      onMouseLeave={() => setHoveredKey(null)}
-    >
+    <div className="relative flex items-center gap-0.5">
       {allItems.map((item) => {
         const isActive = routeActiveKey === item.key;
         const isPillTarget = pillKey === item.key;
@@ -97,14 +93,13 @@ export default function NavPrimaryLinks({
               aria-expanded={isBrowseOpen}
               aria-haspopup="dialog"
               aria-label="Browse all TypeForge sections"
-              className="relative inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-gray-400/40"
+              className="relative inline-flex h-[36px] shrink-0 items-center justify-center gap-1.5 rounded-full px-[18px] text-[15px] font-medium leading-none outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
               onClick={() => {
                 lockPendingTarget(BROWSE_KEY);
                 onBrowseTriggerClick();
               }}
               onKeyDown={onBrowseTriggerKeyDown}
               onMouseEnter={() => {
-                setHoveredKey(BROWSE_KEY);
                 onBrowseTriggerEnter();
               }}
               onMouseLeave={() => {
@@ -114,23 +109,23 @@ export default function NavPrimaryLinks({
               {isPillTarget && (
                 <motion.span
                   layoutId="nav-hover-pill"
-                  className="absolute inset-0 rounded-lg bg-gray-100"
+                  className="absolute inset-0 rounded-full bg-black"
                   transition={pillSpring}
                 />
               )}
               <span
                 className={cn(
-                  'relative z-10 transition-colors duration-150',
-                  isActive ? 'text-gray-900' : 'text-gray-500 hover:text-gray-800'
+                  'relative z-10 transition-colors duration-0',
+                  isActive ? 'text-white font-semibold' : 'text-[#9aa0a6] hover:text-white'
                 )}
               >
                 {item.label}
               </span>
               <ChevronDown
                 className={cn(
-                  'relative z-10 h-3.5 w-3.5 transition-all duration-200',
+                  'relative z-10 h-4 w-4 transition-colors duration-0',
                   isBrowseOpen && 'rotate-180',
-                  isActive ? 'text-gray-900' : 'text-gray-400'
+                  isActive ? 'text-white' : 'text-[#9aa0a6] group-hover:text-white'
                 )}
               />
             </button>
@@ -143,20 +138,19 @@ export default function NavPrimaryLinks({
             href={item.href}
             aria-current={isNavPathActive(pathname, item.href) ? 'page' : undefined}
             onClick={() => lockPendingTarget(item.key)}
-            onMouseEnter={() => setHoveredKey(item.key)}
-            className="relative shrink-0 rounded-lg px-3 py-2 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-gray-400/40"
+            className="group relative inline-flex h-[36px] shrink-0 items-center justify-center rounded-full px-[18px] text-[15px] font-medium leading-none outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
           >
             {isPillTarget && (
               <motion.span
                 layoutId="nav-hover-pill"
-                className="absolute inset-0 rounded-lg bg-gray-100"
+                className="absolute inset-0 rounded-full bg-black"
                 transition={pillSpring}
               />
             )}
             <span
               className={cn(
-                'relative z-10 transition-colors duration-150',
-                isActive ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-800'
+                'relative z-10 transition-colors duration-0',
+                isActive ? 'text-white font-semibold' : 'text-[#9aa0a6] hover:text-white group-hover:text-white'
               )}
             >
               {item.label}

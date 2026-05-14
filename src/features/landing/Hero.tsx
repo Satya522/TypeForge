@@ -5,6 +5,8 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Zap, Target, Flame, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import KineticHeadline from '@/components/hero/KineticHeadline';
+import AnimatedHeroSubtitle from '@/components/hero/AnimatedHeroSubtitle';
 
 /* ── Typing simulation text ── */
 const typingLines = [
@@ -14,11 +16,10 @@ const typingLines = [
   "streak.push({ day: 14, acc: 98 });",
 ];
 
-/* ── Floating stats ── */
 const floatingStats = [
-  { icon: Zap, label: 'WPM', value: 92, suffix: '', color: 'text-accent-300' },
-  { icon: Target, label: 'Accuracy', value: 98, suffix: '%', color: 'text-emerald-400' },
-  { icon: Flame, label: 'Streak', value: 14, suffix: 'd', color: 'text-yellow-400' },
+  { icon: Zap, label: 'WPM', value: 92, suffix: '', color: 'text-[#58a6ff]', gradient: 'from-[#a5d6ff] to-[#388bfd]', glow: 'drop-shadow-[0_0_12px_rgba(88,166,255,0.45)]' },
+  { icon: Target, label: 'Accuracy', value: 98, suffix: '%', color: 'text-[#56d364]', gradient: 'from-[#7ee787] to-[#2ea043]', glow: 'drop-shadow-[0_0_12px_rgba(86,211,100,0.45)]' },
+  { icon: Flame, label: 'Streak', value: 14, suffix: 'd', color: 'text-[#ffa657]', gradient: 'from-[#ffd8a8] to-[#db6d28]', glow: 'drop-shadow-[0_0_12px_rgba(255,166,87,0.45)]' },
 ];
 
 /* ── Keyboard keys ── */
@@ -30,34 +31,29 @@ const keyRows = [
 const homeRowKeys = new Set(['A', 'S', 'D', 'F', 'J', 'K', 'L']);
 const keyToneGroups = [
   {
-    keys: new Set(['Q', 'W', 'A', 'S', 'Z', 'X']),
-    idle: 'border-[#30363d] bg-[#0d1117] text-[#79c0ff] hover:border-[#58a6ff]/55 hover:bg-[#111827]',
-    active: 'border-[#58a6ff]/80 bg-[#1f6feb]/24 text-[#dff0ff] shadow-[0_0_20px_rgba(88,166,255,0.28)]',
-    marker: 'bg-[#58a6ff]/70',
+    keys: new Set(['Q', 'A', 'Z', 'P']), // Pinkies (Rose)
+    active: 'bg-gradient-to-b from-[#f43f5e] to-[#be123c] text-white shadow-[0_0_20px_rgba(244,63,94,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#f43f5e]',
+    orb: 'bg-[#f43f5e]',
   },
   {
-    keys: new Set(['E', 'R', 'D', 'F', 'C', 'V']),
-    idle: 'border-[#30363d] bg-[#0d1117] text-[#a5d6ff] hover:border-[#79c0ff]/50 hover:bg-[#111827]',
-    active: 'border-[#79c0ff]/78 bg-[#388bfd]/20 text-[#e6f4ff] shadow-[0_0_20px_rgba(121,192,255,0.24)]',
-    marker: 'bg-[#79c0ff]/65',
+    keys: new Set(['W', 'S', 'X', 'O', 'L']), // Rings (Purple)
+    active: 'bg-gradient-to-b from-[#8b5cf6] to-[#6d28d9] text-white shadow-[0_0_20px_rgba(139,92,246,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#8b5cf6]',
+    orb: 'bg-[#8b5cf6]',
   },
   {
-    keys: new Set(['T', 'Y', 'G', 'H', 'B', 'N']),
-    idle: 'border-[#30363d] bg-[#0d1117] text-[#7ee787] hover:border-[#56d364]/45 hover:bg-[#0f1a14]',
-    active: 'border-[#56d364]/72 bg-[#238636]/22 text-[#eaffef] shadow-[0_0_20px_rgba(86,211,100,0.22)]',
-    marker: 'bg-[#56d364]/58',
+    keys: new Set(['E', 'D', 'C', 'I', 'K']), // Middles (Amber)
+    active: 'bg-gradient-to-b from-[#f59e0b] to-[#b45309] text-white shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#f59e0b]',
+    orb: 'bg-[#f59e0b]',
   },
   {
-    keys: new Set(['U', 'I', 'J', 'K', 'M']),
-    idle: 'border-[#30363d] bg-[#0d1117] text-[#d2a8ff] hover:border-[#bc8cff]/48 hover:bg-[#17111f]',
-    active: 'border-[#bc8cff]/74 bg-[#8957e5]/22 text-[#f1e5ff] shadow-[0_0_20px_rgba(188,140,255,0.24)]',
-    marker: 'bg-[#bc8cff]/62',
+    keys: new Set(['R', 'F', 'V', 'T', 'G', 'B']), // Left Index (Cyan)
+    active: 'bg-gradient-to-b from-[#38bdf8] to-[#0ea5e9] text-white shadow-[0_0_20px_rgba(56,189,248,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#38bdf8]',
+    orb: 'bg-[#38bdf8]',
   },
   {
-    keys: new Set(['O', 'P', 'L']),
-    idle: 'border-[#30363d] bg-[#0d1117] text-[#ffa657] hover:border-[#ffa657]/44 hover:bg-[#1f1710]',
-    active: 'border-[#ffa657]/70 bg-[#9e6a03]/24 text-[#fff2df] shadow-[0_0_20px_rgba(255,166,87,0.22)]',
-    marker: 'bg-[#ffa657]/58',
+    keys: new Set(['Y', 'H', 'N', 'U', 'J', 'M']), // Right Index (Emerald)
+    active: 'bg-gradient-to-b from-[#10b981] to-[#047857] text-white shadow-[0_0_20px_rgba(16,185,129,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#10b981]',
+    orb: 'bg-[#10b981]',
   },
 ];
 
@@ -69,14 +65,13 @@ function renderCodeLine(line: string) {
   const tokens = line.split(/('(?:[^']*)'?|\bconst\b|\bif\b|\bunlock\b|\bmeasure\b|\bset\b|\bpush\b|\bkeyboard\b|\bfocus\b|\bstreak\b|\bspeed\b|\bday\b|\bacc\b|\bwpm\b|\bprecision\b|\badvanced\b|\d+)/g).filter(Boolean);
 
   return tokens.map((token, index) => {
-    let color = 'text-[#c9d1d9]';
+    let color = 'text-[#e2e8f0]';
 
-    if (token === 'const' || token === 'if') color = 'text-[#ff7b72]';
-    else if (token.startsWith("'")) color = 'text-[#a5d6ff]';
-    else if (['unlock', 'measure', 'set', 'push'].includes(token)) color = 'text-[#d2a8ff]';
-    else if (['keyboard', 'focus', 'streak', 'speed'].includes(token)) color = 'text-[#79c0ff]';
-    else if (['day', 'acc', 'wpm', 'precision', 'advanced'].includes(token)) color = 'text-[#ffa657]';
-    else if (/^\d+$/.test(token)) color = 'text-[#79c0ff]';
+    if (token === 'const' || token === 'if') color = 'text-[#f43f5e] font-semibold drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]';
+    else if (token.startsWith("'")) color = 'text-[#2dd4bf] drop-shadow-[0_0_8px_rgba(45,212,191,0.3)]';
+    else if (['unlock', 'measure', 'set', 'push'].includes(token)) color = 'text-[#38bdf8] drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]';
+    else if (['keyboard', 'focus', 'streak', 'speed', 'day', 'acc', 'wpm', 'precision', 'advanced'].includes(token)) color = 'text-[#f8fafc] drop-shadow-[0_0_10px_rgba(255,255,255,0.15)]';
+    else if (/^\d+$/.test(token)) color = 'text-[#c084fc] drop-shadow-[0_0_8px_rgba(192,132,252,0.3)]';
 
     return (
       <span key={`${token}-${index}`} className={color}>
@@ -136,51 +131,28 @@ function TypingSimulator() {
   }, [charIndex, lineIndex, isTyping, currentText]);
 
   return (
-    <div className="font-mono text-[13px] leading-relaxed sm:text-sm">
+    <div className="font-mono text-[14px] leading-[1.7] tracking-[0.02em] sm:text-[15px]">
       {displayedLines.map((line, i) => (
-        <div key={i} className="text-[#8b949e]/70 opacity-70 transition-colors duration-500">
-          <span className="mr-3 select-none text-[#484f58]">{i + 1}</span>
+        <div key={i} className="text-[#94a3b8]/70 opacity-80 transition-colors duration-500">
+          <span className="mr-5 inline-block w-4 select-none text-right font-medium text-[#334155]">{i + 1}</span>
           {renderCodeLine(line)}
         </div>
       ))}
-      <div className="text-[#c9d1d9]">
-        <span className="mr-3 select-none text-[#58a6ff]/55">{displayedLines.length + 1}</span>
+      <div className="text-[#f8fafc]">
+        <span className="mr-5 inline-block w-4 select-none text-right font-medium text-[#38bdf8]/80 drop-shadow-[0_0_6px_rgba(56,189,248,0.4)]">{displayedLines.length + 1}</span>
         {renderCodeLine(currentText)}
         <motion.span
           animate={{ opacity: [1, 0] }}
-          transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
-          className="inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#58a6ff] shadow-[0_0_8px_rgba(88,166,255,0.55)]"
+          transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
+          className="ml-1 inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]"
         />
       </div>
     </div>
   );
 }
 
-/* ── Hero phrase data ── */
-const heroPhrasesData = [
-  { before: "Type ", highlight: "faster", after: "." },
-  { before: "Think ", highlight: "sharper", after: "." },
-  { before: "Build ", highlight: "mastery", after: "." },
-];
-
 /* ── Framer Motion animation config ── */
-const smoothSpring = { type: 'spring' as const, stiffness: 360, damping: 34, mass: 0.8 };
 const softEase = [0.22, 1, 0.36, 1] as const;
-
-const heroContainerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.14,
-      delayChildren: 0.18,
-    },
-  },
-};
-
-const phraseVariants = {
-  hidden: { opacity: 0, y: 34, filter: 'blur(10px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: smoothSpring },
-};
 
 const badgeVariants = {
   hidden: { opacity: 0, y: 18, filter: 'blur(8px)', scale: 0.94 },
@@ -213,7 +185,6 @@ const showcaseVariants = {
 /* ── Main Hero ── */
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
   const wpm = useAnimatedCounter(92, 2200, 1000);
   const accuracy = useAnimatedCounter(98, 2200, 1200);
   const streak = useAnimatedCounter(14, 1800, 1400);
@@ -284,40 +255,11 @@ export default function Hero() {
             </span>
           </motion.div>
 
-          {/* Headline — phrase-by-phrase reveal */}
-          <motion.h1
-            ref={headlineRef}
-            variants={heroContainerVariants}
-            initial="hidden"
-            animate="visible"
-            className="overflow-hidden text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl"
-          >
-            {heroPhrasesData.map((phrase, i) => (
-              <motion.span
-                key={i}
-                variants={phraseVariants}
-                className="inline-block"
-                style={{ marginRight: i < heroPhrasesData.length - 1 ? '0.25em' : '0' }}
-              >
-                <span className="text-white">{phrase.before}</span>
-                <span className="hero-gradient-word bg-gradient-to-r from-blue-400 via-emerald-400 to-sky-300 bg-[length:200%_100%] bg-clip-text text-transparent">
-                  {phrase.highlight}
-                </span>
-                <span className="text-white">{phrase.after}</span>
-              </motion.span>
-            ))}
-          </motion.h1>
+          {/* Headline — Jitter-inspired kinetic typography */}
+          <KineticHeadline />
 
           {/* Subheadline — fades in after heading */}
-          <motion.p
-            initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ delay: 0.75, duration: 0.45, ease: softEase }}
-            className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl"
-          >
-            Master your keyboard through guided learning paths, real-time precision tracking,
-            and AI-driven practice sessions that adapt to your rhythm.
-          </motion.p>
+          <AnimatedHeroSubtitle />
 
           {/* CTAs — appear after subtitle */}
           <motion.div
@@ -357,7 +299,7 @@ export default function Hero() {
             variants={statsContainerVariants}
             initial="hidden"
             animate="visible"
-            className="mb-7 flex items-center justify-center gap-8 sm:gap-14"
+            className="mb-10 flex items-center justify-center gap-10 sm:gap-16"
           >
             {floatingStats.map((stat, i) => {
               const Icon = stat.icon;
@@ -372,10 +314,13 @@ export default function Hero() {
                     <Icon className={`h-5 w-5 ${stat.color} transition-all group-hover:scale-110`} />
                     <div className={`absolute inset-0 ${stat.color} blur-lg opacity-0 transition-opacity group-hover:opacity-40`} />
                   </div>
-                  <span className={`text-3xl font-bold tabular-nums ${stat.color} sm:text-4xl`}>
+                  <span
+                    className={`bg-gradient-to-b ${stat.gradient} ${stat.glow} bg-clip-text text-[36px] font-bold tabular-nums text-transparent sm:text-[44px]`}
+                    style={{ fontFamily: "'Google Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
+                  >
                     {counters[i]}{stat.suffix}
                   </span>
-                  <span className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
+                  <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8b949e] sm:text-xs">
                     {stat.label}
                   </span>
                 </motion.div>
@@ -392,70 +337,74 @@ export default function Hero() {
           >
             {/* Terminal */}
             <motion.div
-              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl border border-[#30363d]"
-              whileHover={{ borderColor: 'rgba(88,166,255,0.28)' }}
-              style={{
-                background: 'radial-gradient(circle at 18% 12%, rgba(88,166,255,0.075), transparent 38%), radial-gradient(circle at 82% 20%, rgba(126,231,135,0.04), transparent 36%), linear-gradient(180deg, rgba(13,17,23,0.96) 0%, rgba(3,7,10,0.98) 100%)',
-                backdropFilter: 'blur(20px)',
-              }}
+              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl bg-[#030303] shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_32px_80px_-12px_rgba(0,0,0,0.8)]"
+              whileHover={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.15), 0 32px 80px -12px rgba(0,0,0,0.9)' }}
             >
-              {/* Top glow line */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#58a6ff]/26 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
 
               {/* Terminal header */}
-              <div className="flex items-center gap-2 border-b border-[#30363d]/70 px-5 py-3">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-green-500/60" />
-                <span className="ml-3 text-[11px] font-medium text-[#8b949e]">typeforge://session</span>
-                <motion.div
-                  className="ml-auto h-1.5 w-1.5 rounded-full bg-[#58a6ff] shadow-[0_0_10px_rgba(88,166,255,0.65)]"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
+              <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-black/40 px-6 py-4 backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_8px_rgba(255,95,87,0.4)]" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] shadow-[0_0_8px_rgba(254,188,46,0.4)]" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] shadow-[0_0_8px_rgba(40,200,64,0.4)]" />
+                </div>
+                <div className="absolute left-1/2 flex -translate-x-1/2 items-center">
+                  <span className="bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-semibold tracking-widest text-transparent">
+                    typeforge://session
+                  </span>
+                </div>
               </div>
 
               {/* Terminal body */}
-              <div className="flex flex-1 items-start p-5 pt-7 sm:p-6 sm:pt-8">
+              <div className="relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8 font-mono">
                 <TypingSimulator />
               </div>
 
               {/* Bottom status bar */}
-              <div className="mt-auto flex items-center justify-between border-t border-[#30363d]/70 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-[#8b949e]">
+              <div className="mt-auto flex items-center justify-between border-t border-white/[0.06] bg-black/40 px-6 py-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b] backdrop-blur-md">
                 <span>UTF-8</span>
-                <span className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#58a6ff]/70" />
-                  Live
+                <span className="flex items-center gap-2 text-[#2dd4bf]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
+                  LIVE
                 </span>
-                <span>Ln 1, Col 1</span>
+                <span>LN 1, COL 1</span>
               </div>
             </motion.div>
 
             {/* Keyboard visualization */}
-            <div className="relative">
+            <div className="relative h-full">
               <div
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.065] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-5"
-                style={{
-                  background: 'radial-gradient(circle at 18% 12%, rgba(88,166,255,0.08), transparent 38%), radial-gradient(circle at 84% 20%, rgba(126,231,135,0.045), transparent 36%), linear-gradient(180deg, rgba(13,17,23,0.96) 0%, rgba(3,7,10,0.98) 100%)',
-                  backdropFilter: 'blur(20px)',
-                }}
+                className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-[#030303] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_32px_80px_-12px_rgba(0,0,0,0.8)] sm:p-6"
               >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#58a6ff]/26 to-transparent" />
-                <div className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-[#30363d] to-transparent" />
+                {/* Background glowing orb inside container */}
+                <div className={`absolute left-1/2 top-1/2 -z-10 h-[200px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[80px] transition-colors duration-500 ${activeKey ? getKeyTone(activeKey).orb : 'bg-[#38bdf8]'}`} />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="bg-gradient-to-r from-[#79c0ff] via-[#a5d6ff] to-[#7ee787] bg-clip-text text-xs font-semibold uppercase tracking-[0.22em] text-transparent">
-                    Keyboard Heatmap
-                  </span>
-                  <span className="flex items-center gap-1.5 rounded-full border border-[#30363d] bg-[#0d1117] px-2.5 py-1 text-[11px] font-medium text-[#79c0ff]/90">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#58a6ff] shadow-[0_0_10px_rgba(88,166,255,0.68)]" />
-                    Tracking
+                <div className="mb-8 flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-white/[0.06] border border-white/[0.1] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                      <svg className="h-4 w-4 text-[#e2e8f0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e2e8f0] drop-shadow-md">
+                      Heatmap
+                    </span>
+                  </div>
+                  <span className="flex items-center gap-1.5 rounded-full border border-[#38bdf8]/30 bg-[#38bdf8]/10 px-2.5 py-1 text-[10px] font-bold tracking-wider text-[#38bdf8] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#38bdf8] opacity-75"></span>
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#38bdf8]"></span>
+                    </span>
+                    Live
                   </span>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5 relative z-10 flex-1 flex flex-col justify-center">
                   {keyRows.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex items-center justify-center gap-1.5" style={{ paddingLeft: `${rowIndex * 12}px` }}>
+                    <div key={rowIndex} className="flex items-center justify-center gap-1.5 sm:gap-2" style={{ paddingLeft: `${rowIndex * 14}px` }}>
                       {row.map((key) => {
                         const isHome = homeRowKeys.has(key);
                         const isActive = activeKey === key;
@@ -464,32 +413,31 @@ export default function Hero() {
                         return (
                           <motion.div
                             key={key}
-                            animate={isActive ? { scale: [1, 0.92, 1.04], y: [0, 2, -1] } : {}}
-                            transition={{ duration: 0.18 }}
+                            animate={isActive ? { scale: [1, 0.9, 1.08], y: [0, 2, -2] } : {}}
+                            transition={{ duration: 0.15 }}
                             className={`
-                              relative flex h-9 w-9 items-center justify-center rounded-lg border font-mono text-xs font-semibold shadow-[inset_0_-1px_0_rgba(0,0,0,0.7),0_8px_18px_rgba(0,0,0,0.14)] transition-all duration-200 sm:h-10 sm:w-10 sm:text-sm
+                              relative flex h-9 w-9 items-center justify-center rounded-[10px] font-mono text-[13px] font-bold transition-all duration-200 sm:h-11 sm:w-11 sm:text-[15px]
                               ${isActive
                                 ? tone.active
                                 : isHome
-                                  ? tone.idle
-                                  : `${tone.idle} opacity-75`
+                                  ? 'bg-gradient-to-b from-white/[0.08] to-white/[0.02] text-[#f8fafc] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/[0.12]'
+                                  : 'bg-gradient-to-b from-white/[0.04] to-transparent text-[#94a3b8] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.06]'
                               }
                             `}
                           >
                             {key}
                             {isHome && !isActive && (
-                              <span className={`absolute bottom-1 left-1/2 h-0.5 w-2 -translate-x-1/2 rounded-full ${tone.marker}`} />
+                              <span className="absolute bottom-1.5 left-1/2 h-0.5 w-2.5 -translate-x-1/2 rounded-full bg-white/[0.15]" />
                             )}
                           </motion.div>
                         );
                       })}
                     </div>
                   ))}
-                </div>
-
-                {/* Space bar */}
-                <div className="mt-2 flex justify-center" style={{ paddingLeft: '36px' }}>
-                  <div className="h-9 w-48 rounded-lg border border-[#30363d] bg-[#0d1117] shadow-[inset_0_-1px_0_rgba(0,0,0,0.72),0_8px_20px_rgba(0,0,0,0.14)] sm:h-10 sm:w-56" />
+                  {/* Space bar */}
+                  <div className="mt-2.5 flex justify-center" style={{ paddingLeft: '42px' }}>
+                    <div className="h-9 w-48 rounded-[10px] bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.06] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] sm:h-11 sm:w-[260px]" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -506,21 +454,6 @@ export default function Hero() {
           filter: blur(28px);
         }
 
-        @keyframes gradient-shine {
-          0% { background-position: 200% center; }
-          100% { background-position: 0% center; }
-        }
-
-        .hero-gradient-word {
-          animation: gradient-shine 2.5s ease-in-out infinite;
-          animation-delay: 1.2s;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .hero-gradient-word {
-            animation: none;
-          }
-        }
       `}</style>
     </section>
   );

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Ref } from 'react'
-import { Button } from '@/components/ui/button'
 import BrowseColumn from './BrowseColumn'
 import { browseAllSectionsLink, browseColumns } from './nav-data'
 
@@ -80,24 +79,27 @@ export default function BrowseMegaMenu({
           aria-modal="false"
           aria-label="Browse TypeForge sections"
         >
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)]">
+          <div className="relative overflow-hidden rounded-[1.25rem] border border-white/[0.06] bg-[#0d0d0f]/95 p-5 shadow-[0_24px_48px_rgba(0,0,0,0.6),0_8px_16px_rgba(0,0,0,0.4)] backdrop-blur-3xl">
+            {/* Subtle top-edge glow */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
             {/* Header */}
             <motion.div
               variants={headerVariants}
-              className="relative flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-4"
+              className="relative flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] pb-4"
             >
               <div>
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-white">
                   Explore TypeForge
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-[#9aa0a6] mt-0.5">
                   Fast access to every mode and tool
                 </p>
               </div>
               <Link
                 href={browseAllSectionsLink.href}
                 onClick={onClose}
-                className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/40"
               >
                 <motion.div
                   whileHover={{ y: -1, scale: 1.02 }}
@@ -108,13 +110,9 @@ export default function BrowseMegaMenu({
                     damping: 25,
                   }}
                 >
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="rounded-xl bg-gray-900 px-4 text-white hover:bg-gray-800 shadow-sm"
-                  >
+                  <span className="inline-flex items-center rounded-full bg-[#1a73e8] px-4 py-2 text-xs font-semibold text-white shadow-[0_2px_8px_rgba(26,115,232,0.3)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_4px_12px_rgba(26,115,232,0.4)]">
                     {browseAllSectionsLink.label}
-                  </Button>
+                  </span>
                 </motion.div>
               </Link>
             </motion.div>
@@ -136,20 +134,20 @@ export default function BrowseMegaMenu({
             {/* Footer strip */}
             <motion.div
               variants={headerVariants}
-              className="relative mt-4 flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-2.5"
+              className="relative mt-4 flex items-center justify-between rounded-xl border border-white/[0.04] bg-white/[0.02] px-4 py-2.5"
             >
               <div className="flex items-center gap-2.5">
-                <span className="rounded-md bg-gray-900 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                <span className="rounded-md bg-[#1a73e8] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
                   New
                 </span>
-                <span className="text-xs text-gray-500 font-medium">
+                <span className="text-xs text-[#9aa0a6] font-medium">
                   New typing analytics dashboard is live
                 </span>
               </div>
               <Link
                 href="/analytics"
                 onClick={onClose}
-                className="text-xs font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+                className="text-xs font-semibold text-[#8ab4f8] hover:text-[#aecbfa] transition-colors"
               >
                 Explore features →
               </Link>

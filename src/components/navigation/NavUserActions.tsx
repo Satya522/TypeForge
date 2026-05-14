@@ -122,9 +122,8 @@ export default function NavUserActions({
         <motion.button
           type="button"
           onClick={onSignIn}
-          whileHover={prefersReducedMotion ? undefined : { y: -1 }}
           whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-          className="rounded-lg px-3 py-2 text-[13px] font-medium text-gray-600 transition-colors duration-200 hover:text-gray-900 hover:bg-gray-50"
+          className="inline-flex h-[36px] items-center justify-center rounded-full px-5 text-[15px] font-medium leading-none text-[#9aa0a6] transition-colors duration-0 hover:text-white hover:bg-white/5 hover:![transform:none]"
         >
           Log in
         </motion.button>
@@ -134,7 +133,7 @@ export default function NavUserActions({
             whileHover={
               prefersReducedMotion
                 ? undefined
-                : { scale: 1.035, y: -1 }
+                : { scale: 1.035 }
             }
             whileTap={
               prefersReducedMotion ? undefined : { scale: 0.975 }
@@ -145,11 +144,11 @@ export default function NavUserActions({
               damping: 25,
             }}
           >
-            <span className="group inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-5 py-2 text-[13px] font-semibold text-white shadow-[0_1px_3px_rgba(0,0,0,0.12),0_6px_16px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-gray-800 hover:shadow-[0_2px_6px_rgba(0,0,0,0.16),0_10px_24px_rgba(0,0,0,0.16)]">
+            <span className="group inline-flex h-[36px] items-center justify-center gap-1.5 rounded-full bg-[#1a73e8] px-6 text-[15px] font-semibold leading-none text-white shadow-[0_1px_3px_rgba(26,115,232,0.2),0_6px_16px_rgba(26,115,232,0.2)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_2px_6px_rgba(26,115,232,0.3),0_10px_24px_rgba(26,115,232,0.25)] hover:![transform:none]">
               Start typing
               <ArrowRight
                 weight="bold"
-                className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
               />
             </span>
           </motion.div>
@@ -169,26 +168,25 @@ export default function NavUserActions({
         aria-haspopup="menu"
         aria-label="Open profile menu"
         onClick={() => setIsOpen((o) => !o)}
-        whileHover={prefersReducedMotion ? undefined : { y: -1 }}
         whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
         className={cn(
-          'inline-flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left outline-none transition-all duration-200',
+          'inline-flex h-[36px] items-center justify-center gap-1.5 rounded-full px-2.5 text-left outline-none transition-all duration-200 hover:![transform:none]',
           isOpen
-            ? 'border-gray-200 bg-gray-50 shadow-sm'
-            : 'border-gray-200/80 bg-white hover:border-gray-300 hover:bg-gray-50',
-          'focus-visible:ring-2 focus-visible:ring-gray-300'
+            ? 'bg-black/30 shadow-inner'
+            : 'bg-transparent hover:bg-white/5',
+          'focus-visible:ring-2 focus-visible:ring-white/20'
         )}
       >
         <Avatar
           src={avatarSrc}
           name={displayName}
-          size={28}
-          className="ring-1 ring-gray-200"
-          fallbackClassName="text-[10px] font-bold tracking-wider text-gray-600"
+          size={32}
+          className="ring-1 ring-white/10"
+          fallbackClassName="text-[10px] font-bold tracking-wider text-white"
         />
 
         <span className="hidden min-w-0 xl:block">
-          <span className="block truncate text-[13px] font-medium leading-5 text-gray-800">
+          <span className="block truncate text-[13px] font-medium leading-5 text-white/90">
             {displayName}
           </span>
         </span>
@@ -202,7 +200,7 @@ export default function NavUserActions({
             weight="bold"
             className={cn(
               'h-3 w-3 transition-colors',
-              isOpen ? 'text-gray-800' : 'text-gray-400'
+              isOpen ? 'text-white' : 'text-white/50'
             )}
           />
         </motion.span>
@@ -227,26 +225,28 @@ export default function NavUserActions({
               duration: 0.18,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="absolute right-0 top-[calc(100%+0.5rem)] z-[100] w-[260px] origin-top-right overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-[0_16px_48px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)]"
+            className="absolute right-0 top-[calc(100%+0.5rem)] z-[100] w-[260px] origin-top-right overflow-hidden rounded-[1.25rem] border border-white/[0.06] bg-[#0d0d0f]/95 text-white shadow-[0_24px_48px_rgba(0,0,0,0.6),0_8px_16px_rgba(0,0,0,0.4)] backdrop-blur-3xl"
             role="menu"
           >
+            {/* Subtle top edge highlight */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
             {/* ── Profile header ── */}
-            <div className="border-b border-gray-100 px-4 py-3">
+            <div className="border-b border-white/[0.06] px-4 py-3">
               <div className="flex items-center gap-3">
                 <Avatar
                   src={avatarSrc}
                   name={displayName}
                   size={38}
-                  className="ring-2 ring-gray-100"
-                  fallbackClassName="text-sm font-bold tracking-wider text-gray-600"
+                  className="ring-2 ring-white/10"
+                  fallbackClassName="text-sm font-bold tracking-wider text-white"
                 />
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold leading-tight text-gray-900">
+                  <p className="truncate text-[13px] font-semibold leading-tight text-white">
                     {displayName}
                   </p>
                   {session.user?.email && (
-                    <p className="mt-0.5 truncate text-[11px] font-medium text-gray-400">
+                    <p className="mt-0.5 truncate text-[11px] font-medium text-[#9aa0a6]">
                       {session.user.email}
                     </p>
                   )}
@@ -270,10 +270,10 @@ export default function NavUserActions({
                       href={link.href}
                       role="menuitem"
                       className={cn(
-                        'group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm outline-none transition-all duration-150',
+                        'group relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm outline-none transition-all duration-150',
                         active
-                          ? 'bg-gray-100 text-gray-900 font-medium'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-[#1a73e8]/15 text-[#8ab4f8] font-medium'
+                          : 'text-[#e8eaed]/70 hover:bg-white/[0.04] hover:text-white'
                       )}
                     >
                       <Icon
@@ -281,8 +281,8 @@ export default function NavUserActions({
                         className={cn(
                           'h-[16px] w-[16px] shrink-0 transition-colors',
                           active
-                            ? 'text-gray-900'
-                            : 'text-gray-400 group-hover:text-gray-600'
+                            ? 'text-[#8ab4f8]'
+                            : 'text-[#9aa0a6] group-hover:text-white/70'
                         )}
                       />
                       <span className="flex-1 font-medium">{link.label}</span>
@@ -291,8 +291,8 @@ export default function NavUserActions({
                         className={cn(
                           'h-3 w-3 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-100',
                           active
-                            ? 'text-gray-500 opacity-100'
-                            : 'text-gray-300 opacity-0'
+                            ? 'text-[#8ab4f8]/60 opacity-100'
+                            : 'text-[#9aa0a6]/40 opacity-0'
                         )}
                       />
                     </Link>
@@ -302,7 +302,7 @@ export default function NavUserActions({
             </div>
 
             {/* ── Divider ── */}
-            <div className="mx-3 h-px bg-gray-100" />
+            <div className="mx-3 h-px bg-white/[0.06]" />
 
             {/* ── Logout ── */}
             <div className="p-1.5">
@@ -314,11 +314,11 @@ export default function NavUserActions({
                   prefersReducedMotion ? undefined : { x: 1 }
                 }
                 whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
-                className="group flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-gray-500 outline-none transition-all duration-150 hover:bg-red-50 hover:text-red-600"
+                className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-[#9aa0a6] outline-none transition-all duration-150 hover:bg-red-500/10 hover:text-red-400"
               >
                 <SignOut
                   weight="regular"
-                  className="h-[16px] w-[16px] shrink-0 text-gray-400 transition-colors group-hover:text-red-500"
+                  className="h-[16px] w-[16px] shrink-0 text-[#9aa0a6]/60 transition-colors group-hover:text-red-400"
                 />
                 <span className="flex-1 text-left font-medium">Sign out</span>
               </motion.button>

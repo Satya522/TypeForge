@@ -219,7 +219,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer ref={footerRef} className="relative mt-auto overflow-hidden bg-[#02050b]">
+    <footer ref={footerRef} style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }} className="relative mt-auto overflow-hidden bg-[#02050b]">
       {/* ── Background layers ── */}
       <div className="pointer-events-none absolute inset-0">
         {/* Bottom fade */}

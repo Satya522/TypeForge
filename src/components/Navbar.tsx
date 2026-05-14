@@ -246,14 +246,15 @@ export default function Navbar() {
 
           {/* ── Main Nav Pill ── */}
           <nav
+            style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }}
             className={cn(
               'relative flex items-center rounded-full border backdrop-blur-xl transition-all duration-500 ease-out',
               isScrolled
-                ? 'border-black/[0.07] bg-white/95 shadow-[0_6px_28px_rgba(0,0,0,0.10),0_1.5px_6px_rgba(0,0,0,0.05)]'
-                : 'border-black/[0.05] bg-white/90 shadow-[0_18px_55px_rgba(0,0,0,0.10)]'
+                ? 'border-white/[0.08] bg-[#3c4043] shadow-[0_6px_28px_rgba(0,0,0,0.25),0_1.5px_6px_rgba(0,0,0,0.12)]'
+                : 'border-white/[0.06] bg-[#3c4043] shadow-[0_18px_55px_rgba(0,0,0,0.25)]'
             )}
           >
-            <div className="flex items-center gap-0.5 px-2.5 py-1.5">
+            <div className="flex items-center p-1.5 gap-1">
               {/* Nav links */}
               <NavPrimaryLinks
                 browseTriggerRef={browseTriggerRef}
@@ -265,10 +266,7 @@ export default function Navbar() {
                 pathname={pathname}
               />
 
-              {/* Divider */}
-              <div className="mx-1 h-5 w-px bg-gray-200/80" aria-hidden="true" />
-
-              {/* Auth actions */}
+              {/* Spacer / Auth actions */}
               <NavUserActions
                 onSignIn={() => signIn()}
                 onSignOut={handleSignOut}
@@ -321,7 +319,7 @@ export default function Navbar() {
           <motion.span
             whileHover={prefersReducedMotion ? undefined : { scale: 1.035, y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.975 }}
-            className="group inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-5 py-3 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15),0_12px_36px_rgba(0,0,0,0.12)] transition-all duration-200 hover:bg-gray-800 hover:shadow-[0_4px_12px_rgba(0,0,0,0.2),0_16px_44px_rgba(0,0,0,0.16)]"
+            className="group inline-flex items-center gap-1.5 rounded-full bg-[#1a73e8] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(26,115,232,0.3),0_12px_36px_rgba(26,115,232,0.2)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_4px_12px_rgba(26,115,232,0.4),0_16px_44px_rgba(26,115,232,0.25)]"
           >
             Start typing
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -334,9 +332,9 @@ export default function Navbar() {
           whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
           whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
           aria-label="Show navigation"
-          className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-black/[0.06] bg-white/92 shadow-[0_12px_36px_rgba(0,0,0,0.10)] backdrop-blur-xl transition-all duration-200 hover:bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.14)]"
+          className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-white/[0.08] bg-[#3c4043]/90 shadow-[0_12px_36px_rgba(0,0,0,0.20)] backdrop-blur-xl transition-all duration-200 hover:bg-[#3c4043] hover:shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
         >
-          <Menu className="h-[18px] w-[18px] text-gray-700" />
+          <Menu className="h-[18px] w-[18px] text-[#1a73e8]" />
         </motion.button>
       </motion.div>
 

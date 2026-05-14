@@ -16,8 +16,8 @@ type BrowseColumnProps = {
 
 export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathname }: BrowseColumnProps) {
   return (
-    <div className="group/col rounded-xl border border-gray-100 bg-gray-50/50 p-3.5 transition-all duration-200 hover:border-gray-200 hover:bg-gray-50 hover:shadow-sm">
-      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-gray-400">{column.title}</p>
+    <div className="group/col rounded-xl border border-white/[0.06] bg-white/[0.03] p-3.5 transition-all duration-200 hover:border-white/[0.10] hover:bg-white/[0.05]">
+      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#9aa0a6]">{column.title}</p>
       <div className="space-y-0.5">
         {column.links.map((link) => {
           const active = isNavPathActive(pathname, link.href);
@@ -29,10 +29,10 @@ export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathnam
               ref={firstLinkRef && column.links[0]?.href === link.href ? firstLinkRef : undefined}
               onClick={onNavigate}
               className={cn(
-                'group flex items-start justify-between gap-2 rounded-lg px-2.5 py-2 transition-all duration-150 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300',
+                'group flex items-start justify-between gap-2 rounded-lg px-2.5 py-2 transition-all duration-150 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/40',
                 active
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm'
+                  ? 'bg-[#1a73e8] text-white'
+                  : 'text-[#e8eaed]/80 hover:bg-white/[0.06] hover:text-white'
               )}
             >
               <div className="min-w-0">
@@ -40,7 +40,7 @@ export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathnam
                 {link.description && (
                   <p className={cn(
                     'mt-0.5 truncate text-[11px]',
-                    active ? 'text-gray-300' : 'text-gray-400'
+                    active ? 'text-white/70' : 'text-[#9aa0a6]'
                   )}>{link.description}</p>
                 )}
               </div>
@@ -51,7 +51,7 @@ export default function BrowseColumn({ column, firstLinkRef, onNavigate, pathnam
               >
                 <ArrowRight className={cn(
                   'h-3.5 w-3.5 transition-colors duration-150',
-                  active ? 'text-gray-300' : 'text-gray-300 group-hover:text-gray-500'
+                  active ? 'text-white/70' : 'text-[#9aa0a6]/50 group-hover:text-[#9aa0a6]'
                 )} />
               </motion.span>
             </Link>

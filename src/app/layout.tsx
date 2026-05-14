@@ -1,5 +1,5 @@
 import '@/app/globals.css';
-import { Inter } from 'next/font/google';
+import { Bricolage_Grotesque, Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import Providers from './providers';
@@ -8,6 +8,12 @@ import { getServerAuthSession } from '@/lib/auth';
 
 // Load Inter variable font with latin subset
 const inter = Inter({ subsets: ['latin'] });
+const kineticDisplay = Bricolage_Grotesque({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-kinetic-display',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'TypeForge',
@@ -30,7 +36,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const session = await getServerAuthSession();
 
   return (
-    <html lang="en" className={inter.className} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={`${inter.className} ${kineticDisplay.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* PWA primary meta tags */}
         <link rel="manifest" href="/manifest.json" />
