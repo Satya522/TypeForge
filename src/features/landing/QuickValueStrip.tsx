@@ -13,9 +13,11 @@ const fadeIn = {
 
 export default function QuickValueStrip() {
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden">
+    <section className="relative py-28 sm:py-32 overflow-hidden">
       {/* Background glow atmosphere */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.06),transparent_60%)] blur-[100px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[640px] w-[880px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.1),transparent_55%)] blur-[120px]" />
+      <div className="pointer-events-none absolute right-1/4 top-20 -z-10 h-[320px] w-[320px] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.12),transparent_40%)] blur-[140px]" />
+      <div className="pointer-events-none absolute left-1/4 top-[15rem] -z-10 h-[260px] w-[260px] rounded-full bg-[radial-gradient(circle,rgba(245,158,11,0.14),transparent_40%)] blur-[120px]" />
 
       <div className="section-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -47,17 +49,17 @@ export default function QuickValueStrip() {
           variants={{
             visible: { transition: { staggerChildren: 0.1 } }
           }}
-          className="grid gap-4 sm:gap-6 lg:grid-cols-12 auto-rows-[auto]"
+          className="grid gap-8 sm:gap-10 lg:grid-cols-12 auto-rows-fr"
         >
           {/* Card 1: Guided Lessons (Col span 7) */}
-          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-7 flex flex-col overflow-hidden rounded-[24px] md:rounded-[32px] border border-white/[0.06] bg-[#09090b]/60 backdrop-blur-md p-6 sm:p-8 hover:border-[#38bdf8]/30 transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_32px_rgba(56,189,248,0.15)]">
+          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-7 flex flex-col justify-between overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/95 p-8 sm:p-10 min-h-[460px] transition-all duration-500 hover:-translate-y-1 shadow-[0_20px_50px_rgba(15,23,42,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#38bdf8]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative flex-1">
               <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-white/[0.04] p-2.5 border border-white/[0.08] group-hover:border-[#38bdf8]/50 transition-colors duration-500">
                 <BookOpen className="h-5 w-5 text-[#94a3b8] group-hover:text-[#38bdf8] transition-colors duration-500" />
               </div>
-              <h3 className="text-xl font-semibold text-[#f8fafc] mb-2">Guided Lessons</h3>
-              <p className="text-[#94a3b8] text-sm leading-relaxed max-w-sm">Step-by-step paths that take you from fundamentals to precision-first mastery.</p>
+              <h3 className="text-2xl sm:text-3xl font-semibold text-white mb-3">Guided Lessons</h3>
+              <p className="text-slate-300 text-base leading-relaxed max-w-2xl">Step-by-step paths that take you from fundamentals to precision-first mastery.</p>
               
               <div className="relative mt-8 mb-4 h-[140px] flex items-center justify-center">
                 <div className="relative w-full max-w-xs flex flex-col items-start gap-4">
@@ -100,14 +102,14 @@ export default function QuickValueStrip() {
           </motion.div>
 
           {/* Card 2: Real-Time Feedback (Col span 5) */}
-          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-5 flex flex-col overflow-hidden rounded-[24px] md:rounded-[32px] border border-white/[0.06] bg-[#09090b]/60 backdrop-blur-md p-6 sm:p-8 hover:border-[#2dd4bf]/30 transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_32px_rgba(45,212,191,0.15)]">
+          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-5 flex flex-col justify-between overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/95 p-8 sm:p-10 min-h-[420px] transition-all duration-500 hover:-translate-y-1 shadow-[0_20px_50px_rgba(15,23,42,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#2dd4bf]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative flex-1 flex flex-col">
               <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-white/[0.04] p-2.5 border border-white/[0.08] group-hover:border-[#2dd4bf]/50 transition-colors duration-500">
                 <ActivitySquare className="h-5 w-5 text-[#94a3b8] group-hover:text-[#2dd4bf] transition-colors duration-500" />
               </div>
-              <h3 className="text-xl font-semibold text-[#f8fafc] mb-2">Real-Time Feedback</h3>
-              <p className="text-[#94a3b8] text-sm leading-relaxed max-w-sm">WPM, accuracy, rhythm, and consistency update instantly as you type.</p>
+              <h3 className="text-2xl font-semibold text-white mb-3">Real-Time Feedback</h3>
+              <p className="text-slate-300 text-base leading-relaxed max-w-2xl">WPM, accuracy, rhythm, and consistency update instantly as you type.</p>
               
               <div className="relative mt-8 mb-2 flex flex-col gap-3 mt-auto">
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] group-hover:bg-white/[0.04] group-hover:border-[#2dd4bf]/20 transition-colors duration-500">
@@ -143,14 +145,14 @@ export default function QuickValueStrip() {
           </motion.div>
 
           {/* Card 3: Practice Modes (Col span 5) */}
-          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-5 flex flex-col overflow-hidden rounded-[24px] md:rounded-[32px] border border-white/[0.06] bg-[#09090b]/60 backdrop-blur-md p-6 sm:p-8 hover:border-[#a855f7]/30 transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_32px_rgba(168,85,247,0.15)]">
+          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-5 flex flex-col justify-between overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/95 p-8 sm:p-10 min-h-[420px] transition-all duration-500 hover:-translate-y-1 shadow-[0_20px_50px_rgba(15,23,42,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#a855f7]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative flex-1 flex flex-col">
               <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-white/[0.04] p-2.5 border border-white/[0.08] group-hover:border-[#a855f7]/50 transition-colors duration-500">
                 <Keyboard className="h-5 w-5 text-[#94a3b8] group-hover:text-[#a855f7] transition-colors duration-500" />
               </div>
-              <h3 className="text-xl font-semibold text-[#f8fafc] mb-2">Practice Modes</h3>
-              <p className="text-[#94a3b8] text-sm leading-relaxed max-w-sm">Train with custom text, code, AI prompts, dictation, races, and focused drills.</p>
+              <h3 className="text-2xl font-semibold text-white mb-3">Practice Modes</h3>
+              <p className="text-slate-300 text-base leading-relaxed max-w-2xl">Train with custom text, code, AI prompts, dictation, races, and focused drills.</p>
               
               <div className="relative mt-8 mb-2 flex flex-col mt-auto">
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -169,14 +171,14 @@ export default function QuickValueStrip() {
           </motion.div>
 
           {/* Card 4: Progress Tracking (Col span 4) */}
-          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-4 flex flex-col overflow-hidden rounded-[24px] md:rounded-[32px] border border-white/[0.06] bg-[#09090b]/60 backdrop-blur-md p-6 sm:p-8 hover:border-[#f59e0b]/30 transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_32px_rgba(245,158,11,0.15)]">
+          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-4 flex flex-col justify-between overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/95 p-8 sm:p-10 min-h-[420px] transition-all duration-500 hover:-translate-y-1 shadow-[0_20px_50px_rgba(15,23,42,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f59e0b]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative flex-1 flex flex-col">
               <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-white/[0.04] p-2.5 border border-white/[0.08] group-hover:border-[#f59e0b]/50 transition-colors duration-500">
                 <Target className="h-5 w-5 text-[#94a3b8] group-hover:text-[#f59e0b] transition-colors duration-500" />
               </div>
-              <h3 className="text-xl font-semibold text-[#f8fafc] mb-2">Progress Tracking</h3>
-              <p className="text-[#94a3b8] text-sm leading-relaxed max-w-sm">Streaks, milestones, and habit signals that keep your growth moving forward.</p>
+              <h3 className="text-2xl font-semibold text-white mb-3">Progress Tracking</h3>
+              <p className="text-slate-300 text-base leading-relaxed max-w-2xl">Streaks, milestones, and habit signals that keep your growth moving forward.</p>
               
               <div className="relative mt-8 mt-auto">
                 <div className="flex items-end justify-between mb-4">
@@ -207,14 +209,14 @@ export default function QuickValueStrip() {
           </motion.div>
 
           {/* Card 5: Analytics (Col span 3) */}
-          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-3 flex flex-col overflow-hidden rounded-[24px] md:rounded-[32px] border border-white/[0.06] bg-[#09090b]/60 backdrop-blur-md p-6 sm:p-8 hover:border-[#f43f5e]/30 transition-all duration-500 hover:-translate-y-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_32px_rgba(244,63,94,0.15)]">
+          <motion.div variants={fadeIn} className="group relative col-span-1 lg:col-span-3 flex flex-col justify-between overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/95 p-8 sm:p-10 min-h-[420px] transition-all duration-500 hover:-translate-y-1 shadow-[0_20px_50px_rgba(15,23,42,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f43f5e]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="relative flex-1 flex flex-col">
               <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-white/[0.04] p-2.5 border border-white/[0.08] group-hover:border-[#f43f5e]/50 transition-colors duration-500">
                 <BarChart3 className="h-5 w-5 text-[#94a3b8] group-hover:text-[#f43f5e] transition-colors duration-500" />
               </div>
-              <h3 className="text-xl font-semibold text-[#f8fafc] mb-2">Analytics</h3>
-              <p className="text-[#94a3b8] text-sm leading-relaxed max-w-sm">See trends, weak zones, and measurable performance gains in every session.</p>
+              <h3 className="text-2xl font-semibold text-white mb-3">Analytics</h3>
+              <p className="text-slate-300 text-base leading-relaxed max-w-2xl">See trends, weak zones, and measurable performance gains in every session.</p>
               
               <div className="relative mt-8 flex flex-col gap-2 mt-auto">
                 <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] group-hover:bg-white/[0.04] transition-colors duration-500">

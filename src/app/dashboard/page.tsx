@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile';
 import { aggregateHeatmapFromTelemetry, parseTypingTelemetry } from '@/lib/typingTelemetry';
 import DashboardExperience, { type DashboardPayload } from './DashboardExperience';
+import DashboardV2 from '@/components/dashboard/DashboardV2';
 
 export const metadata = {
   title: 'Dashboard – TypeForge',
@@ -254,5 +255,58 @@ export default async function DashboardPage() {
     weakKeys,
   };
 
-  return <DashboardExperience payload={payload} />;
+  // Transform data for DashboardV2
+  const dashboardV2Data = {
+    progress: {
+      streakDays: payload.stats.currentStreak,
+      streakLabel: "DAY STREAK",
+      topPercent: `Top ${Math.min(5 + Math.floor((100 - payload.stats.focusScore) / 20), 30)}%`,
+      weekData: Array(7).fill(false).map((_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        return last30Sessions.some(s => getDateKey(s.sessionDate) === getDateKey(date));
+      }),
+    },
+    analytics: {
+      accuracy: payload.stats.avgAccuracy,
+      accuracyChange: `+${Math.max(0, payload.stats.trendAccuracy.toFixed(1))}%`,
+      avgSpeed: Math.round(payload.stats.avgWpm),
+      speedChange: `+${Math.max(0, payload.stats.trendWpm.toFixed(0))} WPM`,
+      weakKeys: weakKeys.slice(0, 3).map(k => k.key.slice(0, 1)),
+    },
+    lessons: {
+      steps: [
+        { name: "Beginner", status: "completed" },
+        { name: "Rhythm", status: "completed" },
+        { name: "Accuracy", status: totalLessonsCompleted > 2 ? "active" : "locked", percent: 74 },
+        { name: "Mastery", status: "locked" }
+      ],
+      tags: ["Adaptive", "Structured", "Trackable"]
+    },
+    realtime: {
+      wpm: Math.round(lastSession?.wpm ?? payload.stats.avgWpm),
+      acc: Math.round(lastSession?.accuracy ?? payload.stats.avgAccuracy),
+      rhythm: payload.stats.focusScore > 80 ? "Excellent" : payload.stats.focusScore > 60 ? "Good" : "Fair",
+      rhythmScore: payload.stats.focusScore
+    },
+    practice: {
+      modes: [
+        { label: "Code", active: false },
+        { label: "AI Prompts", active: topMode?.[0] === "ai-practice" },
+        { label: "Dictation", active: topMode?.[0] === "dictation" },
+        { label: "Sprint", active: topMode?.[0] === "race" },
+        { label: "Focus", active: topMode?.[0] === "custom-practice" }
+      ],
+      inputPlaceholder: "// Generate AI prompt"
+    }
+  };
+
+  return (
+    <>
+      <DashboardV2 {...dashboardV2Data} />
+      <br />
+      <br />
+      <DashboardExperience payload={payload} />
+    </>
+  );
 }
