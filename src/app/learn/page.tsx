@@ -1,6 +1,9 @@
 import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import LearnPathCards from './LearnPathCards';
+import { Outfit } from 'next/font/google';
+
+const outfit = Outfit({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'TypeForge – Learning Paths',
@@ -25,39 +28,34 @@ export default async function LearnPage() {
 
   return (
     <>
-      <main className="relative min-h-screen overflow-hidden bg-[#02050b]">
-        {/* Background */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,#02050b_0%,#040810_50%,#02050b_100%)]" />
-          <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(79,141,253,0.08),transparent_70%)]" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4f8dfd]/30 to-transparent" />
+      <main className={`relative min-h-screen bg-[#000000] selection:bg-zinc-800 ${outfit.className}`}>
+        {/* Sleek, Dark Noise & Gradient Background */}
+        <div className="pointer-events-none absolute inset-0 z-0">
+           {/* Spotlight at the top center */}
+           <div className="absolute left-1/2 top-[-20%] h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-zinc-800/15 blur-[120px]" />
+           {/* Grid */}
+           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-28 pb-20 sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pt-32 pb-24 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-16 max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#6fa7ff]/30 bg-[#07142c]/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#9fcbff] shadow-[0_0_32px_rgba(79,141,253,0.15)] backdrop-blur-xl">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#6fa7ff] animate-pulse" />
-              Choose Your Path
+          <div className="mb-16 flex flex-col items-center text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-zinc-300 backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+              Learning Paths
             </span>
-            <h1 className="mt-6 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[0.95]">
-              Pick your{' '}
-              <span className="relative inline-block">
-                <span className="relative z-10 bg-gradient-to-r from-[#6fa7ff] via-[#b36bff] to-[#fbbf24] bg-clip-text text-transparent">
-                  route.
-                </span>
-              </span>
-              <br />
-              <span className="text-white/30">Move cleaner.</span>
+            <h1 className="mt-8 text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1]">
+              Master the keyboard. <br/>
+              <span className="text-zinc-500">Move cleaner.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-[16px] leading-relaxed text-[#7a8ba8]">
+            <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-zinc-400">
               Three paths. One goal — precision-first typing that sticks. Pick your level and let structured practice do the rest.
             </p>
           </div>
 
           {/* Path Sections */}
           {serializedPaths.length === 0 ? (
-            <p className="text-white/40">No paths yet.</p>
+            <p className="text-center text-zinc-600 mt-20">No paths available yet.</p>
           ) : (
             <LearnPathCards paths={serializedPaths} />
           )}

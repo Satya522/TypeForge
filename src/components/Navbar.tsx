@@ -86,6 +86,76 @@ export default function Navbar() {
 
   const navRef = useRef<HTMLDivElement>(null)
 
+  const AUTO_HIDE_PATHS = ['/learn', '/practice', '/roadmap', '/games', '/analytics']
+  const shouldApplyAutoHide = AUTO_HIDE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+
+  const isIdleRef = useRef(false)
+  const idleTimerRef = useRef<number | null>(null)
+  const [isIdle, setIsIdle] = useState(false)
+
+  // Interaction tracking for auto-hide paths
+  useEffect(() => {
+    if (!shouldApplyAutoHide) {
+      setIsIdle(false)
+      isIdleRef.current = false
+      return
+    }
+
+    const resetIdle = (options?: { forceReveal?: boolean }) => {
+      setIsIdle(false)
+      isIdleRef.current = false
+      if (options?.forceReveal) {
+        setNavHidden(false)
+      }
+      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current)
+      idleTimerRef.current = window.setTimeout(() => {
+        setIsIdle(true)
+        isIdleRef.current = true
+      }, 3000)
+    }
+
+    resetIdle()
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (e.clientY <= 80) {
+        resetIdle({ forceReveal: true })
+      } else if (!isIdleRef.current) {
+        resetIdle()
+      }
+    }
+
+    const onKeyDown = () => {
+      resetIdle({ forceReveal: true })
+    }
+
+    const onClick = () => {
+      resetIdle({ forceReveal: true })
+    }
+
+    const onScroll = () => {
+      resetIdle()
+    }
+
+    const onFocusIn = () => {
+      resetIdle({ forceReveal: true })
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('click', onClick)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('focusin', onFocusIn)
+
+    return () => {
+      if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current)
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('click', onClick)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('focusin', onFocusIn)
+    }
+  }, [shouldApplyAutoHide])
+
   const handleSignOut = useCallback(() => {
     void signOut({ callbackUrl: '/login' })
   }, [])
@@ -223,6 +293,7 @@ export default function Navbar() {
   }
 
   const fullNavIsHidden = navHidden && !isBrowseMenuOpen
+  const isDesktopIdle = shouldApplyAutoHide && isIdle
 
   return (
     <>
@@ -234,8 +305,8 @@ export default function Navbar() {
         ref={navRef}
         variants={prefersReducedMotion ? undefined : fullHeaderVariants}
         initial="visible"
-        animate={fullNavIsHidden ? 'hidden' : 'visible'}
-        style={{ pointerEvents: fullNavIsHidden ? 'none' : 'auto' }}
+        animate={fullNavIsHidden || isDesktopIdle ? 'hidden' : 'visible'}
+        style={{ pointerEvents: fullNavIsHidden || isDesktopIdle ? 'none' : 'auto' }}
         className="fixed top-0 left-0 right-0 z-50 hidden pt-3.5 lg:block"
       >
         <div className="mx-auto flex w-[min(calc(100%-32px),1240px)] items-center justify-center">
@@ -306,8 +377,8 @@ export default function Navbar() {
       <motion.div
         variants={prefersReducedMotion ? undefined : compactVariants}
         initial="hidden"
-        animate={fullNavIsHidden ? 'visible' : 'hidden'}
-        style={{ pointerEvents: fullNavIsHidden ? 'auto' : 'none' }}
+        animate={(fullNavIsHidden && !isDesktopIdle) ? 'visible' : 'hidden'}
+        style={{ pointerEvents: (fullNavIsHidden && !isDesktopIdle) ? 'auto' : 'none' }}
         className="nav-noise fixed left-5 top-4 z-50 hidden items-center rounded-full border border-white/[0.1] bg-gradient-to-b from-[#111827]/95 to-[#0a1120]/95 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl lg:flex"
       >
         <NavBrand pathname={pathname} compact />
@@ -320,8 +391,8 @@ export default function Navbar() {
       <motion.div
         variants={prefersReducedMotion ? undefined : compactVariants}
         initial="hidden"
-        animate={fullNavIsHidden ? 'visible' : 'hidden'}
-        style={{ pointerEvents: fullNavIsHidden ? 'auto' : 'none' }}
+        animate={(fullNavIsHidden && !isDesktopIdle) ? 'visible' : 'hidden'}
+        style={{ pointerEvents: (fullNavIsHidden && !isDesktopIdle) ? 'auto' : 'none' }}
         className="fixed top-4 right-5 z-50 hidden items-center gap-2.5 lg:flex"
       >
         <Link href="/register">

@@ -70,22 +70,24 @@ export default function DictationPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl py-16 px-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-4">Dictation Practice</h1>
-      <p className="text-gray-300 max-w-prose">
-        Speak into your microphone and see your words transcribed in real time. Use
-        this mode to practice clear articulation and become familiar with
-        dictation-based workflows.
-      </p>
-      {error && <p className="text-red-400">{error}</p>}
-      <div className="flex items-center gap-4">
-        <Button variant={listening ? 'secondary' : 'primary'} onClick={toggleListening}>
-          {listening ? 'Stop' : 'Start'} Dictation
-        </Button>
-        {listening && <span className="text-sm text-gray-400">Listening...</span>}
-      </div>
-      <div className="border border-surface-300 rounded-lg p-4 bg-surface-200 min-h-[200px] whitespace-pre-wrap">
-        {transcript || <span className="text-gray-500">Your transcription will appear here.</span>}
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
+      <div className="mx-auto max-w-3xl py-16 px-6 space-y-6 flex-1">
+        <h1 className="text-3xl font-bold mb-4">Dictation Practice</h1>
+        <p className="text-gray-300 max-w-prose">
+          Speak into your microphone and see your words transcribed in real time. Use
+          this mode to practice clear articulation and become familiar with
+          dictation-based workflows.
+        </p>
+        {error && <p className="text-red-400">{error}</p>}
+        <div className="flex items-center gap-4">
+          <Button variant={listening ? 'secondary' : 'primary'} onClick={toggleListening}>
+            {listening ? 'Stop' : 'Start'} Dictation
+          </Button>
+          {listening && <span className="text-sm text-gray-400">Listening...</span>}
+        </div>
+        <div className="border border-surface-300 rounded-lg p-4 bg-surface-200 min-h-[200px] whitespace-pre-wrap">
+          {transcript || <span className="text-gray-500">Your transcription will appear here.</span>}
+        </div>
       </div>
     </div>
   );

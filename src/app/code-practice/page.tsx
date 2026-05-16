@@ -9,9 +9,8 @@ export const metadata = {
 
 export default function CodePracticePage() {
   return (
-    <>
-      
-      <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl">
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
+      <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl flex-1">
         <h1 className="text-3xl font-bold text-gray-100 mb-4">Code Practice</h1>
         <p className="text-gray-400 mb-6">
           Fetch a code snippet from a public GitHub Gist and practice typing it with syntax
@@ -20,6 +19,6 @@ export default function CodePracticePage() {
         <CodePracticeClient />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

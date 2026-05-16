@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import {
   ActivitySquare,
@@ -25,6 +26,12 @@ import {
 const lessonSteps = ['Beginner', 'Rhythm', 'Accuracy (74%)', 'Mastery'];
 const practiceModes = ['Code', 'AI Prompts', 'Dictation', 'Sprint', 'Focus'];
 const weakKeys = ['X', 'C', 'P'];
+const reelNavItems = [
+  { label: 'Dashboard', href: '/dashboard', Icon: BarChart3 },
+  { label: 'Lessons', href: '/learn', Icon: GraduationCap },
+  { label: 'Practice', href: '/practice', Icon: Target },
+  { label: 'Analytics', href: '/analytics', Icon: LineChart },
+] as const;
 
 export default function PremiumFeatureSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -173,23 +180,16 @@ export default function PremiumFeatureSection() {
                     </span>
                   </div>
                   <div className="space-y-3">
-                    {[
-                      ['Dashboard', BarChart3],
-                      ['Lessons', GraduationCap],
-                      ['Practice', Target],
-                      ['Analytics', LineChart],
-                    ].map(([label, Icon]) => {
-                      const NavIcon = Icon as LucideIcon;
-                      return (
-                        <div
-                          key={label as string}
-                          className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.035] px-2.5 py-2 text-[clamp(0.52rem,0.82vw,0.72rem)] font-medium text-[#aebbe0]"
-                        >
-                          <NavIcon className="h-3.5 w-3.5 text-[#6fa7ff]" />
-                          <span>{label as string}</span>
-                        </div>
-                      );
-                    })}
+                    {reelNavItems.map(({ label, href, Icon }) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.035] px-2.5 py-2 text-[clamp(0.52rem,0.82vw,0.72rem)] font-medium text-[#aebbe0] transition-colors duration-300 hover:border-[#6fa7ff]/35 hover:bg-[#6fa7ff]/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6fa7ff]/80"
+                      >
+                        <Icon className="h-3.5 w-3.5 text-[#6fa7ff]" />
+                        <span>{label}</span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
 
@@ -216,6 +216,7 @@ export default function PremiumFeatureSection() {
                       style={{ x: reelX }}
                     >
                       <FeatureCard
+                        href="/learn/beginner"
                         accent="#6fa7ff"
                         Icon={GraduationCap}
                         label="Structured Learning"
@@ -261,6 +262,7 @@ export default function PremiumFeatureSection() {
                       </FeatureCard>
 
                       <FeatureCard
+                        href="/practice/words"
                         accent="#2dd4bf"
                         Icon={ActivitySquare}
                         label="Live Signals"
@@ -299,6 +301,7 @@ export default function PremiumFeatureSection() {
                       </FeatureCard>
 
                       <FeatureCard
+                        href="/practice"
                         accent="#b36bff"
                         Icon={Bot}
                         label="Custom Sessions"
@@ -330,6 +333,7 @@ export default function PremiumFeatureSection() {
                       </FeatureCard>
 
                       <FeatureCard
+                        href="/achievements"
                         accent="#ffd21f"
                         Icon={Zap}
                         label="Momentum"
@@ -363,6 +367,7 @@ export default function PremiumFeatureSection() {
                       </FeatureCard>
 
                       <FeatureCard
+                        href="/analytics"
                         accent="#ff7ac8"
                         Icon={Gauge}
                         label="Precision Data"
@@ -400,6 +405,7 @@ export default function PremiumFeatureSection() {
                       </FeatureCard>
 
                       <FeatureCard
+                        href="/achievements"
                         accent="#f59e0b"
                         Icon={Trophy}
                         label="Milestones"
@@ -471,6 +477,7 @@ export default function PremiumFeatureSection() {
 }
 
 function FeatureCard({
+  href,
   accent,
   Icon,
   label,
@@ -478,6 +485,7 @@ function FeatureCard({
   description,
   children,
 }: {
+  href: string;
   accent: string;
   Icon: LucideIcon;
   label: string;
@@ -486,32 +494,37 @@ function FeatureCard({
   children: ReactNode;
 }) {
   return (
-    <article
-      className="group relative flex h-[min(88%,500px)] w-[min(76vw,310px)] shrink-0 flex-col overflow-hidden rounded-[28px] border border-white/[0.1] bg-[#080d19]/92 p-4 shadow-[0_26px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:w-[min(38vw,420px)] sm:p-5 lg:w-[390px] lg:p-6"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at 18% 12%, ${accent}24, transparent 34%),
-          linear-gradient(145deg, ${accent}16, rgba(8,13,25,0.95) 34%, rgba(6,10,20,0.98))
-        `,
-      }}
+    <Link
+      href={href}
+      className="group relative flex h-[min(88%,500px)] w-[min(76vw,310px)] shrink-0 rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/80 sm:w-[min(38vw,420px)] lg:w-[390px]"
     >
-      <div className="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:34px_34px]" />
-      <div className="absolute inset-x-8 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
-      <div className="relative mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-white/[0.055] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-          <Icon className="h-[18px] w-[18px]" style={{ color: accent }} />
+      <article
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/[0.1] bg-[#080d19]/92 p-4 shadow-[0_26px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl transition-transform duration-300 group-hover:-translate-y-1 sm:p-5 lg:p-6"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 18% 12%, ${accent}24, transparent 34%),
+            linear-gradient(145deg, ${accent}16, rgba(8,13,25,0.95) 34%, rgba(6,10,20,0.98))
+          `,
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:34px_34px]" />
+        <div className="absolute inset-x-8 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
+        <div className="relative mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-white/[0.055] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <Icon className="h-[18px] w-[18px]" style={{ color: accent }} />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: accent }}>
+            {label}
+          </span>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: accent }}>
-          {label}
-        </span>
-      </div>
-      <h3 className="relative text-lg font-black leading-tight tracking-normal text-[#f8fafc] sm:text-2xl">
-        {title}
-      </h3>
-      <p className="relative mt-2 text-[11px] leading-5 text-[#a3acc9] sm:text-sm sm:leading-6">
-        {description}
-      </p>
-      <div className="relative flex flex-1 flex-col pt-4">{children}</div>
-    </article>
+        <h3 className="relative text-lg font-black leading-tight tracking-normal text-[#f8fafc] sm:text-2xl">
+          {title}
+        </h3>
+        <p className="relative mt-2 text-[11px] leading-5 text-[#a3acc9] sm:text-sm sm:leading-6">
+          {description}
+        </p>
+        <div className="relative flex flex-1 flex-col pt-4">{children}</div>
+      </article>
+    </Link>
   );
 }

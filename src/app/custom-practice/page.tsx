@@ -25,13 +25,12 @@ export default async function CustomPracticePage() {
     redirect('/login?callbackUrl=/custom-practice');
   }
   return (
-    <>
-      
-      <main className="pt-24 pb-12 px-6 mx-auto max-w-3xl">
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
+      <main className="pt-24 pb-12 px-6 mx-auto max-w-3xl flex-1">
         <h1 className="text-3xl font-bold text-gray-100 mb-4">Custom Practice</h1>
         <CustomPracticeForm />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

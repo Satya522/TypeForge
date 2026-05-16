@@ -17,9 +17,8 @@ export const metadata = {
  */
 export default function AIPracticePage() {
   return (
-    <>
-      
-      <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl space-y-6">
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
+      <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl space-y-6 flex-1">
         <h1 className="text-3xl font-bold text-gray-100">AI Generated Practice</h1>
         <p className="text-gray-300">
           Choose an interest and let our AI generate fresh content for you to type.
@@ -28,6 +27,6 @@ export default function AIPracticePage() {
         <AIPracticeClient />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

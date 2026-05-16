@@ -17,9 +17,9 @@ const typingLines = [
 ];
 
 const floatingStats = [
-  { icon: Zap, label: 'WPM', value: 92, suffix: '', color: 'text-[#58a6ff]', gradient: 'from-[#a5d6ff] to-[#388bfd]', glow: 'drop-shadow-[0_0_12px_rgba(88,166,255,0.45)]' },
-  { icon: Target, label: 'Accuracy', value: 98, suffix: '%', color: 'text-[#56d364]', gradient: 'from-[#7ee787] to-[#2ea043]', glow: 'drop-shadow-[0_0_12px_rgba(86,211,100,0.45)]' },
-  { icon: Flame, label: 'Streak', value: 14, suffix: 'd', color: 'text-[#ffa657]', gradient: 'from-[#ffd8a8] to-[#db6d28]', glow: 'drop-shadow-[0_0_12px_rgba(255,166,87,0.45)]' },
+  { href: '/analytics', icon: Zap, label: 'WPM', value: 92, suffix: '', color: 'text-[#58a6ff]', gradient: 'from-[#a5d6ff] to-[#388bfd]', glow: 'drop-shadow-[0_0_12px_rgba(88,166,255,0.45)]' },
+  { href: '/analytics', icon: Target, label: 'Accuracy', value: 98, suffix: '%', color: 'text-[#56d364]', gradient: 'from-[#7ee787] to-[#2ea043]', glow: 'drop-shadow-[0_0_12px_rgba(86,211,100,0.45)]' },
+  { href: '/achievements', icon: Flame, label: 'Streak', value: 14, suffix: 'd', color: 'text-[#ffa657]', gradient: 'from-[#ffd8a8] to-[#db6d28]', glow: 'drop-shadow-[0_0_12px_rgba(255,166,87,0.45)]' },
 ];
 
 /* ── Keyboard keys ── */
@@ -305,26 +305,31 @@ export default function Hero() {
             {floatingStats.map((stat, i) => {
               const Icon = stat.icon;
               return (
-                <motion.div
+                <Link
                   key={stat.label}
-                  variants={statItemVariants}
-                  className="group flex flex-col items-center"
-                  whileHover={{ y: -8, scale: 1.05 }}
+                  href={stat.href}
+                  className="group inline-flex rounded-2xl px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
                 >
-                  <div className="relative mb-3">
-                    <Icon className={`h-5 w-5 ${stat.color} transition-all group-hover:scale-110`} />
-                    <div className={`absolute inset-0 ${stat.color} blur-lg opacity-0 transition-opacity group-hover:opacity-40`} />
-                  </div>
-                  <span
-                    className={`bg-gradient-to-b ${stat.gradient} ${stat.glow} bg-clip-text text-[36px] font-bold tabular-nums text-transparent sm:text-[44px]`}
-                    style={{ fontFamily: "'Google Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
+                  <motion.div
+                    variants={statItemVariants}
+                    className="flex flex-col items-center"
+                    whileHover={{ y: -8, scale: 1.05 }}
                   >
-                    {counters[i]}{stat.suffix}
-                  </span>
-                  <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8b949e] sm:text-xs">
-                    {stat.label}
-                  </span>
-                </motion.div>
+                    <div className="relative mb-3">
+                      <Icon className={`h-5 w-5 ${stat.color} transition-all group-hover:scale-110`} />
+                      <div className={`absolute inset-0 ${stat.color} blur-lg opacity-0 transition-opacity group-hover:opacity-40`} />
+                    </div>
+                    <span
+                      className={`bg-gradient-to-b ${stat.gradient} ${stat.glow} bg-clip-text text-[36px] font-bold tabular-nums text-transparent sm:text-[44px]`}
+                      style={{ fontFamily: "'Google Sans', system-ui, sans-serif", letterSpacing: '-0.02em' }}
+                    >
+                      {counters[i]}{stat.suffix}
+                    </span>
+                    <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8b949e] sm:text-xs">
+                      {stat.label}
+                    </span>
+                  </motion.div>
+                </Link>
               );
             })}
           </motion.div>
@@ -337,45 +342,50 @@ export default function Hero() {
             className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]"
           >
             {/* Terminal */}
-            <motion.div
-              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
-              whileHover={{ boxShadow: '0 0 0 1px rgba(111,167,255,0.16), 0 34px 110px rgba(0,0,0,0.64)' }}
+            <Link
+              href="/code-practice"
+              className="group block rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(111,167,255,0.16),transparent_30%),linear-gradient(145deg,rgba(255,255,255,0.045),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
+              <motion.div
+                className="relative flex min-h-[274px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
+                whileHover={{ boxShadow: '0 0 0 1px rgba(111,167,255,0.16), 0 34px 110px rgba(0,0,0,0.64)' }}
+              >
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(111,167,255,0.16),transparent_30%),linear-gradient(145deg,rgba(255,255,255,0.045),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
 
-              {/* Terminal header */}
-              <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-[#030711]/50 px-6 py-4 backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_8px_rgba(255,95,87,0.4)]" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] shadow-[0_0_8px_rgba(254,188,46,0.4)]" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] shadow-[0_0_8px_rgba(40,200,64,0.4)]" />
+                {/* Terminal header */}
+                <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-[#030711]/50 px-6 py-4 backdrop-blur-md">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_8px_rgba(255,95,87,0.4)]" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] shadow-[0_0_8px_rgba(254,188,46,0.4)]" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] shadow-[0_0_8px_rgba(40,200,64,0.4)]" />
+                  </div>
+                  <div className="absolute left-1/2 flex -translate-x-1/2 items-center">
+                    <span className="font-code bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-bold tracking-normal text-transparent">
+                      typeforge://session
+                    </span>
+                  </div>
                 </div>
-                <div className="absolute left-1/2 flex -translate-x-1/2 items-center">
-                  <span className="font-code bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-bold tracking-normal text-transparent">
-                    typeforge://session
+
+                {/* Terminal body */}
+                <div className="font-code relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8">
+                  <TypingSimulator />
+                </div>
+
+                {/* Bottom status bar */}
+                <div className="font-code mt-auto flex items-center justify-between border-t border-white/[0.06] bg-[#030711]/50 px-6 py-3.5 text-[10px] font-bold uppercase tracking-normal text-[#64748b] backdrop-blur-md">
+                  <span>UTF-8</span>
+                  <span className="flex items-center gap-2 text-[#2dd4bf]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
+                    LIVE
                   </span>
+                  <span>LN 1, COL 1</span>
                 </div>
-              </div>
-
-              {/* Terminal body */}
-              <div className="font-code relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8">
-                <TypingSimulator />
-              </div>
-
-              {/* Bottom status bar */}
-              <div className="font-code mt-auto flex items-center justify-between border-t border-white/[0.06] bg-[#030711]/50 px-6 py-3.5 text-[10px] font-bold uppercase tracking-normal text-[#64748b] backdrop-blur-md">
-                <span>UTF-8</span>
-                <span className="flex items-center gap-2 text-[#2dd4bf]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
-                  LIVE
-                </span>
-                <span>LN 1, COL 1</span>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
 
             {/* Keyboard visualization */}
-            <div className="relative h-full">
+            <Link href="/practice/home-row" className="relative block h-full rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70">
               <div
                 className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 p-5 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:p-6"
               >
@@ -441,7 +451,7 @@ export default function Hero() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </motion.div>
         </div>
       </div>

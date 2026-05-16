@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const learningPaths = [
   {
-    href: '/learn?level=beginner',
+    href: '/learn/beginner',
     title: 'Beginner',
     description: 'Start with posture, rhythm, and clean key reach before pushing speed.',
     lessons: '18 lessons',
@@ -24,7 +24,7 @@ const learningPaths = [
     color: '#4f8dfd',
   },
   {
-    href: '/learn?view=home-row',
+    href: '/practice/home-row',
     title: 'Home Row',
     description: 'Dial in finger placement and muscle memory with focused core drills.',
     lessons: '12 drills',
@@ -37,7 +37,7 @@ const learningPaths = [
     color: '#6fa7ff',
   },
   {
-    href: '/learn?track=speed',
+    href: '/practice/time-60',
     title: 'Speed Building',
     description: 'Increase WPM while keeping rhythm, control, and accuracy in balance.',
     lessons: '14 sessions',
@@ -50,7 +50,7 @@ const learningPaths = [
     color: '#7b61ff',
   },
   {
-    href: '/learn?level=advanced',
+    href: '/practice/punctuation',
     title: 'Advanced',
     description: 'Take on dense passages, complex drills, and high-precision reps.',
     lessons: '16 lessons',

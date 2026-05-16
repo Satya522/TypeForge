@@ -124,10 +124,10 @@ function HandOverlay({ side, activeFinger }: { side:'left'|'right', activeFinger
   return (
     <svg width="80" height="56" viewBox="0 0 80 56" className="shrink-0">
       {/* Palm */}
-      <rect x="8" y="36" width="64" height="18" rx="9" fill="#111" stroke="#1a1a1a" strokeWidth="1" />
+      <rect x="8" y="36" width="64" height="18" rx="9" fill="#090e17" stroke="#111826" strokeWidth="1" />
       {fingers.map(f => {
         const isActive = activeFinger === f.id;
-        const color = isActive ? (FINGER_COLORS[f.id] || '#39FF14') : '#1c1c1c';
+        const color = isActive ? (FINGER_COLORS[f.id] || '#39FF14') : '#111826';
         const y = 36 - f.h;
         return (
           <g key={f.id}>
@@ -236,9 +236,9 @@ export default function VirtualKeyboard({ targetChar, lastStatus, lastTypedChar 
       <div
         className="w-full rounded-2xl p-[6px] sm:p-2"
         style={{
-          background: 'linear-gradient(180deg, #141414 0%, #0a0a0a 100%)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, #090e17 0%, #04080f 100%)',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         <div className="flex flex-col gap-[3px] sm:gap-1">
@@ -272,15 +272,15 @@ export default function VirtualKeyboard({ targetChar, lastStatus, lastTypedChar 
                           : isWrong
                             ? 'linear-gradient(180deg, #ef444488 0%, #ef444444 100%)'
                             : key.isAnchor
-                              ? 'linear-gradient(180deg, rgba(57,255,20,0.1) 0%, rgba(57,255,20,0.02) 100%)'
-                              : 'linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%)',
+                              ? 'linear-gradient(180deg, rgba(57,255,20,0.15) 0%, rgba(57,255,20,0.05) 100%)'
+                              : 'linear-gradient(180deg, #111826 0%, #0a0e16 100%)',
                         boxShadow: isHighlighted
                           ? `0 0 16px ${activeFingerColor}40, 0 2px 4px rgba(0,0,0,0.5)`
                           : isWrong
                             ? '0 0 12px rgba(239,68,68,0.3), 0 2px 4px rgba(0,0,0,0.5)'
                             : key.isAnchor
                               ? '0 0 8px rgba(57,255,20,0.1), 0 2px 4px rgba(0,0,0,0.4)'
-                              : '0 2px 4px rgba(0,0,0,0.4)',
+                              : '0 2px 6px rgba(0,0,0,0.6)',
                         transform: isPressed ? 'translateY(1px)' : 'translateY(0)',
                       }}
                     >
@@ -298,24 +298,24 @@ export default function VirtualKeyboard({ targetChar, lastStatus, lastTypedChar 
                               : isCorrect
                                 ? 'linear-gradient(180deg, #166534 0%, #14532d 100%)'
                                 : key.isAnchor
-                                  ? 'linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(10,10,10,1) 100%)'
-                                  : 'linear-gradient(180deg, #1e1e1e 0%, #161616 100%)',
+                                  ? 'linear-gradient(180deg, rgba(16,24,38,1) 0%, rgba(10,15,25,1) 100%)'
+                                  : 'linear-gradient(180deg, #192436 0%, #111826 100%)',
                           boxShadow: isPressed
-                            ? 'inset 0 1px 3px rgba(0,0,0,0.4)'
-                            : 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.2)',
+                            ? 'inset 0 1px 3px rgba(0,0,0,0.6)'
+                            : 'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)',
                           border: isHighlighted
                             ? `1px solid ${activeFingerColor}66`
                             : key.isAnchor
-                              ? '1px solid rgba(57,255,20,0.3)'
-                              : '1px solid rgba(255,255,255,0.05)',
+                              ? '1px solid rgba(57,255,20,0.4)'
+                              : '1px solid rgba(255,255,255,0.06)',
                         }}
                       >
                         {/* Key labels */}
                         {key.top ? (
                           <div className="flex flex-col items-center leading-none gap-0">
                             <span
-                              className="text-[7px] sm:text-[8px] leading-none opacity-40 font-medium"
-                              style={{ color: isHighlighted ? '#000' : key.isAnchor ? '#39FF14' : '#888' }}
+                              className="text-[7px] sm:text-[8px] leading-none opacity-50 font-medium"
+                              style={{ color: isHighlighted ? '#000' : key.isAnchor ? '#39FF14' : '#94a3b8' }}
                             >
                               {key.top}
                             </span>
@@ -323,7 +323,7 @@ export default function VirtualKeyboard({ targetChar, lastStatus, lastTypedChar 
                               className={cn(
                                 "text-[9px] sm:text-[10px] md:text-[11px] leading-none font-semibold",
                               )}
-                              style={{ color: isHighlighted ? '#000' : isWrong ? '#fff' : key.isAnchor ? '#39FF14' : '#999' }}
+                              style={{ color: isHighlighted ? '#000' : isWrong ? '#fff' : key.isAnchor ? '#39FF14' : '#cbd5e1' }}
                             >
                               {key.bot}
                             </span>
@@ -337,7 +337,7 @@ export default function VirtualKeyboard({ targetChar, lastStatus, lastTypedChar 
                               "text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wide",
                               key.bot.length > 3 ? "text-[7px] sm:text-[8px]" : ""
                             )}
-                            style={{ color: isHighlighted ? '#000' : isWrong ? '#fff' : key.isAnchor ? '#39FF14' : '#888' }}
+                            style={{ color: isHighlighted ? '#000' : isWrong ? '#fff' : key.isAnchor ? '#39FF14' : '#cbd5e1' }}
                           >
                             {key.bot}
                           </span>

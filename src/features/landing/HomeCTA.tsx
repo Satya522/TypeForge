@@ -6,6 +6,7 @@ import { ArrowRight, BookOpen, Gauge, Keyboard, Rocket, Sparkles, Target } from 
 
 const trainingSignals = [
   {
+    href: '/learn/beginner',
     label: 'Start clean',
     detail: 'Guided lessons put posture, rhythm, and reach in order first.',
     stat: '01',
@@ -13,6 +14,7 @@ const trainingSignals = [
     color: '#4f8dfd',
   },
   {
+    href: '/practice',
     label: 'Drill sharp',
     detail: 'Switch into custom text, code, AI prompts, dictation, or race pressure.',
     stat: '05',
@@ -20,6 +22,7 @@ const trainingSignals = [
     color: '#a78bfa',
   },
   {
+    href: '/analytics',
     label: 'Raise pace',
     detail: 'Use analytics to fix drift before you push for raw speed.',
     stat: '98%',
@@ -73,38 +76,43 @@ export default function HomeCTA() {
           {trainingSignals.map((signal) => {
             const Icon = signal.icon;
             return (
-              <motion.div
+              <Link
                 key={signal.label}
-                className="group relative min-h-[290px] overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-6 sm:p-7"
-                whileHover={{ y: -7, scale: 1.015 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                style={{
-                  background: `radial-gradient(circle at 12% 0%, ${signal.color}24, transparent 34%), linear-gradient(135deg, rgba(8,13,24,0.96), rgba(2,5,11,0.98))`,
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
-                }}
+                href={signal.href}
+                className="group block h-full rounded-[1.35rem] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
               >
-                <div
-                  className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full opacity-35 blur-3xl transition-opacity duration-500 group-hover:opacity-70"
-                  style={{ backgroundColor: signal.color }}
-                />
-                <div className="relative flex items-start justify-between gap-4">
+                <motion.div
+                  className="relative flex h-full min-h-[290px] flex-col overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-6 sm:p-7"
+                  whileHover={{ y: -7, scale: 1.015 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  style={{
+                    background: `radial-gradient(circle at 12% 0%, ${signal.color}24, transparent 34%), linear-gradient(135deg, rgba(8,13,24,0.96), rgba(2,5,11,0.98))`,
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
+                  }}
+                >
                   <div
-                    className="grid h-12 w-12 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04]"
-                    style={{ color: signal.color }}
-                  >
-                    <Icon className="h-5 w-5" />
+                    className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full opacity-35 blur-3xl transition-opacity duration-500 group-hover:opacity-70"
+                    style={{ backgroundColor: signal.color }}
+                  />
+                  <div className="relative flex items-start justify-between gap-4">
+                    <div
+                      className="grid h-12 w-12 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04]"
+                      style={{ color: signal.color }}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-[clamp(2.2rem,4.5vw,4rem)] font-black leading-none tabular-nums" style={{ color: signal.color }}>
+                      {signal.stat}
+                    </span>
                   </div>
-                  <span className="text-[clamp(2.2rem,4.5vw,4rem)] font-black leading-none tabular-nums" style={{ color: signal.color }}>
-                    {signal.stat}
-                  </span>
-                </div>
 
-                <div className="relative mt-12">
-                  <span className="text-[10px] font-black uppercase tracking-[0.28em] text-slate-500">Training signal</span>
-                  <h3 className="mt-2 text-2xl font-black tracking-normal text-white sm:text-3xl">{signal.label}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-[15px]">{signal.detail}</p>
-                </div>
-              </motion.div>
+                  <div className="relative mt-12">
+                    <span className="text-[10px] font-black uppercase tracking-[0.28em] text-slate-500">Training signal</span>
+                    <h3 className="mt-2 text-2xl font-black tracking-normal text-white sm:text-3xl">{signal.label}</h3>
+                    <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-[15px]">{signal.detail}</p>
+                  </div>
+                </motion.div>
+              </Link>
             );
           })}
         </motion.div>

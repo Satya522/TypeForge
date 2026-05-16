@@ -44,49 +44,51 @@ export default function RacePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl py-16 px-6">
-      <h1 className="text-3xl font-bold mb-4">Real-time Race</h1>
-      {!joined ? (
-        <div className="space-y-4">
-          <p className="text-gray-300">Join a race and compete against others in real time. This demo uses simulated opponents.</p>
-          <Button onClick={handleJoin}>Join Race</Button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {!started ? (
-            <div className="space-y-4">
-              <p className="text-gray-300">You have joined the lobby. Click start when ready!</p>
-              <Button onClick={handleStart}>Start Race</Button>
-            </div>
-          ) : (
-            <div className="space-y-8">
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
+      <div className="mx-auto max-w-4xl py-16 px-6 flex-1">
+        <h1 className="text-3xl font-bold mb-4">Real-time Race</h1>
+        {!joined ? (
+          <div className="space-y-4">
+            <p className="text-gray-300">Join a race and compete against others in real time. This demo uses simulated opponents.</p>
+            <Button onClick={handleJoin}>Join Race</Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {!started ? (
               <div className="space-y-4">
-                {progress.map((p) => (
-                  <div key={p.name} className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>{p.name}</span>
-                      <span>{p.wpm.toFixed(1)} WPM</span>
-                    </div>
-                    <div className="h-2 bg-surface-300 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-accent-200 transition-all"
-                        style={{ width: `${p.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                <p className="text-gray-300">You have joined the lobby. Click start when ready!</p>
+                <Button onClick={handleStart}>Start Race</Button>
               </div>
-              <div className="border border-surface-300 rounded-md p-4">
-                <p className="text-gray-300">
-                  In a real race you would type a shared text and compete for the highest
-                  WPM. This demo does not include the typing engine but shows how
-                  competitor progress could be displayed.
-                </p>
+            ) : (
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  {progress.map((p) => (
+                    <div key={p.name} className="space-y-2">
+                      <div className="flex justify-between text-sm text-gray-400">
+                        <span>{p.name}</span>
+                        <span>{p.wpm.toFixed(1)} WPM</span>
+                      </div>
+                      <div className="h-2 bg-surface-300 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-accent-200 transition-all"
+                          style={{ width: `${p.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border border-surface-300 rounded-md p-4">
+                  <p className="text-gray-300">
+                    In a real race you would type a shared text and compete for the highest
+                    WPM. This demo does not include the typing engine but shows how
+                    competitor progress could be displayed.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

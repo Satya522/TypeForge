@@ -2,8 +2,9 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Activity, BarChart3, Flame, Gauge, LineChart, Target, TrendingUp } from 'lucide-react';
+import { Activity, ArrowRight, BarChart3, Flame, Gauge, LineChart, Target, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -20,16 +21,22 @@ const trendData = [
 ];
 
 const metricCards = [
-  { label: 'WPM', value: 78, suffix: '', detail: '+18% this week', signal: 'Speed lift', color: '#4f8dfd', icon: Gauge },
-  { label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', signal: 'Clean hits', color: '#55f0a3', icon: Target },
-  { label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', signal: 'Low wobble', color: '#a78bfa', icon: Activity },
-  { label: 'Streak', value: 14, suffix: '', detail: 'Days active', signal: 'Habit heat', color: '#ffd43b', icon: Flame },
+  { href: '/analytics', label: 'WPM', value: 78, suffix: '', detail: '+18% this week', signal: 'Speed lift', color: '#4f8dfd', icon: Gauge },
+  { href: '/analytics', label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', signal: 'Clean hits', color: '#55f0a3', icon: Target },
+  { href: '/analytics', label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', signal: 'Low wobble', color: '#a78bfa', icon: Activity },
+  { href: '/achievements', label: 'Streak', value: 14, suffix: '', detail: 'Days active', signal: 'Habit heat', color: '#ffd43b', icon: Flame },
 ] as const;
 
 const insightItems = [
-  { label: 'Weak zone', value: 'Punctuation', detail: '12% more errors than letters', color: '#ff5fa2' },
-  { label: 'Best mode', value: 'Code Practice', detail: 'Highest rhythm retention', color: '#6fa7ff' },
-  { label: 'Next goal', value: '80 WPM Sprint', detail: 'Three clean runs remaining', color: '#55f0a3' },
+  { href: '/practice/punctuation', label: 'Weak zone', value: 'Punctuation', detail: '12% more errors than letters', color: '#ff5fa2' },
+  { href: '/code-practice', label: 'Best mode', value: 'Code Practice', detail: 'Highest rhythm retention', color: '#6fa7ff' },
+  { href: '/practice/time-60', label: 'Next goal', value: '80 WPM Sprint', detail: 'Three clean runs remaining', color: '#55f0a3' },
+] as const;
+
+const chartSignals = [
+  { href: '/practice/punctuation', label: 'Noisy keys isolated' },
+  { href: '/practice/words', label: 'Rhythm stable' },
+  { href: '/practice/time-60', label: 'Sprint ready' },
 ] as const;
 
 function useCounter(target: number, inView: boolean, duration = 1800) {
@@ -55,54 +62,59 @@ function MetricCard({ metric, inView }: { metric: (typeof metricCards)[number]; 
   const Icon = metric.icon;
 
   return (
-    <motion.div
-      className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-5 sm:p-6"
-      whileHover={{ y: -6, scale: 1.015 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      style={{
-        background: `radial-gradient(circle at 12% 0%, ${metric.color}24, transparent 34%), linear-gradient(135deg, rgba(8,13,24,0.96), rgba(2,5,11,0.98))`,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
-      }}
+    <Link
+      href={metric.href}
+      className="group block h-full rounded-[1.35rem] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
     >
-      <div
-        className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full opacity-35 blur-3xl transition-opacity duration-500 group-hover:opacity-65"
-        style={{ backgroundColor: metric.color }}
-      />
-      <div className="relative flex items-start justify-between gap-4">
+      <motion.div
+        className="relative h-full overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-5 sm:p-6"
+        whileHover={{ y: -6, scale: 1.015 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        style={{
+          background: `radial-gradient(circle at 12% 0%, ${metric.color}24, transparent 34%), linear-gradient(135deg, rgba(8,13,24,0.96), rgba(2,5,11,0.98))`,
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
+        }}
+      >
         <div
-          className="grid h-11 w-11 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04]"
-          style={{ color: metric.color }}
-        >
-          <Icon className="h-5 w-5" />
+          className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full opacity-35 blur-3xl transition-opacity duration-500 group-hover:opacity-65"
+          style={{ backgroundColor: metric.color }}
+        />
+        <div className="relative flex items-start justify-between gap-4">
+          <div
+            className="grid h-11 w-11 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04]"
+            style={{ color: metric.color }}
+          >
+            <Icon className="h-5 w-5" />
+          </div>
+          <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+            {metric.signal}
+          </span>
         </div>
-        <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-          {metric.signal}
-        </span>
-      </div>
 
-      <div className="relative mt-6">
-        <div className="text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-none tracking-normal tabular-nums text-white">
-          <span style={{ color: metric.color }}>{count}</span>{metric.suffix}
+        <div className="relative mt-6">
+          <div className="text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-none tracking-normal tabular-nums text-white">
+            <span style={{ color: metric.color }}>{count}</span>{metric.suffix}
+          </div>
+          <div className="mt-2 text-xs font-black uppercase tracking-[0.24em] text-slate-500">{metric.label}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-400">{metric.detail}</div>
         </div>
-        <div className="mt-2 text-xs font-black uppercase tracking-[0.24em] text-slate-500">{metric.label}</div>
-        <div className="mt-2 text-sm font-semibold text-slate-400">{metric.detail}</div>
-      </div>
 
-      <div className="relative mt-6 flex items-end gap-1.5">
-        {[34, 52, 44, 66, 58, 78].map((height, index) => (
-          <motion.span
-            key={`${metric.label}-${height}-${index}`}
-            className="w-full rounded-t-md bg-white/[0.08]"
-            initial={{ height: 10 }}
-            animate={inView ? { height } : { height: 10 }}
-            transition={{ duration: 0.7, delay: index * 0.07 }}
-            style={{
-              background: index > 2 ? `linear-gradient(180deg, ${metric.color}, ${metric.color}55)` : undefined,
-            }}
-          />
-        ))}
-      </div>
-    </motion.div>
+        <div className="relative mt-6 flex items-end gap-1.5">
+          {[34, 52, 44, 66, 58, 78].map((height, index) => (
+            <motion.span
+              key={`${metric.label}-${height}-${index}`}
+              className="w-full rounded-t-md bg-white/[0.08]"
+              initial={{ height: 10 }}
+              animate={inView ? { height } : { height: 10 }}
+              transition={{ duration: 0.7, delay: index * 0.07 }}
+              style={{
+                background: index > 2 ? `linear-gradient(180deg, ${metric.color}, ${metric.color}55)` : undefined,
+              }}
+            />
+          ))}
+        </div>
+      </motion.div>
+    </Link>
   );
 }
 
@@ -183,9 +195,18 @@ export default function AnalyticsShowcase() {
                 <p className="text-lg font-black text-white">Weekly command graph</p>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Speed + precision overview</p>
               </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-[#55f0a3]/20 bg-[#55f0a3]/[0.07] px-3 py-1.5">
-                <TrendingUp className="h-3.5 w-3.5 text-[#55f0a3]" />
-                <span className="text-[11px] font-black uppercase tracking-[0.12em] text-[#bcfbd6]">7-day upward trend</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 rounded-full border border-[#55f0a3]/20 bg-[#55f0a3]/[0.07] px-3 py-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-[#55f0a3]" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.12em] text-[#bcfbd6]">7-day upward trend</span>
+                </div>
+                <Link
+                  href="/analytics"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-slate-400 transition-colors hover:border-[#55f0a3]/30 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#55f0a3]/80"
+                >
+                  Open analytics
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
               </div>
             </div>
 
@@ -247,11 +268,15 @@ export default function AnalyticsShowcase() {
             </div>
 
             <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
-              {['Noisy keys isolated', 'Rhythm stable', 'Sprint ready'].map((item, index) => (
-                <div key={item} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] px-4 py-3">
+              {chartSignals.map((item, index) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="group rounded-2xl border border-white/[0.07] bg-white/[0.035] px-4 py-3 transition-colors duration-300 hover:border-[#55f0a3]/25 hover:bg-white/[0.055] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#55f0a3]/80"
+                >
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Signal 0{index + 1}</span>
-                  <p className="mt-1 text-sm font-bold text-slate-300">{item}</p>
-                </div>
+                  <p className="mt-1 text-sm font-bold text-slate-300 transition-colors group-hover:text-white">{item.label}</p>
+                </Link>
               ))}
             </div>
           </div>
@@ -276,31 +301,42 @@ export default function AnalyticsShowcase() {
 
             <div className="relative mt-6 space-y-3">
               {insightItems.map((item) => (
-                <motion.div
+                <Link
                   key={item.label}
-                  className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 transition-colors duration-300 hover:border-white/[0.14]"
-                  whileHover={{ y: -3, scale: 1.03 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  href={item.href}
+                  className="group block rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.label}</span>
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  </div>
-                  <p className="mt-2 text-base font-black text-white">{item.value}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">{item.detail}</p>
-                </motion.div>
+                  <motion.div
+                    className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 transition-colors duration-300 group-hover:border-white/[0.14] group-hover:bg-white/[0.055]"
+                    whileHover={{ y: -3, scale: 1.03 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.label}</span>
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    </div>
+                    <p className="mt-2 text-base font-black text-white">{item.value}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-500">{item.detail}</p>
+                  </motion.div>
+                </Link>
               ))}
             </div>
 
-            <div className="relative mt-6 rounded-2xl border border-[#55f0a3]/15 bg-[#55f0a3]/[0.05] p-4">
-              <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#bcfbd6]">
-                <Target className="h-4 w-4 text-[#55f0a3]" />
-                Precision plan
+            <Link
+              href="/practice/punctuation"
+              className="group relative mt-6 block rounded-2xl border border-[#55f0a3]/15 bg-[#55f0a3]/[0.05] p-4 transition-colors duration-300 hover:border-[#55f0a3]/30 hover:bg-[#55f0a3]/[0.075] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#55f0a3]/80"
+            >
+              <div className="flex items-center justify-between gap-3 text-[11px] font-black uppercase tracking-[0.18em] text-[#bcfbd6]">
+                <span className="inline-flex items-center gap-2">
+                  <Target className="h-4 w-4 text-[#55f0a3]" />
+                  Precision plan
+                </span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </div>
               <p className="mt-3 text-sm leading-6 text-slate-400">
                 Run two punctuation drills, then one speed sprint. Keep errors under three before raising pace.
               </p>
-            </div>
+            </Link>
           </div>
         </motion.div>
       </div>

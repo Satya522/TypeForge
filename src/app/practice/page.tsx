@@ -77,7 +77,7 @@ export const metadata = {
 
 export default function PracticePage() {
   return (
-    <div className="min-h-screen bg-[#050706] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
       
       
       <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-8 xl:px-12 pt-24 pb-20 sm:pt-32">

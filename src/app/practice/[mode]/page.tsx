@@ -95,7 +95,7 @@ export default async function PracticeModePage({ params }: PracticePageProps) {
   const title = modeConfig.title;
   const description = modeConfig.description;
   return (
-    <>
+    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
       <div className="pt-6 pb-12 px-4 sm:px-8 xl:px-12 mx-auto w-full max-w-[1600px] flex-1 flex flex-col">
         <PracticeClient
           text={text}
@@ -105,6 +105,6 @@ export default async function PracticeModePage({ params }: PracticePageProps) {
           timeLimitSeconds={modeConfig.timeLimitSeconds}
         />
       </div>
-    </>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import SessionMetrics from '@/components/SessionMetrics';
 import TypingArea from '@/components/TypingArea';
@@ -23,7 +23,8 @@ type PracticeClientProps = {
 
 export default function PracticeClient({ text, mode, title, description, timeLimitSeconds }: PracticeClientProps) {
   const router = useRouter();
-  
+  const [selectedFont, setSelectedFont] = useState('code');
+
   const {
     finished,
     typed,
@@ -174,7 +175,8 @@ export default function PracticeClient({ text, mode, title, description, timeLim
             <ChevronDown className="w-3 h-3" />
           </div>
         </div>
-      </div>
+
+        </div>
 
         {/* HUD Capsule (Metrics + Restart) */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -208,6 +210,26 @@ export default function PracticeClient({ text, mode, title, description, timeLim
                 </div>
               </>
             )}
+            
+            <div className="w-px h-3 bg-white/[0.08]" />
+
+            {/* Font Selector */}
+            <div className="relative group flex items-center">
+              <select
+                value={selectedFont}
+                onChange={(e) => setSelectedFont(e.target.value)}
+                className="appearance-none bg-transparent text-gray-300 text-[10px] font-bold tracking-widest uppercase pl-1 pr-4 outline-none hover:text-white focus:text-accent-300 transition-colors cursor-pointer"
+              >
+                <option value="code" className="bg-[#090C0B] text-gray-300">JetBrains</option>
+                <option value="fira-code" className="bg-[#090C0B] text-gray-300">Fira</option>
+                <option value="roboto-mono" className="bg-[#090C0B] text-gray-300">Roboto</option>
+                <option value="space-mono" className="bg-[#090C0B] text-gray-300">Space</option>
+                <option value="ibm-plex-mono" className="bg-[#090C0B] text-gray-300">IBM Plex</option>
+              </select>
+              <div className="absolute right-0 pointer-events-none opacity-50 text-white group-hover:opacity-100 transition-opacity">
+                <ChevronDown className="w-3 h-3" />
+              </div>
+            </div>
           </div>
 
           <button 
@@ -229,6 +251,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
             typed={typed}
             currentIndex={currentIndex}
             finished={finished}
+            fontClass={selectedFont}
           />
         </div>
 
