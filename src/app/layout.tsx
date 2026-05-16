@@ -1,5 +1,5 @@
 import '@/app/globals.css';
-import { Bricolage_Grotesque, Inter } from 'next/font/google';
+import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google';
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import Providers from './providers';
@@ -12,6 +12,12 @@ const kineticDisplay = Bricolage_Grotesque({
   subsets: ['latin'],
   weight: ['700', '800'],
   variable: '--font-kinetic-display',
+  display: 'swap',
+});
+const codeMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-code',
   display: 'swap',
 });
 
@@ -36,7 +42,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const session = await getServerAuthSession();
 
   return (
-    <html lang="en" className={`${inter.className} ${kineticDisplay.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={`${inter.className} ${kineticDisplay.variable} ${codeMono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* PWA primary meta tags */}
         <link rel="manifest" href="/manifest.json" />

@@ -131,15 +131,15 @@ function TypingSimulator() {
   }, [charIndex, lineIndex, isTyping, currentText]);
 
   return (
-    <div className="font-mono text-[14px] leading-[1.7] tracking-[0.02em] sm:text-[15px]">
+    <div className="font-code text-[13.5px] font-medium leading-[1.85] tracking-normal sm:text-[14.5px]">
       {displayedLines.map((line, i) => (
         <div key={i} className="text-[#94a3b8]/70 opacity-80 transition-colors duration-500">
-          <span className="mr-5 inline-block w-4 select-none text-right font-medium text-[#334155]">{i + 1}</span>
+          <span className="mr-5 inline-block w-4 select-none text-right text-[0.92em] font-medium tabular-nums text-[#334155]">{i + 1}</span>
           {renderCodeLine(line)}
         </div>
       ))}
       <div className="text-[#f8fafc]">
-        <span className="mr-5 inline-block w-4 select-none text-right font-medium text-[#38bdf8]/80 drop-shadow-[0_0_6px_rgba(56,189,248,0.4)]">{displayedLines.length + 1}</span>
+        <span className="mr-5 inline-block w-4 select-none text-right text-[0.92em] font-semibold tabular-nums text-[#38bdf8]/90 drop-shadow-[0_0_6px_rgba(56,189,248,0.4)]">{displayedLines.length + 1}</span>
         {renderCodeLine(currentText)}
         <motion.span
           animate={{ opacity: [1, 0] }}
@@ -218,7 +218,8 @@ export default function Hero() {
     <section
       ref={heroRef}
       onMouseMove={handleMouseMove}
-      className="relative isolate min-h-[720px] overflow-hidden bg-[#02050b] pb-12 pt-20 sm:pt-24 lg:min-h-[760px] lg:pt-24"
+      data-motion-skip
+      className="relative isolate min-h-[720px] overflow-hidden bg-[#02050b] pb-16 pt-20 sm:pt-24 lg:min-h-[790px] lg:pt-24"
     >
       {/* ── Cinematic background ── */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -244,13 +245,13 @@ export default function Hero() {
             variants={badgeVariants}
             initial="hidden"
             animate="visible"
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent-300/25 bg-accent-300/[0.06] px-4 py-2 backdrop-blur-sm"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#6fa7ff]/30 bg-[#07142c]/70 px-4 py-2 shadow-[0_0_34px_rgba(79,141,253,0.16),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-300 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-300" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2dd4bf] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#6fa7ff]" />
             </span>
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-100">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b9d3ff]">
               Precision-first typing platform
             </span>
           </motion.div>
@@ -337,33 +338,33 @@ export default function Hero() {
           >
             {/* Terminal */}
             <motion.div
-              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-2xl bg-[#030303] shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_32px_80px_-12px_rgba(0,0,0,0.8)]"
-              whileHover={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.15), 0 32px 80px -12px rgba(0,0,0,0.9)' }}
+              className="group relative flex min-h-[274px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
+              whileHover={{ boxShadow: '0 0 0 1px rgba(111,167,255,0.16), 0 34px 110px rgba(0,0,0,0.64)' }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(111,167,255,0.16),transparent_30%),linear-gradient(145deg,rgba(255,255,255,0.045),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
 
               {/* Terminal header */}
-              <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-black/40 px-6 py-4 backdrop-blur-md">
+              <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-[#030711]/50 px-6 py-4 backdrop-blur-md">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_8px_rgba(255,95,87,0.4)]" />
                   <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] shadow-[0_0_8px_rgba(254,188,46,0.4)]" />
                   <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] shadow-[0_0_8px_rgba(40,200,64,0.4)]" />
                 </div>
                 <div className="absolute left-1/2 flex -translate-x-1/2 items-center">
-                  <span className="bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-semibold tracking-widest text-transparent">
+                  <span className="font-code bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-bold tracking-normal text-transparent">
                     typeforge://session
                   </span>
                 </div>
               </div>
 
               {/* Terminal body */}
-              <div className="relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8 font-mono">
+              <div className="font-code relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8">
                 <TypingSimulator />
               </div>
 
               {/* Bottom status bar */}
-              <div className="mt-auto flex items-center justify-between border-t border-white/[0.06] bg-black/40 px-6 py-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b] backdrop-blur-md">
+              <div className="font-code mt-auto flex items-center justify-between border-t border-white/[0.06] bg-[#030711]/50 px-6 py-3.5 text-[10px] font-bold uppercase tracking-normal text-[#64748b] backdrop-blur-md">
                 <span>UTF-8</span>
                 <span className="flex items-center gap-2 text-[#2dd4bf]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
@@ -376,7 +377,7 @@ export default function Hero() {
             {/* Keyboard visualization */}
             <div className="relative h-full">
               <div
-                className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-[#030303] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_32px_80px_-12px_rgba(0,0,0,0.8)] sm:p-6"
+                className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 p-5 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:p-6"
               >
                 {/* Background glowing orb inside container */}
                 <div className={`absolute left-1/2 top-1/2 -z-10 h-[200px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[80px] transition-colors duration-500 ${activeKey ? getKeyTone(activeKey).orb : 'bg-[#38bdf8]'}`} />
@@ -416,7 +417,7 @@ export default function Hero() {
                             animate={isActive ? { scale: [1, 0.9, 1.08], y: [0, 2, -2] } : {}}
                             transition={{ duration: 0.15 }}
                             className={`
-                              relative flex h-9 w-9 items-center justify-center rounded-[10px] font-mono text-[13px] font-bold transition-all duration-200 sm:h-11 sm:w-11 sm:text-[15px]
+                              font-code relative flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-bold transition-all duration-200 sm:h-11 sm:w-11 sm:text-[15px]
                               ${isActive
                                 ? tone.active
                                 : isHome
@@ -446,11 +447,36 @@ export default function Hero() {
       </div>
       <style>{`
         .hero-premium-base {
-          background: #02050b;
+          background:
+            radial-gradient(circle at 50% 0%, rgba(79, 141, 253, 0.16), transparent 26%),
+            radial-gradient(circle at 18% 38%, rgba(45, 212, 191, 0.11), transparent 28%),
+            radial-gradient(circle at 82% 48%, rgba(255, 210, 31, 0.09), transparent 27%),
+            linear-gradient(180deg, #02050b 0%, #040817 48%, #02050b 100%);
+        }
+
+        .hero-premium-base::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          opacity: 0.18;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+          background-size: 72px 72px;
+          mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), rgba(0,0,0,0.16) 84%, transparent);
+        }
+
+        .hero-premium-base::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(180deg, rgba(2,5,11,0.1), transparent 18%, rgba(2,5,11,0.48) 100%),
+            radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.42) 100%);
         }
 
         .hero-premium-cursor-sheen {
-          background: radial-gradient(circle, rgba(57, 255, 20, 0.075), transparent 64%);
+          background: radial-gradient(circle, rgba(111, 167, 255, 0.12), rgba(45, 212, 191, 0.05) 42%, transparent 68%);
           filter: blur(28px);
         }
 

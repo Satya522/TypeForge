@@ -41,9 +41,9 @@ const fullHeaderVariants: Variants = {
   },
   hidden: {
     opacity: 0,
-    y: -26,
-    scale: 0.965,
-    filter: 'blur(6px)',
+    y: -12,
+    scale: 0.985,
+    filter: 'blur(3px)',
     transition: { duration: 0.26, ease: softEase },
   },
 }
@@ -58,9 +58,9 @@ const compactVariants: Variants = {
   },
   hidden: {
     opacity: 0,
-    y: -14,
-    scale: 0.92,
-    filter: 'blur(6px)',
+    y: -8,
+    scale: 0.96,
+    filter: 'blur(3px)',
     transition: { duration: 0.2, ease: softEase },
   },
 }
@@ -240,21 +240,20 @@ export default function Navbar() {
       >
         <div className="mx-auto flex w-[min(calc(100%-32px),1240px)] items-center justify-center">
           {/* ── Brand: OUTSIDE the pill, anchored left ── */}
-          <div className="absolute left-[max(16px,calc((100%-1240px)/2))]">
+          <div className="absolute left-[max(16px,calc((100%-1240px)/2))] z-10">
             <NavBrand pathname={pathname} />
           </div>
 
           {/* ── Main Nav Pill ── */}
           <nav
-            style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }}
             className={cn(
-              'relative flex items-center rounded-full border backdrop-blur-xl transition-all duration-500 ease-out',
+              'nav-noise relative ml-[180px] flex items-center rounded-full border backdrop-blur-2xl transition-all duration-500 ease-out',
               isScrolled
-                ? 'border-white/[0.08] bg-[#3c4043] shadow-[0_6px_28px_rgba(0,0,0,0.25),0_1.5px_6px_rgba(0,0,0,0.12)]'
-                : 'border-white/[0.06] bg-[#3c4043] shadow-[0_18px_55px_rgba(0,0,0,0.25)]'
+                ? 'border-white/[0.1] bg-gradient-to-b from-[#111827]/95 to-[#0a1120]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                : 'border-white/[0.08] bg-gradient-to-b from-[#0f172a]/90 to-[#080f1e]/90 shadow-[0_12px_40px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.03),inset_0_1px_0_rgba(255,255,255,0.06)]'
             )}
           >
-            <div className="flex items-center p-1.5 gap-1">
+            <div className="flex items-center p-1.5 gap-0.5">
               {/* Nav links */}
               <NavPrimaryLinks
                 browseTriggerRef={browseTriggerRef}
@@ -304,6 +303,16 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
+      <motion.div
+        variants={prefersReducedMotion ? undefined : compactVariants}
+        initial="hidden"
+        animate={fullNavIsHidden ? 'visible' : 'hidden'}
+        style={{ pointerEvents: fullNavIsHidden ? 'auto' : 'none' }}
+        className="nav-noise fixed left-5 top-4 z-50 hidden items-center rounded-full border border-white/[0.1] bg-gradient-to-b from-[#111827]/95 to-[#0a1120]/95 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl lg:flex"
+      >
+        <NavBrand pathname={pathname} compact />
+      </motion.div>
+
       {/* ═══════════════════════════════════════════════════════════
        *  COMPACT CONTROLS — Black CTA pill + Hamburger circle
        *  Hamburger click restores the full navbar
@@ -319,7 +328,7 @@ export default function Navbar() {
           <motion.span
             whileHover={prefersReducedMotion ? undefined : { scale: 1.035, y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.975 }}
-            className="group inline-flex items-center gap-1.5 rounded-full bg-[#1a73e8] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(26,115,232,0.3),0_12px_36px_rgba(26,115,232,0.2)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_4px_12px_rgba(26,115,232,0.4),0_16px_44px_rgba(26,115,232,0.25)]"
+            className="group inline-flex items-center gap-1.5 rounded-full bg-[#1a73e8] px-5 py-3 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(26,115,232,0.3),0_16px_44px_rgba(26,115,232,0.22)] transition-all duration-200 hover:bg-[#236ff2] hover:shadow-[0_4px_14px_rgba(26,115,232,0.42),0_18px_48px_rgba(26,115,232,0.28)]"
           >
             Start typing
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -332,9 +341,9 @@ export default function Navbar() {
           whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
           whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
           aria-label="Show navigation"
-          className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-white/[0.08] bg-[#3c4043]/90 shadow-[0_12px_36px_rgba(0,0,0,0.20)] backdrop-blur-xl transition-all duration-200 hover:bg-[#3c4043] hover:shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+          className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-white/[0.1] bg-gradient-to-b from-[#111827]/95 to-[#0a1120]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl transition-all duration-200 hover:bg-[#0f1d32] hover:shadow-[0_14px_44px_rgba(0,0,0,0.55)]"
         >
-          <Menu className="h-[18px] w-[18px] text-[#1a73e8]" />
+          <Menu className="h-[18px] w-[18px] text-[#6fa7ff]" />
         </motion.button>
       </motion.div>
 
@@ -348,7 +357,7 @@ export default function Navbar() {
           whileHover={prefersReducedMotion ? undefined : { scale: 1.06 }}
           whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
           onClick={() => setIsMobileMenuOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-black/[0.06] bg-white/92 text-gray-600 shadow-[0_8px_24px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-all hover:bg-white hover:text-gray-900 hover:shadow-[0_8px_28px_rgba(0,0,0,0.12)]"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#07101f]/88 text-[#9fcbff] shadow-[0_12px_30px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-all hover:bg-[#0c1830] hover:text-white"
           aria-expanded={isMobileMenuOpen}
           aria-label="Open navigation menu"
         >

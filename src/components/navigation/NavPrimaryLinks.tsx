@@ -93,7 +93,7 @@ export default function NavPrimaryLinks({
               aria-expanded={isBrowseOpen}
               aria-haspopup="dialog"
               aria-label="Browse all TypeForge sections"
-              className="relative inline-flex h-[36px] shrink-0 items-center justify-center gap-1.5 rounded-full px-[18px] text-[15px] font-medium leading-none outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
+              className="relative inline-flex h-[36px] shrink-0 items-center justify-center gap-1.5 rounded-full px-[18px] text-[13.5px] font-[520] leading-none tracking-[-0.01em] outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
               onClick={() => {
                 lockPendingTarget(BROWSE_KEY);
                 onBrowseTriggerClick();
@@ -138,7 +138,7 @@ export default function NavPrimaryLinks({
             href={item.href}
             aria-current={isNavPathActive(pathname, item.href) ? 'page' : undefined}
             onClick={() => lockPendingTarget(item.key)}
-            className="group relative inline-flex h-[36px] shrink-0 items-center justify-center rounded-full px-[18px] text-[15px] font-medium leading-none outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
+            className="group relative inline-flex h-[36px] shrink-0 items-center justify-center rounded-full px-[18px] text-[13.5px] font-[520] leading-none tracking-[-0.01em] outline-none transition-colors duration-0 focus-visible:ring-2 focus-visible:ring-white/20 hover:text-white hover:![transform:none]"
           >
             {isPillTarget && (
               <motion.span

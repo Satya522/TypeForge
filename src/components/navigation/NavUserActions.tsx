@@ -123,7 +123,7 @@ export default function NavUserActions({
           type="button"
           onClick={onSignIn}
           whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-          className="inline-flex h-[36px] items-center justify-center rounded-full px-5 text-[15px] font-medium leading-none text-[#9aa0a6] transition-colors duration-0 hover:text-white hover:bg-white/5 hover:![transform:none]"
+          className="inline-flex h-[36px] items-center justify-center rounded-full px-5 text-[13.5px] font-[520] leading-none tracking-[-0.01em] text-[#9aa0a6] transition-colors duration-0 hover:text-white hover:bg-white/5 hover:![transform:none]"
         >
           Log in
         </motion.button>
@@ -144,7 +144,7 @@ export default function NavUserActions({
               damping: 25,
             }}
           >
-            <span className="group inline-flex h-[36px] items-center justify-center gap-1.5 rounded-full bg-[#1a73e8] px-6 text-[15px] font-semibold leading-none text-white shadow-[0_1px_3px_rgba(26,115,232,0.2),0_6px_16px_rgba(26,115,232,0.2)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_2px_6px_rgba(26,115,232,0.3),0_10px_24px_rgba(26,115,232,0.25)] hover:![transform:none]">
+            <span className="group inline-flex h-[36px] items-center justify-center gap-1.5 rounded-full bg-[#1a73e8] px-6 text-[13.5px] font-semibold leading-none tracking-[-0.01em] text-white shadow-[0_1px_3px_rgba(26,115,232,0.2),0_6px_16px_rgba(26,115,232,0.2)] transition-all duration-200 hover:bg-[#1557b0] hover:shadow-[0_2px_6px_rgba(26,115,232,0.3),0_10px_24px_rgba(26,115,232,0.25)] hover:![transform:none]">
               Start typing
               <ArrowRight
                 weight="bold"

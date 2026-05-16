@@ -3,37 +3,38 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Activity, BarChart3, Flame, Gauge, LineChart, Target, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const trendData = [
-  { day: 'Mon', wpm: 52 },
-  { day: 'Tue', wpm: 58 },
-  { day: 'Wed', wpm: 61 },
-  { day: 'Thu', wpm: 66 },
-  { day: 'Fri', wpm: 71 },
-  { day: 'Sat', wpm: 74 },
-  { day: 'Sun', wpm: 78 },
+  { day: 'Mon', wpm: 52, accuracy: 91 },
+  { day: 'Tue', wpm: 58, accuracy: 93 },
+  { day: 'Wed', wpm: 61, accuracy: 94 },
+  { day: 'Thu', wpm: 66, accuracy: 96 },
+  { day: 'Fri', wpm: 71, accuracy: 97 },
+  { day: 'Sat', wpm: 74, accuracy: 97 },
+  { day: 'Sun', wpm: 78, accuracy: 98 },
 ];
 
 const metricCards = [
-  { label: 'WPM', value: 78, suffix: '', detail: '+18% this week', color: '#4f8dfd' },
-  { label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', color: '#6fa7ff' },
-  { label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', color: '#7b61ff' },
-  { label: 'Streak', value: 14, suffix: '', detail: 'Days active', color: '#dfe9ff' },
+  { label: 'WPM', value: 78, suffix: '', detail: '+18% this week', signal: 'Speed lift', color: '#4f8dfd', icon: Gauge },
+  { label: 'Accuracy', value: 98, suffix: '%', detail: 'Target locked', signal: 'Clean hits', color: '#55f0a3', icon: Target },
+  { label: 'Consistency', value: 89, suffix: '%', detail: 'Stable rhythm', signal: 'Low wobble', color: '#a78bfa', icon: Activity },
+  { label: 'Streak', value: 14, suffix: '', detail: 'Days active', signal: 'Habit heat', color: '#ffd43b', icon: Flame },
 ] as const;
 
 const insightItems = [
-  { label: 'Weak zone', value: 'Punctuation', emoji: '🎯' },
-  { label: 'Best mode', value: 'Code Practice', emoji: '💻' },
-  { label: 'Next goal', value: '80 WPM Sprint', emoji: '🚀' },
+  { label: 'Weak zone', value: 'Punctuation', detail: '12% more errors than letters', color: '#ff5fa2' },
+  { label: 'Best mode', value: 'Code Practice', detail: 'Highest rhythm retention', color: '#6fa7ff' },
+  { label: 'Next goal', value: '80 WPM Sprint', detail: 'Three clean runs remaining', color: '#55f0a3' },
 ] as const;
 
-/* Animated counter */
 function useCounter(target: number, inView: boolean, duration = 1800) {
   const [count, setCount] = useState(0);
+
   useEffect(() => {
     if (!inView) return;
     const startTime = performance.now();
@@ -45,7 +46,64 @@ function useCounter(target: number, inView: boolean, duration = 1800) {
     };
     requestAnimationFrame(step);
   }, [target, inView, duration]);
+
   return count;
+}
+
+function MetricCard({ metric, inView }: { metric: (typeof metricCards)[number]; inView: boolean }) {
+  const count = useCounter(metric.value, inView);
+  const Icon = metric.icon;
+
+  return (
+    <motion.div
+      className="group relative overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-5 sm:p-6"
+      whileHover={{ y: -6, scale: 1.015 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      style={{
+        background: `radial-gradient(circle at 12% 0%, ${metric.color}24, transparent 34%), linear-gradient(135deg, rgba(8,13,24,0.96), rgba(2,5,11,0.98))`,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full opacity-35 blur-3xl transition-opacity duration-500 group-hover:opacity-65"
+        style={{ backgroundColor: metric.color }}
+      />
+      <div className="relative flex items-start justify-between gap-4">
+        <div
+          className="grid h-11 w-11 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04]"
+          style={{ color: metric.color }}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+          {metric.signal}
+        </span>
+      </div>
+
+      <div className="relative mt-6">
+        <div className="text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-none tracking-normal tabular-nums text-white">
+          <span style={{ color: metric.color }}>{count}</span>{metric.suffix}
+        </div>
+        <div className="mt-2 text-xs font-black uppercase tracking-[0.24em] text-slate-500">{metric.label}</div>
+        <div className="mt-2 text-sm font-semibold text-slate-400">{metric.detail}</div>
+      </div>
+
+      <div className="relative mt-6 flex items-end gap-1.5">
+        {[34, 52, 44, 66, 58, 78].map((height, index) => (
+          <motion.span
+            key={`${metric.label}-${height}-${index}`}
+            className="w-full rounded-t-md bg-white/[0.08]"
+            initial={{ height: 10 }}
+            animate={inView ? { height } : { height: 10 }}
+            transition={{ duration: 0.7, delay: index * 0.07 }}
+            style={{
+              background: index > 2 ? `linear-gradient(180deg, ${metric.color}, ${metric.color}55)` : undefined,
+            }}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
 }
 
 export default function AnalyticsShowcase() {
@@ -61,89 +119,77 @@ export default function AnalyticsShowcase() {
         once: true,
         onEnter: () => setInView(true),
       });
-      gsap.fromTo('.analytics-heading', { y: 50, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', once: true },
-      });
-      gsap.fromTo('.analytics-chart', { y: 60, opacity: 0, scale: 0.96 }, {
-        y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: '.analytics-chart', start: 'top 85%', once: true },
-      });
     }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-14 sm:py-16 lg:py-20">
+    <section ref={sectionRef} data-motion-skip className="relative py-14 sm:py-16 lg:py-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 
       <div className="section-shell">
-        {/* Header */}
-        <div className="analytics-heading mx-auto mb-16 max-w-3xl text-center" style={{ opacity: 0 }}>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-300/20 bg-accent-300/[0.05] px-4 py-2">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-300" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-100">Analytics</span>
+        <motion.div
+          className="analytics-heading mx-auto mb-16 max-w-6xl text-center"
+          initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: '-10% 0px' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#55f0a3]/35 bg-[#071b15]/75 px-4 py-2 shadow-[0_0_36px_rgba(85,240,163,0.14)] backdrop-blur-xl">
+            <LineChart className="h-3.5 w-3.5 text-[#55f0a3]" />
+            <span className="text-xs font-black uppercase tracking-normal text-[#bcfbd6]">Analytics</span>
           </div>
-          <h2 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
-            Progress you can{' '}
-            <span className="bg-gradient-to-r from-accent-300 via-[#8bb6ff] to-[#7b61ff] bg-clip-text text-transparent">actually read</span>
-            {' '}at a glance
+          <h2 className="mx-auto max-w-6xl text-[clamp(2.65rem,8.2vw,7rem)] font-black uppercase leading-[0.88] tracking-normal text-white">
+            <span className="block">Read the</span>
+            <span className="block py-[0.08em]">
+              <span className="analytics-pop relative mx-1 inline-block -rotate-1 rounded-[0.22em] px-[0.16em] pb-[0.02em] text-[#02120b]">
+                signals
+              </span>
+            </span>
+            <span className="block">fix the drift.</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-gray-400 lg:text-lg">
-            Every session turns into clear signals — your pace, precision, streak, and the trends showing your growth.
+          <p className="mx-auto mt-7 max-w-3xl text-sm font-bold uppercase leading-7 tracking-normal text-[#9fb1c8] sm:text-base">
+            Pace, precision, consistency, and weak zones turn into a clean training command center.
           </p>
+        </motion.div>
+
+        <div className="mb-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {metricCards.map((metric) => (
+            <MetricCard key={metric.label} metric={metric} inView={inView} />
+          ))}
         </div>
 
-        {/* Metric counters — clean, no boxes */}
-        <div className="mb-14 flex flex-wrap items-center justify-center gap-10 sm:gap-16">
-          {metricCards.map((metric) => {
-            const count = useCounter(metric.value, inView);
-            return (
-              <motion.div
-                key={metric.label}
-                className="group flex flex-col items-center"
-                whileHover={{ y: -6, scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                <span
-                  className="text-4xl font-bold tabular-nums sm:text-5xl"
-                  style={{ color: metric.color }}
-                >
-                  {count}{metric.suffix}
-                </span>
-                <span className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
-                  {metric.label}
-                </span>
-                <span className="mt-1 text-[11px] text-gray-600">{metric.detail}</span>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Chart */}
-        <div className="analytics-chart mx-auto max-w-4xl" style={{ opacity: 0 }}>
+        <motion.div
+          className="analytics-chart grid gap-5 lg:grid-cols-[1.35fr_0.65fr]"
+          initial={{ opacity: 0, y: 42, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: '-8% 0px' }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div
-            className="relative overflow-hidden rounded-2xl border border-white/[0.04] p-5 sm:p-6"
+            className="relative overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-5 sm:p-6"
             style={{
-              background: 'linear-gradient(135deg, rgba(7,16,29,0.7) 0%, rgba(2,4,10,0.85) 100%)',
+              background: 'radial-gradient(circle at 16% 0%, rgba(79,141,253,0.18), transparent 34%), linear-gradient(135deg, rgba(7,16,29,0.92) 0%, rgba(2,4,10,0.96) 100%)',
               backdropFilter: 'blur(20px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
             }}
           >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-300/25 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:44px_44px] opacity-[0.08]" />
 
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-white">Weekly performance</p>
-                <p className="text-xs text-gray-500">Speed + precision overview</p>
+                <p className="text-lg font-black text-white">Weekly command graph</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Speed + precision overview</p>
               </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-accent-300/20 bg-accent-300/[0.06] px-3 py-1">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-300" />
-                <span className="text-[11px] font-medium text-accent-100">7-day upward trend</span>
+              <div className="flex items-center gap-1.5 rounded-full border border-[#55f0a3]/20 bg-[#55f0a3]/[0.07] px-3 py-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-[#55f0a3]" />
+                <span className="text-[11px] font-black uppercase tracking-[0.12em] text-[#bcfbd6]">7-day upward trend</span>
               </div>
             </div>
 
-            <div className="h-56 sm:h-64 lg:h-72">
+            <div className="relative h-64 sm:h-72 lg:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
                   <defs>
@@ -151,10 +197,14 @@ export default function AnalyticsShowcase() {
                       <stop offset="0%" stopColor="#4f8dfd" stopOpacity={0.3} />
                       <stop offset="100%" stopColor="#4f8dfd" stopOpacity={0} />
                     </linearGradient>
+                    <linearGradient id="analytics-accuracy-gradient" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#55f0a3" stopOpacity={0.22} />
+                      <stop offset="100%" stopColor="#55f0a3" stopOpacity={0} />
+                    </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                   <XAxis dataKey="day" stroke="#4b5563" tickMargin={10} fontSize={12} />
-                  <YAxis stroke="#4b5563" tickMargin={8} width={30} domain={[45, 85]} fontSize={12} />
+                  <YAxis stroke="#4b5563" tickMargin={8} width={30} domain={[45, 100]} fontSize={12} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'rgba(2,4,10,0.95)',
@@ -179,30 +229,98 @@ export default function AnalyticsShowcase() {
                       style: { filter: 'drop-shadow(0 0 6px rgba(79,141,253,0.5))' },
                     }}
                   />
+                  <Area
+                    type="monotone"
+                    dataKey="accuracy"
+                    stroke="#55f0a3"
+                    strokeWidth={2}
+                    fill="url(#analytics-accuracy-gradient)"
+                    activeDot={{
+                      r: 4,
+                      fill: '#55f0a3',
+                      stroke: '#02040a',
+                      strokeWidth: 2,
+                    }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+
+            <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
+              {['Noisy keys isolated', 'Rhythm stable', 'Sprint ready'].map((item, index) => (
+                <div key={item} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] px-4 py-3">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Signal 0{index + 1}</span>
+                  <p className="mt-1 text-sm font-bold text-slate-300">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Insight chips */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-            {insightItems.map((item) => (
-              <motion.div
-                key={item.label}
-                className="flex items-center gap-3 rounded-full border border-white/[0.04] px-4 py-2.5 transition-colors duration-300 hover:border-accent-300/15"
-                whileHover={{ y: -3, scale: 1.03 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                <span className="text-lg">{item.emoji}</span>
-                <div>
-                  <span className="text-[10px] uppercase tracking-[0.15em] text-gray-600">{item.label}</span>
-                  <p className="text-sm font-medium text-gray-300">{item.value}</p>
-                </div>
-              </motion.div>
-            ))}
+          <div
+            className="relative overflow-hidden rounded-[1.35rem] border border-white/[0.075] p-5 sm:p-6"
+            style={{
+              background: 'radial-gradient(circle at 80% 0%, rgba(255,95,162,0.16), transparent 34%), linear-gradient(135deg, rgba(10,13,22,0.96), rgba(2,5,11,0.98))',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.055)',
+            }}
+          >
+            <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[#ff5fa2]/30 blur-3xl" />
+            <div className="relative flex items-center justify-between gap-4">
+              <div>
+                <p className="text-lg font-black text-white">Coach readout</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Next best move</p>
+              </div>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl border border-white/[0.09] bg-white/[0.04] text-[#ff5fa2]">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+            </div>
+
+            <div className="relative mt-6 space-y-3">
+              {insightItems.map((item) => (
+                <motion.div
+                  key={item.label}
+                  className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 transition-colors duration-300 hover:border-white/[0.14]"
+                  whileHover={{ y: -3, scale: 1.03 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.label}</span>
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                  </div>
+                  <p className="mt-2 text-base font-black text-white">{item.value}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">{item.detail}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="relative mt-6 rounded-2xl border border-[#55f0a3]/15 bg-[#55f0a3]/[0.05] p-4">
+              <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#bcfbd6]">
+                <Target className="h-4 w-4 text-[#55f0a3]" />
+                Precision plan
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Run two punctuation drills, then one speed sprint. Keep errors under three before raising pace.
+              </p>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
+      <style jsx>{`
+        .analytics-pop {
+          background:
+            radial-gradient(circle at 32% 26%, #eafff1 0 8%, transparent 9%),
+            linear-gradient(180deg, #9cffc8 0%, #55f0a3 48%, #12b76a 100%);
+          box-shadow:
+            0 0 0 0.07em #03150c,
+            0 0 0 0.13em #b8ffd4,
+            0 0 0.28em #55f0a3,
+            0 0 0.55em rgba(85, 240, 163, 0.6),
+            inset 0 -0.08em 0 rgba(0, 70, 38, 0.42),
+            inset 0 0.06em 0 rgba(255, 255, 255, 0.82);
+          text-shadow:
+            0.035em 0.035em 0 rgba(255, 255, 255, 0.44),
+            -0.035em -0.02em 0 rgba(0, 79, 45, 0.28);
+        }
+      `}</style>
     </section>
   );
 }

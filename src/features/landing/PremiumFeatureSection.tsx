@@ -1,266 +1,517 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Image from 'next/image';
-import { BookOpen, ActivitySquare, Keyboard, Target, BarChart3, Trophy, CheckCircle2, TrendingUp } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  ActivitySquare,
+  BarChart3,
+  Bot,
+  CheckCircle2,
+  Circle,
+  Gauge,
+  GraduationCap,
+  Keyboard,
+  LineChart,
+  Medal,
+  Target,
+  Trophy,
+  Wand2,
+  Zap,
+} from 'lucide-react';
+
+const lessonSteps = ['Beginner', 'Rhythm', 'Accuracy (74%)', 'Mastery'];
+const practiceModes = ['Code', 'AI Prompts', 'Dictation', 'Sprint', 'Focus'];
+const weakKeys = ['X', 'C', 'P'];
 
 export default function PremiumFeatureSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [scrollDist, setScrollDist] = useState(2000);
+  const sectionRef = useRef<HTMLElement>(null);
+  const reelViewportRef = useRef<HTMLDivElement>(null);
+  const reelTrackRef = useRef<HTMLDivElement>(null);
+  const [scrollDistance, setScrollDistance] = useState(900);
+  const [viewportWidth, setViewportWidth] = useState(1024);
+  const [viewportHeight, setViewportHeight] = useState(900);
+  const scrollYProgress = useMotionValue(0);
+
+  const updateProgress = useCallback(() => {
+    if (typeof window === 'undefined' || !sectionRef.current) return;
+
+    const rect = sectionRef.current.getBoundingClientRect();
+    const sectionTop = rect.top + window.scrollY;
+    const scrollableDistance = Math.max(1, sectionRef.current.offsetHeight - window.innerHeight);
+    const nextProgress = (window.scrollY - sectionTop) / scrollableDistance;
+
+    scrollYProgress.set(Math.min(1, Math.max(0, nextProgress)));
+  }, [scrollYProgress]);
 
   const measure = useCallback(() => {
-    if (trackRef.current) {
-      const dist = trackRef.current.scrollWidth - window.innerWidth + 120;
-      setScrollDist(Math.max(800, dist));
-    }
-  }, []);
+    if (typeof window === 'undefined') return;
+
+    setViewportHeight(window.innerHeight);
+    setViewportWidth(window.innerWidth);
+
+    const viewportWidth = reelViewportRef.current?.clientWidth ?? window.innerWidth;
+    const trackWidth = reelTrackRef.current?.scrollWidth ?? viewportWidth;
+    const distance = Math.max(560, trackWidth - viewportWidth + 72);
+
+    setScrollDistance(distance);
+    window.requestAnimationFrame(updateProgress);
+  }, [updateProgress]);
 
   useEffect(() => {
     measure();
-    const t1 = setTimeout(measure, 300);
-    const t2 = setTimeout(measure, 1000);
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(measure)
+        : null;
+
+    if (reelViewportRef.current) resizeObserver?.observe(reelViewportRef.current);
+    if (reelTrackRef.current) resizeObserver?.observe(reelTrackRef.current);
+
+    const firstPass = window.setTimeout(measure, 300);
+    const imagePass = window.setTimeout(measure, 900);
+
     window.addEventListener('resize', measure);
-    return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', measure); };
-  }, [measure]);
+    window.addEventListener('scroll', updateProgress, { passive: true });
 
-  /* scroll trackers */
-  const { scrollYProgress: imgProg } = useScroll({
-    target: sectionRef,
-    offset: ['start end', '0.2 start'],
-  });
+    return () => {
+      resizeObserver?.disconnect();
+      window.clearTimeout(firstPass);
+      window.clearTimeout(imagePass);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', updateProgress);
+    };
+  }, [measure, updateProgress]);
 
-  const { scrollYProgress: hProg } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  });
+  const headingOpacity = useTransform(scrollYProgress, [0, 0.12, 0.24], [1, 1, 0]);
+  const headingY = useTransform(scrollYProgress, [0, 0.24], [0, -72]);
+  const compactShowreel = viewportWidth < 640;
+  const displayScale = useTransform(scrollYProgress, [0, 0.2, 0.38, 1], [compactShowreel ? 0.76 : 0.5, compactShowreel ? 0.84 : 0.74, compactShowreel ? 0.98 : 0.96, compactShowreel ? 0.98 : 0.96]);
+  const displayY = useTransform(scrollYProgress, [0, 0.32, 1], [compactShowreel ? 88 : 260, compactShowreel ? 68 : 126, compactShowreel ? 24 : 68]);
+  const screenshotOpacity = useTransform(scrollYProgress, [0, 0.5, 0.66], [1, 1, 0.28]);
+  const screenshotBlur = useTransform(scrollYProgress, [0.52, 0.68], [0, 2.4]);
+  const screenshotFilter = useTransform(screenshotBlur, (value) => `blur(${value}px)`);
+  const reelOpacity = useTransform(scrollYProgress, [0.56, 0.68], [0, 1]);
+  const reelIntroY = useTransform(scrollYProgress, [0.56, 0.68], [28, 0]);
+  const reelX = useTransform(scrollYProgress, [0.68, 0.96], [0, -scrollDistance]);
+  const progressScaleX = useTransform(scrollYProgress, [0.68, 0.96], [0.08, 1]);
 
-  /* all transforms at top level (rules of hooks) */
-  const imgScale = useTransform(imgProg, [0, 1], [0.8, 1.15]);
-  const imgOpacity = useTransform(imgProg, [0, 0.35, 1], [0, 1, 1]);
-  const headingOp = useTransform(hProg, [0, 0.06, 0.12], [1, 1, 0]);
-  const imgFadeOut = useTransform(hProg, [0.06, 0.18], [1, 0]);
-  const cardsOp = useTransform(hProg, [0.1, 0.2], [0, 1]);
-  const hintOp = useTransform(hProg, [0.15, 0.22, 0.88, 0.95], [0, 1, 1, 0]);
-  const tx = useTransform(hProg, [0.15, 0.92], [0, -scrollDist]);
+  const sectionHeight = Math.max(2500, viewportHeight * 2.8 + scrollDistance);
 
-  /* total section height = viewport + scroll distance for cards */
-  const sectionHeight = typeof window !== 'undefined' ? window.innerHeight + scrollDist + 600 : 4000;
+  useEffect(() => {
+    updateProgress();
+  }, [sectionHeight, updateProgress]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative"
+      data-testid="premium-feature-showreel"
+      data-motion-skip
+      className="relative isolate bg-[#02050b]"
       style={{ height: `${sectionHeight}px` }}
     >
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* ── ambient glows ── */}
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute left-[20%] top-[20%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.06),transparent_50%)] blur-[120px]" />
-          <div className="absolute right-[15%] top-[40%] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.06),transparent_50%)] blur-[120px]" />
-          <div className="absolute left-[40%] bottom-[15%] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(245,158,11,0.04),transparent_50%)] blur-[100px]" />
-        </div>
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#02050b_0%,#050916_48%,#02050b_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:72px_72px]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#4f8dfd]/40 to-transparent" />
 
-        {/* ═══ PHASE 1: Heading + Image ═══ */}
         <motion.div
-          className="absolute inset-x-0 top-0 z-20 flex flex-col items-center pt-16 sm:pt-20 text-center px-4"
-          style={{ opacity: headingOp }}
+          className="absolute inset-x-0 top-4 z-20 mx-auto flex max-w-6xl flex-col items-center px-4 text-center sm:top-6 lg:top-8"
+          style={{ opacity: headingOpacity, y: headingY }}
         >
-          <span className="mb-3 inline-flex rounded-full border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5 text-[10px] font-bold tracking-[0.2em] text-[#38bdf8] uppercase">
-            Feature System
+          <span className="inline-flex rounded-full border border-[#6fa7ff]/35 bg-[#07142c]/75 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.34em] text-[#9fcbff] shadow-[0_0_32px_rgba(79,141,253,0.18)] backdrop-blur-xl sm:px-4 sm:py-2">
+            TypeForge reel
           </span>
-          <h2 className="mb-4 max-w-2xl text-3xl font-semibold tracking-tight text-[#f8fafc] sm:text-4xl md:text-5xl">
-            Everything you need to{' '}
-            <span className="bg-gradient-to-r from-[#38bdf8] via-[#818cf8] to-[#a855f7] bg-clip-text text-transparent">
-              master the keyboard
+          <h2 className="mt-3 max-w-6xl text-[clamp(2.85rem,8.6vw,7.4rem)] font-black uppercase leading-[0.84] tracking-normal text-white sm:mt-4">
+            <span className="block">Signals</span>
+            <span className="block">
+              <span className="showreel-pop relative mx-1 inline-block -rotate-1 rounded-[0.22em] px-[0.16em] pb-[0.02em] text-[#02050b]">
+                inside
+              </span>
             </span>
+            <span className="block mt-[0.03em]">the display</span>
           </h2>
-          <p className="max-w-xl text-sm text-[#94a3b8] sm:text-base leading-relaxed">
-            From guided lessons to live analytics — a complete system for speed, precision, and progress.
+          <p className="mt-4 max-w-xl text-xs font-bold uppercase leading-6 tracking-normal text-[#90a4cf] sm:text-sm">
+            Zoom. Lock. Scroll the system.
           </p>
         </motion.div>
 
         <motion.div
-          className="relative z-10 w-[88vw] max-w-[960px] overflow-hidden rounded-2xl"
-          style={{ scale: imgScale, opacity: imgFadeOut }}
+          className="relative z-10 w-full max-w-[1120px]"
+          style={{ scale: displayScale, y: displayY }}
         >
-          <div className="relative aspect-[16/9]">
-            <Image src="/media/images/feature-showcase.png" alt="TypeForge Showcase" fill className="object-cover" sizes="90vw" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#02050b] via-transparent to-transparent opacity-60" />
-            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.08]" />
-          </div>
-        </motion.div>
+          <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-[#050914] shadow-[0_36px_120px_rgba(0,0,0,0.62)]">
+            <div className="relative aspect-[1880/1320]">
+              <motion.div
+                className="absolute inset-0"
+                style={{ opacity: screenshotOpacity, filter: screenshotFilter }}
+              >
+                <Image
+                  src="/media/images/typeforge-display-dashboard.png"
+                  alt="TypeForge dashboard display"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 96vw, 1120px"
+                  priority
+                />
+              </motion.div>
 
-        {/* ═══ PHASE 2: Horizontal Cards ═══ */}
-        <motion.div
-          className="absolute inset-0 flex items-center"
-          style={{ opacity: cardsOp }}
-        >
-          <motion.p
-            className="absolute top-8 left-1/2 -translate-x-1/2 text-[11px] text-[#475569] tracking-widest z-30 uppercase font-medium"
-            style={{ opacity: hintOp }}
-          >
-            scroll to explore →
-          </motion.p>
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),transparent_14%,transparent_84%,rgba(79,141,253,0.12))]" />
+              <div className="pointer-events-none absolute inset-0 rounded-[26px] ring-1 ring-inset ring-white/[0.08]" />
 
-          <motion.div
-            ref={trackRef}
-            className="flex items-center gap-5 pl-8 pr-[50vw] sm:gap-7 sm:pl-14"
-            style={{ x: tx }}
-          >
-            {/* ── CARD 1: Guided Lessons ── */}
-            <Card accent="#38bdf8" label="Structured Learning" title="Guided Lessons" desc="Step-by-step paths from fundamentals to precision-first mastery.">
-              <div className="flex items-center gap-5">
-                <div className="flex flex-col gap-2">
-                  {['Beginner', 'Rhythm', 'Accuracy (74%)', 'Mastery'].map((s, i) => (
-                    <div key={s} className="flex items-center gap-2.5">
-                      <div className={`h-[18px] w-[18px] rounded-full flex items-center justify-center shrink-0 ${i < 2 ? 'bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.4)]' : i === 2 ? 'border-2 border-[#38bdf8]' : 'border border-white/10'}`}>
-                        {i < 2 && <CheckCircle2 className="h-3 w-3 text-[#080c16]" />}
-                        {i === 2 && <div className="h-[6px] w-[6px] rounded-full bg-[#38bdf8] animate-pulse" />}
-                      </div>
-                      <span className={`text-[13px] ${i < 2 ? 'text-[#cbd5e1] font-medium' : i === 2 ? 'font-bold text-[#38bdf8]' : 'text-[#3e4a65]'}`}>{s}</span>
+              <motion.div className="absolute inset-0" style={{ opacity: reelOpacity, y: reelIntroY }}>
+                <div className="absolute inset-y-[6%] left-[3.6%] hidden w-[13.8%] border-r border-white/[0.07] sm:block">
+                  <div className="mb-[12%] flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#7c5cff]/30 bg-[#7c5cff]/15">
+                      <Keyboard className="h-4 w-4 text-[#c4b5fd]" />
                     </div>
-                  ))}
-                </div>
-                <div className="ml-auto flex flex-wrap gap-1.5 self-end">
-                  {['Adaptive', 'Structured', 'Trackable'].map(t => (
-                    <span key={t} className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-[3px] text-[9px] font-semibold uppercase tracking-wider text-[#64748b]">{t}</span>
-                  ))}
-                </div>
-              </div>
-            </Card>
-
-            {/* ── CARD 2: Real-Time Feedback ── */}
-            <Card accent="#2dd4bf" label="Live Signals" title="Real-Time Feedback" desc="WPM, accuracy, rhythm, and consistency update instantly as you type.">
-              <div className="grid grid-cols-3 gap-2.5">
-                {[
-                  { l: 'Speed', v: '92', u: 'WPM', c: '#2dd4bf' },
-                  { l: 'Precision', v: '98.4', u: '%', c: '#f8fafc' },
-                  { l: 'Rhythm', v: 'Perfect', u: '', c: '#10b981' },
-                ].map(m => (
-                  <div key={m.l} className="rounded-xl border border-white/[0.05] bg-white/[0.025] p-3 text-center transition-colors duration-300 group-hover:bg-white/[0.04]">
-                    <p className="text-[9px] uppercase tracking-wider text-[#475569] font-bold">{m.l}</p>
-                    <p className="mt-1.5 text-lg font-bold" style={{ color: m.c }}>{m.v}</p>
-                    {m.u && <p className="text-[9px] text-[#536079] mt-0.5">{m.u}</p>}
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* ── CARD 3: Practice Modes ── */}
-            <Card accent="#a855f7" label="Custom Sessions" title="Practice Modes" desc="Train with custom text, code, AI prompts, dictation, races and focused drills.">
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap gap-2">
-                  {['Code', 'AI Prompts', 'Dictation', 'Sprint', 'Focus'].map((m, i) => (
-                    <span key={m} className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all duration-300 ${i === 1 ? 'border border-[#a855f7]/50 bg-[#a855f7]/15 text-[#d8b4fe] shadow-[0_0_12px_rgba(168,85,247,0.2)]' : 'border border-white/[0.06] bg-white/[0.03] text-[#94a3b8] group-hover:bg-white/[0.06]'}`}>{m}</span>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-black/30 p-3 transition-colors duration-300 group-hover:border-[#a855f7]/20">
-                  <span className="text-[11px] font-mono text-[#a855f7]/70">// Generate AI prompt</span>
-                  <span className="flex h-5 w-5 items-center justify-center rounded bg-white/[0.08] text-[10px] text-white/60">↵</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* ── CARD 4: Progress Tracking ── */}
-            <Card accent="#f59e0b" label="Momentum" title="Progress Tracking" desc="Streaks, milestones, and habit signals that keep your growth moving forward.">
-              <div className="flex items-end justify-between">
-                <div className="flex items-end gap-3">
-                  <span className="text-[34px] font-extrabold text-[#f59e0b] leading-none drop-shadow-[0_0_14px_rgba(245,158,11,0.35)]">12</span>
-                  <div className="mb-1 flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#536079]">Day Streak</span>
-                    <span className="mt-1 inline-flex items-center gap-1 rounded-md border border-[#f59e0b]/25 bg-[#f59e0b]/10 px-2 py-0.5 text-[10px] font-bold text-[#fbbf24]">
-                      <TrendingUp className="h-3 w-3" /> Top 5%
+                    <span className="text-[clamp(0.55rem,0.9vw,0.78rem)] font-bold tracking-normal text-[#f8fafc]">
+                      TYPEFORGE
                     </span>
                   </div>
-                </div>
-                <div className="flex items-end gap-[3px] h-12">
-                  {[30, 45, 25, 60, 80, 50, 95].map((h, i) => (
-                    <div key={i} className={`w-[14px] rounded-t transition-colors duration-300 ${i === 6 ? 'bg-gradient-to-t from-[#f59e0b] to-[#fbbf24] shadow-[0_0_8px_rgba(245,158,11,0.3)]' : 'bg-white/[0.06] group-hover:bg-white/[0.1]'}`} style={{ height: `${h}%` }} />
-                  ))}
-                </div>
-              </div>
-            </Card>
-
-            {/* ── CARD 5: Analytics ── */}
-            <Card accent="#f43f5e" label="Precision Data" title="Analytics" desc="See trends, weak zones, and measurable performance gains in every session.">
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-xl border border-white/[0.05] bg-white/[0.025] p-3 transition-colors duration-300 group-hover:bg-white/[0.04]">
-                  <p className="text-[9px] uppercase tracking-widest text-[#475569] font-bold">Accuracy</p>
-                  <div className="flex items-baseline gap-1.5 mt-1"><span className="text-lg font-bold text-white">96.2%</span><span className="text-[10px] font-semibold text-[#10b981]">+4.2%</span></div>
-                </div>
-                <div className="rounded-xl border border-white/[0.05] bg-white/[0.025] p-3 transition-colors duration-300 group-hover:bg-white/[0.04]">
-                  <p className="text-[9px] uppercase tracking-widest text-[#475569] font-bold">Avg Speed</p>
-                  <div className="flex items-baseline gap-1.5 mt-1"><span className="text-lg font-bold text-white">84</span><span className="text-[10px] font-semibold text-[#10b981]">+11 WPM</span></div>
-                </div>
-                <div className="col-span-2 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3 flex items-center justify-between transition-colors duration-300 group-hover:border-[#f43f5e]/25 group-hover:bg-[#f43f5e]/[0.04]">
-                  <span className="text-[9px] uppercase tracking-widest text-[#475569] font-bold group-hover:text-[#fb7185] transition-colors">Weak Keys</span>
-                  <div className="flex gap-1.5">
-                    {['X', 'C', 'P'].map(k => (
-                      <span key={k} className="h-7 w-7 rounded-lg flex items-center justify-center text-[10px] font-bold border border-[#f43f5e]/30 bg-[#f43f5e]/10 text-[#fb7185]">{k}</span>
-                    ))}
+                  <div className="space-y-3">
+                    {[
+                      ['Dashboard', BarChart3],
+                      ['Lessons', GraduationCap],
+                      ['Practice', Target],
+                      ['Analytics', LineChart],
+                    ].map(([label, Icon]) => {
+                      const NavIcon = Icon as LucideIcon;
+                      return (
+                        <div
+                          key={label as string}
+                          className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.035] px-2.5 py-2 text-[clamp(0.52rem,0.82vw,0.72rem)] font-medium text-[#aebbe0]"
+                        >
+                          <NavIcon className="h-3.5 w-3.5 text-[#6fa7ff]" />
+                          <span>{label as string}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </div>
-            </Card>
 
-            {/* ── CARD 6: Achievements ── */}
-            <Card accent="#eab308" label="Milestones" title="Achievements" desc="Unlock badges and track milestones as you master new skills.">
-              <div className="flex flex-col gap-3">
-                <div className="flex gap-2.5">
-                  {[
-                    { e: '🔥', n: 'On Fire', d: '7-day streak' },
-                    { e: '⚡', n: 'Speed Demon', d: '100+ WPM' },
-                    { e: '🎯', n: 'Precision', d: '99% acc' },
-                  ].map(b => (
-                    <div key={b.n} className="flex-1 flex flex-col items-center rounded-xl border border-white/[0.05] bg-white/[0.025] p-2.5 text-center transition-colors duration-300 group-hover:bg-white/[0.04]">
-                      <span className="text-xl">{b.e}</span>
-                      <span className="mt-1 text-[10px] font-semibold text-[#e2e8f0]">{b.n}</span>
-                      <span className="text-[8px] text-[#475569] mt-0.5">{b.d}</span>
+                <div className="absolute left-[5%] right-[5%] top-[11%] bottom-[7%] overflow-hidden sm:left-[19%] sm:right-[3.8%]">
+                  <div className="mb-3 hidden items-center justify-between border-b border-white/[0.06] pb-3 sm:flex">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6fa7ff]">
+                        Live System Reel
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-white">
+                        TypeForge learning engine
+                      </p>
                     </div>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between rounded-xl border border-[#eab308]/20 bg-[#eab308]/[0.06] px-3.5 py-2.5">
-                  <span className="text-[11px] font-semibold text-[#fbbf24]">12 / 24 unlocked</span>
-                  <div className="h-2 w-24 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-[#eab308] to-[#fbbf24] shadow-[0_0_6px_rgba(234,179,8,0.4)]" />
+                    <div className="flex items-center gap-2 rounded-full border border-[#2dd4bf]/25 bg-[#2dd4bf]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#77f7df]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf]" />
+                      Active
+                    </div>
+                  </div>
+
+                  <div ref={reelViewportRef} className="h-[calc(100%-0.35rem)] overflow-hidden sm:h-[calc(100%-4.25rem)]">
+                    <motion.div
+                      ref={reelTrackRef}
+                      className="flex h-full items-center gap-3 pr-[40vw] sm:gap-4 lg:gap-5"
+                      style={{ x: reelX }}
+                    >
+                      <FeatureCard
+                        accent="#6fa7ff"
+                        Icon={GraduationCap}
+                        label="Structured Learning"
+                        title="Guided Lessons"
+                        description="Step-by-step paths that take you from fundamentals to precision-first mastery."
+                      >
+                        <div className="grid flex-1 grid-cols-[1fr_auto] gap-4">
+                          <div className="space-y-2.5 sm:space-y-3">
+                          {lessonSteps.map((step, index) => (
+                            <div key={step} className="flex items-center gap-2.5">
+                              {index < 2 ? (
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#6fa7ff]" />
+                              ) : index === 2 ? (
+                                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#6fa7ff]">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-[#6fa7ff]" />
+                                </span>
+                              ) : (
+                                <Circle className="h-4 w-4 shrink-0 text-[#536079]" />
+                              )}
+                              <span className={`text-[12px] font-semibold sm:text-sm ${index === 2 ? 'text-[#9fcbff]' : index === 3 ? 'text-[#536079]' : 'text-[#cbd5e1]'}`}>
+                                {step}
+                              </span>
+                            </div>
+                          ))}
+                          </div>
+                          <div className="hidden w-16 items-end gap-1 sm:flex">
+                            {[34, 54, 70, 88].map((height, index) => (
+                              <span
+                                key={height}
+                                className={`w-3 rounded-full ${index === 3 ? 'bg-[#6fa7ff]' : 'bg-[#253452]'}`}
+                                style={{ height: `${height}%` }}
+                              />
+                            ))}
+                          </div>
+                          <div className="col-span-2 flex flex-wrap gap-1.5 self-end pt-2">
+                            {['Adaptive', 'Structured', 'Trackable'].map((chip) => (
+                              <span key={chip} className="rounded-full bg-[#12213b] px-2.5 py-1 text-[10px] font-semibold text-[#9fcbff]">
+                                {chip}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </FeatureCard>
+
+                      <FeatureCard
+                        accent="#2dd4bf"
+                        Icon={ActivitySquare}
+                        label="Live Signals"
+                        title="Real-Time Feedback"
+                        description="WPM, accuracy, rhythm, and consistency update instantly as you type."
+                      >
+                        <div className="grid flex-1 content-center gap-4">
+                          <div className="relative h-28 overflow-hidden rounded-2xl border border-[#2dd4bf]/20 bg-[#071b23]/70">
+                            <div className="absolute inset-x-5 top-1/2 h-px bg-[#2dd4bf]/30" />
+                            <div className="absolute left-5 right-5 top-[36%] h-12 rounded-full bg-[#2dd4bf]/10 blur-xl" />
+                            {[18, 38, 62, 84].map((left, index) => (
+                              <span
+                                key={left}
+                                className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-[#2dd4bf] shadow-[0_0_24px_rgba(45,212,191,0.7)]"
+                                style={{ left: `${left}%`, transform: `translateY(${index % 2 ? -24 : 12}px)` }}
+                              />
+                            ))}
+                          </div>
+                          <div className="grid grid-cols-3 gap-2.5">
+                          {[
+                            ['92', 'WPM', '#60f0c8'],
+                            ['98%', 'ACC', '#6fa7ff'],
+                            ['Good', 'Rhythm', '#facc15'],
+                          ].map(([value, label, color]) => (
+                            <div key={label} className="rounded-xl bg-white/[0.045] px-2 py-3 text-center ring-1 ring-white/[0.06]">
+                              <p className="text-lg font-bold leading-none sm:text-2xl" style={{ color }}>
+                                {value}
+                              </p>
+                              <p className="mt-2 text-[10px] font-medium text-[#7d8ab0] sm:text-xs">
+                                {label}
+                              </p>
+                            </div>
+                          ))}
+                          </div>
+                        </div>
+                      </FeatureCard>
+
+                      <FeatureCard
+                        accent="#b36bff"
+                        Icon={Bot}
+                        label="Custom Sessions"
+                        title="Practice Modes"
+                        description="Train with custom text, code, AI prompts, dictation, races and focused drills."
+                      >
+                        <div className="grid flex-1 content-center gap-4">
+                          <div className="rounded-2xl border border-[#b36bff]/20 bg-[#160f2a]/75 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                            <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#d9b7ff]">
+                              <Wand2 className="h-3.5 w-3.5" />
+                              Smart prompt
+                            </div>
+                            <div className="font-code space-y-2 text-[11px] font-medium text-[#d9b7ff]">
+                              <p>// generate focus drill</p>
+                              <p className="text-[#8f9bbd]">target: weak keys + rhythm</p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {practiceModes.map((mode) => (
+                              <span
+                                key={mode}
+                                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${mode === 'AI Prompts' ? 'bg-[#9d4edd] text-white' : 'bg-[#1a2238] text-[#8f9bbd]'}`}
+                              >
+                                {mode}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </FeatureCard>
+
+                      <FeatureCard
+                        accent="#ffd21f"
+                        Icon={Zap}
+                        label="Momentum"
+                        title="Progress Tracking"
+                        description="Streaks, milestones, and habit signals that keep your growth moving forward."
+                      >
+                        <div className="grid flex-1 content-center gap-4">
+                          <div className="flex items-end gap-3">
+                            <span className="text-4xl font-extrabold leading-none text-[#ffd21f] sm:text-5xl">
+                              12
+                            </span>
+                            <div>
+                              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7d8ab0]">
+                                Day Streak
+                              </p>
+                              <p className="mt-1 inline-flex rounded-full bg-[#3a310d] px-3 py-1 text-[11px] font-bold text-[#ffdf5c]">
+                                Top 5%
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-7 gap-1.5 rounded-2xl border border-[#ffd21f]/15 bg-[#201b0d]/55 p-3">
+                            {[40, 40, 40, 40, 40, 40, 72].map((height, index) => (
+                              <div
+                                key={`${height}-${index}`}
+                                className={`rounded-md ${index === 6 ? 'bg-[#ffd21f]' : 'bg-[#232a43]'}`}
+                                style={{ height: `${height}px` }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </FeatureCard>
+
+                      <FeatureCard
+                        accent="#ff7ac8"
+                        Icon={Gauge}
+                        label="Precision Data"
+                        title="Analytics"
+                        description="See trends, weak zones and measurable performance gains in every session."
+                      >
+                        <div className="grid flex-1 content-center gap-2.5">
+                          {[
+                            ['Accuracy', '96.2%', '+4.2%'],
+                            ['Avg Speed', '84 WPM', '+11 WPM'],
+                          ].map(([label, value, delta]) => (
+                            <div key={label} className="flex items-center justify-between rounded-lg bg-[#202840] px-3 py-2.5">
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a96b8]">
+                                  {label}
+                                </p>
+                                <p className="mt-1 text-lg font-bold text-[#63f49a]">{value}</p>
+                              </div>
+                              <span className="text-xs font-bold text-[#63f49a]">{delta}</span>
+                            </div>
+                          ))}
+                          <div className="flex items-center justify-between rounded-lg bg-[#202840] px-3 py-2.5">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a96b8]">
+                              Weak Keys
+                            </span>
+                            <div className="flex gap-1.5">
+                              {weakKeys.map((keyName) => (
+                                <span key={keyName} className="flex h-7 w-7 items-center justify-center rounded-full bg-[#df2c7d] text-xs font-bold text-white">
+                                  {keyName}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </FeatureCard>
+
+                      <FeatureCard
+                        accent="#f59e0b"
+                        Icon={Trophy}
+                        label="Milestones"
+                        title="Achievements"
+                        description="Unlock badges and turn practice history into clear progression signals."
+                      >
+                        <div className="grid flex-1 content-center gap-4">
+                          <div className="grid grid-cols-3 gap-2.5">
+                          {[
+                            ['Streak', Medal],
+                            ['Speed', LineChart],
+                            ['Focus', Target],
+                          ].map(([label, Icon]) => {
+                            const BadgeIcon = Icon as LucideIcon;
+                            return (
+                              <div key={label as string} className="rounded-xl bg-white/[0.045] p-3 text-center ring-1 ring-white/[0.06]">
+                                <BadgeIcon className="mx-auto h-5 w-5 text-[#fbbf24]" />
+                                <p className="mt-2 text-[11px] font-bold text-[#f8fafc]">{label as string}</p>
+                                <p className="mt-1 text-[9px] text-[#7d8ab0]">Unlocked</p>
+                              </div>
+                            );
+                          })}
+                          </div>
+                          <div className="rounded-2xl border border-[#f59e0b]/20 bg-[#2a1b07]/60 px-4 py-3">
+                            <div className="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.18em] text-[#fbbf24]">
+                              <span>Season</span>
+                              <span>12/24</span>
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
+                              <div className="h-full w-1/2 rounded-full bg-[#fbbf24]" />
+                            </div>
+                          </div>
+                        </div>
+                      </FeatureCard>
+                    </motion.div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </motion.div>
+
+                <div className="absolute bottom-[3.2%] left-[19%] right-[3.8%] hidden h-1 rounded-full bg-white/[0.06] sm:block">
+                  <motion.div
+                    className="h-full origin-left rounded-full bg-gradient-to-r from-[#6fa7ff] via-[#2dd4bf] to-[#ffd21f]"
+                    style={{ scaleX: progressScaleX }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </motion.div>
       </div>
+      <style jsx>{`
+        .showreel-pop {
+          background:
+            radial-gradient(circle at 34% 28%, #dff4ff 0 8%, transparent 9%),
+            linear-gradient(180deg, #86d9ff 0%, #5ca4ff 48%, #2767ef 100%);
+          box-shadow:
+            0 0 0 0.07em #071526,
+            0 0 0 0.13em #9adfff,
+            0 0 0.28em #5ca4ff,
+            0 0 0.62em rgba(92, 164, 255, 0.64),
+            inset 0 -0.08em 0 rgba(0, 42, 112, 0.42),
+            inset 0 0.06em 0 rgba(255, 255, 255, 0.82);
+          text-shadow:
+            0.035em 0.035em 0 rgba(255, 255, 255, 0.45),
+            -0.035em -0.02em 0 rgba(0, 55, 105, 0.28);
+        }
+      `}</style>
     </section>
   );
 }
 
-/* ── Reusable Card Shell ── */
-function Card({ accent, label, title, desc, children }: {
-  accent: string; label: string; title: string; desc: string; children: React.ReactNode;
+function FeatureCard({
+  accent,
+  Icon,
+  label,
+  title,
+  description,
+  children,
+}: {
+  accent: string;
+  Icon: LucideIcon;
+  label: string;
+  title: string;
+  description: string;
+  children: ReactNode;
 }) {
   return (
-    <div
-      className="group relative flex-shrink-0 flex flex-col overflow-hidden rounded-[22px] border border-white/[0.07] bg-[#080b14]/95 backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-white/[0.14] hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-      style={{ width: 'clamp(300px, 30vw, 380px)', height: 'clamp(320px, 40vh, 400px)' }}
+    <article
+      className="group relative flex h-[min(88%,500px)] w-[min(76vw,310px)] shrink-0 flex-col overflow-hidden rounded-[28px] border border-white/[0.1] bg-[#080d19]/92 p-4 shadow-[0_26px_90px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:w-[min(38vw,420px)] sm:p-5 lg:w-[390px] lg:p-6"
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at 18% 12%, ${accent}24, transparent 34%),
+          linear-gradient(145deg, ${accent}16, rgba(8,13,25,0.95) 34%, rgba(6,10,20,0.98))
+        `,
+      }}
     >
-      {/* top accent glow line */}
-      <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent 10%, ${accent}50, transparent 90%)` }} />
-      {/* subtle hover radial glow */}
-      <div className="pointer-events-none absolute inset-0 rounded-[22px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: `radial-gradient(500px circle at 50% 0%, ${accent}0a, transparent 60%)` }} />
-      {/* inner content */}
-      <div className="relative z-10 flex flex-1 flex-col p-6">
-        <div className="mb-4 flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] transition-colors duration-300 group-hover:border-white/[0.12]">
-            <div className="h-4 w-4 rounded-sm" style={{ background: `${accent}30` }} />
-          </div>
-          <span className="text-[9px] font-bold uppercase tracking-[0.18em]" style={{ color: accent }}>{label}</span>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:34px_34px]" />
+      <div className="absolute inset-x-8 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
+      <div className="relative mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-white/[0.055] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <Icon className="h-[18px] w-[18px]" style={{ color: accent }} />
         </div>
-        <h3 className="mb-1.5 text-[19px] font-semibold text-[#f1f5f9] leading-tight">{title}</h3>
-        <p className="mb-auto text-[13px] leading-relaxed text-[#64748b]">{desc}</p>
-        <div className="mt-5">{children}</div>
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: accent }}>
+          {label}
+        </span>
       </div>
-    </div>
+      <h3 className="relative text-lg font-black leading-tight tracking-normal text-[#f8fafc] sm:text-2xl">
+        {title}
+      </h3>
+      <p className="relative mt-2 text-[11px] leading-5 text-[#a3acc9] sm:text-sm sm:leading-6">
+        {description}
+      </p>
+      <div className="relative flex flex-1 flex-col pt-4">{children}</div>
+    </article>
   );
 }

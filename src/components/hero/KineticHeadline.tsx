@@ -321,7 +321,7 @@ export default function KineticHeadline() {
           variants={containerVariants}
           initial={reduced ? 'visible' : 'hidden'}
           animate="visible"
-          className="relative z-10 mx-auto max-w-full select-none text-center text-[clamp(3rem,15vw,5rem)] font-black leading-[0.9] tracking-[-0.095em] text-[#f7f7f2] sm:text-[clamp(4rem,8vw,8.5rem)] sm:leading-[0.84] sm:tracking-[-0.085em] lg:tracking-[-0.09em]"
+          className="relative z-10 mx-auto max-w-full select-none text-center text-[clamp(2.35rem,12vw,4.5rem)] font-black leading-[0.9] tracking-normal text-[#f7f7f2] sm:text-[clamp(4rem,8vw,8.25rem)] sm:leading-[0.84]"
           style={{
             fontFamily: "var(--font-kinetic-display), var(--user-font-family, 'Inter'), ui-sans-serif, system-ui, sans-serif",
             textWrap: 'balance',
