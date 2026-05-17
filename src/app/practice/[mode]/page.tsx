@@ -78,11 +78,17 @@ export default async function PracticeModePage({ params }: PracticePageProps) {
   const modeConfig = modeMap[mode];
   if (!modeConfig) notFound();
   // Fetch random practice content for the mode
-  const contents = await prisma.practiceContent.findMany({
-    where: { type: modeConfig.type as any },
-    orderBy: { createdAt: 'asc' },
-    take: 5,
-  });
+  const [contents, userSettings] = await Promise.all([
+    prisma.practiceContent.findMany({
+      where: { type: modeConfig.type as any },
+      orderBy: { createdAt: 'asc' },
+      take: 5,
+    }),
+    prisma.userSettings.findUnique({
+      where: { userId: session.user.id },
+      select: { language: true },
+    }),
+  ]);
   let text: string;
   if (contents.length) {
     // pick a random DB content entry
@@ -95,14 +101,15 @@ export default async function PracticeModePage({ params }: PracticePageProps) {
   const title = modeConfig.title;
   const description = modeConfig.description;
   return (
-    <div className="min-h-screen bg-[#02050b] flex flex-col font-sans">
-      <div className="pt-6 pb-12 px-4 sm:px-8 xl:px-12 mx-auto w-full max-w-[1600px] flex-1 flex flex-col">
+    <div className="flex min-h-[100dvh] flex-col bg-[#02050b] font-sans lg:h-[100dvh] lg:overflow-hidden">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col px-4 pb-3 pt-4 sm:px-8 xl:px-12">
         <PracticeClient
           text={text}
           mode={mode}
           title={title}
           description={description}
           timeLimitSeconds={modeConfig.timeLimitSeconds}
+          initialLanguage={userSettings?.language}
         />
       </div>
     </div>

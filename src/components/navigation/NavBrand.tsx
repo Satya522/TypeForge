@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { BRAND_ASSETS } from '@/lib/brand'
@@ -27,11 +28,14 @@ export default function NavBrand({ pathname: _pathname, compact = false }: NavBr
         >
           <span className="absolute inset-0 bg-[radial-gradient(circle_at_35%_25%,rgba(111,167,255,0.26),transparent_42%),linear-gradient(135deg,rgba(45,212,191,0.13),transparent_58%)]" />
           <span className="absolute -inset-5 rotate-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] opacity-0 transition duration-700 group-hover:translate-x-7 group-hover:opacity-100" />
-          <img
+          <Image
             src={BRAND_ASSETS.logoMark}
             alt="TypeForge logo"
             width={24}
             height={24}
+            priority
+            loading="eager"
+            fetchPriority="high"
             className="relative h-auto w-auto object-contain drop-shadow-[0_0_12px_rgba(111,167,255,0.34)]"
           />
         </span>

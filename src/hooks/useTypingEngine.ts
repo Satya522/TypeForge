@@ -51,6 +51,10 @@ export function useTypingEngine(targetText: string, timeLimitMs?: number) {
   const wpm = computeWpm(correctCharsRef.current, effectiveElapsed);
   const rawWpm = computeRawWpm(typedCharsRef.current, effectiveElapsed);
   const accuracy = computeAccuracy(correctCharsRef.current, typedCharsRef.current);
+  const wpmHistory = eventsRef.current
+    .filter((event) => event.action === 'input')
+    .map((event) => event.wpm)
+    .filter((value) => Number.isFinite(value));
   const progress = timeLimitMs
     ? Math.min(100, Math.round((elapsed / timeLimitMs) * 100))
     : Math.min(Math.round((currentIndex / targetText.length) * 100), 100);
@@ -248,6 +252,7 @@ export function useTypingEngine(targetText: string, timeLimitMs?: number) {
     typedChars: typedCharsRef.current,
     wpm,
     rawWpm,
+    wpmHistory,
     accuracy,
     progress,
     timeLeft,

@@ -66,6 +66,8 @@ export default function BrandLogo({
           width={current.image}
           height={current.image}
           priority={priority}
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
           className="h-auto w-auto object-contain"
         />
       </span>

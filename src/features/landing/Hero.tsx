@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ArrowRight, Zap, Target, Flame, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import KineticHeadline from '@/components/hero/KineticHeadline';
 import AnimatedHeroSubtitle from '@/components/hero/AnimatedHeroSubtitle';
+
+const SimpleKeyboard = dynamic(() => import('react-simple-keyboard'), { ssr: false });
 
 /* ── Typing simulation text ── */
 const typingLines = [
@@ -22,44 +25,34 @@ const floatingStats = [
   { href: '/achievements', icon: Flame, label: 'Streak', value: 14, suffix: 'd', color: 'text-[#ffa657]', gradient: 'from-[#ffd8a8] to-[#db6d28]', glow: 'drop-shadow-[0_0_12px_rgba(255,166,87,0.45)]' },
 ];
 
-/* ── Keyboard keys ── */
-const keyRows = [
-  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-];
-const homeRowKeys = new Set(['A', 'S', 'D', 'F', 'J', 'K', 'L']);
-const keyToneGroups = [
-  {
-    keys: new Set(['Q', 'A', 'Z', 'P']), // Pinkies (Rose)
-    active: 'bg-gradient-to-b from-[#f43f5e] to-[#be123c] text-white shadow-[0_0_20px_rgba(244,63,94,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#f43f5e]',
-    orb: 'bg-[#f43f5e]',
-  },
-  {
-    keys: new Set(['W', 'S', 'X', 'O', 'L']), // Rings (Purple)
-    active: 'bg-gradient-to-b from-[#8b5cf6] to-[#6d28d9] text-white shadow-[0_0_20px_rgba(139,92,246,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#8b5cf6]',
-    orb: 'bg-[#8b5cf6]',
-  },
-  {
-    keys: new Set(['E', 'D', 'C', 'I', 'K']), // Middles (Amber)
-    active: 'bg-gradient-to-b from-[#f59e0b] to-[#b45309] text-white shadow-[0_0_20px_rgba(245,158,11,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#f59e0b]',
-    orb: 'bg-[#f59e0b]',
-  },
-  {
-    keys: new Set(['R', 'F', 'V', 'T', 'G', 'B']), // Left Index (Cyan)
-    active: 'bg-gradient-to-b from-[#38bdf8] to-[#0ea5e9] text-white shadow-[0_0_20px_rgba(56,189,248,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#38bdf8]',
-    orb: 'bg-[#38bdf8]',
-  },
-  {
-    keys: new Set(['Y', 'H', 'N', 'U', 'J', 'M']), // Right Index (Emerald)
-    active: 'bg-gradient-to-b from-[#10b981] to-[#047857] text-white shadow-[0_0_20px_rgba(16,185,129,0.6),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-[#10b981]',
-    orb: 'bg-[#10b981]',
-  },
-];
+/* ── Library keyboard layout ── */
+const heroKeyboardLayout = {
+  default: [
+    '` 1 2 3 4 5 6 7 8 9 0 - = {bksp}',
+    '{tab} Q W E R T Y U I O P [ ] \\',
+    "{lock} A S D F G H J K L ; ' {enter}",
+    '{shiftleft} Z X C V B N M , . / {shiftright}',
+    '{ctrlleft} {metaleft} {altleft} {space} {altright} {fn} {ctrlright}',
+  ],
+};
 
-function getKeyTone(key: string) {
-  return keyToneGroups.find((group) => group.keys.has(key)) ?? keyToneGroups[0];
-}
+const heroKeyboardDisplay = {
+  '{bksp}': 'Backspace',
+  '{tab}': 'Tab',
+  '{lock}': 'Caps Lock',
+  '{enter}': 'Enter',
+  '{shiftleft}': 'Shift',
+  '{shiftright}': 'Shift',
+  '{ctrlleft}': 'Ctrl',
+  '{ctrlright}': 'Ctrl',
+  '{metaleft}': 'Win/Mac',
+  '{altleft}': 'Alt',
+  '{altright}': 'Alt',
+  '{space}': '',
+  '{fn}': 'Fn',
+};
+
+const heroKeyboardDemoKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'A', 'S', 'D', 'F', 'J', 'K', 'L', '1', '2', '3', '7', '8', '9'];
 
 function renderCodeLine(line: string) {
   const tokens = line.split(/('(?:[^']*)'?|\bconst\b|\bif\b|\bunlock\b|\bmeasure\b|\bset\b|\bpush\b|\bkeyboard\b|\bfocus\b|\bstreak\b|\bspeed\b|\bday\b|\bacc\b|\bwpm\b|\bprecision\b|\badvanced\b|\d+)/g).filter(Boolean);
@@ -108,7 +101,7 @@ function TypingSimulator() {
   const [charIndex, setCharIndex] = useState(0);
   const [displayedLines, setDisplayedLines] = useState<string[]>([]);
   const [currentText, setCurrentText] = useState('');
-  const [isTyping, setIsTyping] = useState(true);
+  const [isTyping] = useState(true);
 
   useEffect(() => {
     if (!isTyping) return;
@@ -205,9 +198,8 @@ export default function Hero() {
 
   /* Simulate random key presses */
   useEffect(() => {
-    const allKeys = keyRows.flat();
     const interval = setInterval(() => {
-      const randomKey = allKeys[Math.floor(Math.random() * allKeys.length)];
+      const randomKey = heroKeyboardDemoKeys[Math.floor(Math.random() * heroKeyboardDemoKeys.length)];
       setActiveKey(randomKey);
       setTimeout(() => setActiveKey(null), 200);
     }, 400);
@@ -339,15 +331,15 @@ export default function Hero() {
             variants={showcaseVariants}
             initial="hidden"
             animate="visible"
-            className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]"
+            className="grid items-center gap-6 lg:grid-cols-[1.04fr_1fr]"
           >
             {/* Terminal */}
             <Link
               href="/code-practice"
-              className="group block rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
+              className="group block h-full rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
             >
               <motion.div
-                className="relative flex min-h-[274px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
+                className="relative flex h-full min-h-[344px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
                 whileHover={{ boxShadow: '0 0 0 1px rgba(111,167,255,0.16), 0 34px 110px rgba(0,0,0,0.64)' }}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(111,167,255,0.16),transparent_30%),linear-gradient(145deg,rgba(255,255,255,0.045),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
@@ -385,15 +377,20 @@ export default function Hero() {
             </Link>
 
             {/* Keyboard visualization */}
-            <Link href="/practice/home-row" className="relative block h-full rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70">
+            <Link href="/practice/home-row" className="relative mx-auto block w-full max-w-[760px] rounded-[18px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70">
               <div
-                className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 p-5 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl sm:p-6"
+                className="group relative flex min-h-[336px] flex-col overflow-hidden rounded-[18px] border border-white/[0.065] bg-[#020306] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.66),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:p-6 lg:min-h-[350px]"
               >
                 {/* Background glowing orb inside container */}
-                <div className={`absolute left-1/2 top-1/2 -z-10 h-[200px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[80px] transition-colors duration-500 ${activeKey ? getKeyTone(activeKey).orb : 'bg-[#38bdf8]'}`} />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.026),transparent_45%,rgba(255,255,255,0.012))]" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/14 to-transparent" />
+                <motion.div
+                  className="pointer-events-none absolute inset-x-10 top-16 h-40 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(111,167,255,0.16),rgba(45,212,191,0.055)_42%,transparent_70%)] blur-2xl"
+                  animate={{ opacity: [0.18, 0.34, 0.18], scale: [0.96, 1.04, 0.96] }}
+                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
 
-                <div className="mb-8 flex items-center justify-between relative z-10">
+                <div className="relative z-10 mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-white/[0.06] border border-white/[0.1] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                       <svg className="h-4 w-4 text-[#e2e8f0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -413,43 +410,27 @@ export default function Hero() {
                   </span>
                 </div>
 
-                <div className="space-y-2.5 relative z-10 flex-1 flex flex-col justify-center">
-                  {keyRows.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex items-center justify-center gap-1.5 sm:gap-2" style={{ paddingLeft: `${rowIndex * 14}px` }}>
-                      {row.map((key) => {
-                        const isHome = homeRowKeys.has(key);
-                        const isActive = activeKey === key;
-                        const tone = getKeyTone(key);
-
-                        return (
-                          <motion.div
-                            key={key}
-                            animate={isActive ? { scale: [1, 0.9, 1.08], y: [0, 2, -2] } : {}}
-                            transition={{ duration: 0.15 }}
-                            className={`
-                              font-code relative flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-bold transition-all duration-200 sm:h-11 sm:w-11 sm:text-[15px]
-                              ${isActive
-                                ? tone.active
-                                : isHome
-                                  ? 'bg-gradient-to-b from-white/[0.08] to-white/[0.02] text-[#f8fafc] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/[0.12]'
-                                  : 'bg-gradient-to-b from-white/[0.04] to-transparent text-[#94a3b8] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.06]'
-                              }
-                            `}
-                          >
-                            {key}
-                            {isHome && !isActive && (
-                              <span className="absolute bottom-1.5 left-1/2 h-0.5 w-2.5 -translate-x-1/2 rounded-full bg-white/[0.15]" />
-                            )}
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                  {/* Space bar */}
-                  <div className="mt-2.5 flex justify-center" style={{ paddingLeft: '42px' }}>
-                    <div className="h-9 w-48 rounded-[10px] bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.06] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] sm:h-11 sm:w-[260px]" />
-                  </div>
-                </div>
+                <motion.div
+                  className="tf-keyboard-stage relative z-10 flex flex-1 items-center rounded-[14px] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012)_38%,rgba(0,0,0,0.08))] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-4"
+                  initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  viewport={{ once: true, margin: '-10% 0px' }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{ y: -2 }}
+                >
+                  <SimpleKeyboard
+                    layout={heroKeyboardLayout}
+                    layoutName="default"
+                    display={heroKeyboardDisplay}
+                    theme="hg-theme-default tf-simple-keyboard"
+                    buttonTheme={[
+                      { class: 'tf-key-home', buttons: 'A S D F J K L ;' },
+                      ...(activeKey ? [{ class: 'tf-key-active', buttons: activeKey }] : []),
+                    ]}
+                    physicalKeyboardHighlight={false}
+                    disableButtonHold
+                  />
+                </motion.div>
               </div>
             </Link>
           </motion.div>
@@ -488,6 +469,234 @@ export default function Hero() {
         .hero-premium-cursor-sheen {
           background: radial-gradient(circle, rgba(111, 167, 255, 0.12), rgba(45, 212, 191, 0.05) 42%, transparent 68%);
           filter: blur(28px);
+        }
+
+        .tf-hero-keyboard {
+          --tf-key-bg:
+            linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.035) 16%, transparent 17%),
+            linear-gradient(180deg, #121821 0%, #080c12 48%, #030509 100%);
+          --tf-key-home-bg:
+            linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 16%, transparent 17%),
+            linear-gradient(180deg, #142027 0%, #081016 50%, #030609 100%);
+          --tf-key-border: rgba(154, 171, 195, 0.2);
+          --tf-key-text: #d0d7e2;
+          min-width: 0;
+        }
+
+        .tf-keyboard-stage::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1px;
+          background: linear-gradient(120deg, transparent, rgba(111,167,255,0.24), rgba(45,212,191,0.12), transparent);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0.62;
+          pointer-events: none;
+        }
+
+        .tf-keyboard-stage::after {
+          content: '';
+          position: absolute;
+          inset: 8px 12px auto;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+          opacity: 0.72;
+          pointer-events: none;
+        }
+
+        .tf-simple-keyboard.simple-keyboard {
+          width: 100%;
+          background: transparent;
+          padding: 0;
+          font-family: var(--font-code), 'JetBrains Mono', 'Cascadia Code', monospace;
+          user-select: none;
+        }
+
+        .tf-simple-keyboard .hg-rows {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .tf-simple-keyboard .hg-row {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin: 0;
+        }
+
+        .tf-simple-keyboard .hg-button {
+          position: relative;
+          isolation: isolate;
+          flex: 0 0 38px !important;
+          width: 38px !important;
+          max-width: 38px;
+          height: 38px;
+          min-width: 38px;
+          border: 1px solid var(--tf-key-border);
+          border-radius: 3px;
+          background: var(--tf-key-bg);
+          box-shadow:
+            0 10px 20px rgba(0, 0, 0, 0.54),
+            0 1px 0 rgba(255, 255, 255, 0.035),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18),
+            inset 0 -10px 18px rgba(0, 0, 0, 0.46);
+          color: var(--tf-key-text);
+          overflow: hidden;
+          font-size: 12px;
+          font-weight: 800;
+          line-height: 1;
+          text-shadow: 0 1px 7px rgba(255, 255, 255, 0.08);
+          transition:
+            transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 160ms ease,
+            background 160ms ease,
+            box-shadow 160ms ease,
+            color 160ms ease;
+        }
+
+        .tf-simple-keyboard .hg-button::before {
+          content: '';
+          position: absolute;
+          inset: 1px 1px auto;
+          z-index: -1;
+          height: 46%;
+          border-radius: 2px 2px 1px 1px;
+          background:
+            linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04)),
+            linear-gradient(90deg, transparent, rgba(111,167,255,0.12), transparent);
+          opacity: 0.86;
+          pointer-events: none;
+        }
+
+        .tf-simple-keyboard .hg-button::after {
+          content: '';
+          position: absolute;
+          inset: -24px auto -24px -58%;
+          z-index: 0;
+          width: 46%;
+          transform: skewX(-18deg);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .tf-simple-keyboard .hg-button:hover::after,
+        .tf-simple-keyboard .tf-key-active::after {
+          animation: tf-key-shine 1050ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes tf-key-shine {
+          0% {
+            transform: translateX(0) skewX(-18deg);
+            opacity: 0;
+          }
+          22% {
+            opacity: 0.72;
+          }
+          100% {
+            transform: translateX(310%) skewX(-18deg);
+            opacity: 0;
+          }
+        }
+
+        .tf-simple-keyboard .hg-button span {
+          position: relative;
+          z-index: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          white-space: normal;
+        }
+
+        .tf-simple-keyboard .hg-functionBtn {
+          color: #aeb8c8;
+          font-size: 9px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+
+        .tf-simple-keyboard .hg-button-bksp {
+          flex-basis: 88px !important;
+          width: 88px !important;
+          max-width: 88px;
+        }
+
+        .tf-simple-keyboard .hg-button-tab {
+          flex-basis: 58px !important;
+          width: 58px !important;
+          max-width: 58px;
+        }
+
+        .tf-simple-keyboard .hg-button-lock {
+          flex-basis: 86px !important;
+          width: 86px !important;
+          max-width: 86px;
+        }
+
+        .tf-simple-keyboard .hg-button-enter {
+          flex-basis: 82px !important;
+          width: 82px !important;
+          max-width: 82px;
+        }
+
+        .tf-simple-keyboard .hg-button-shiftleft,
+        .tf-simple-keyboard .hg-button-shiftright {
+          flex-basis: 82px !important;
+          width: 82px !important;
+          max-width: 82px;
+        }
+
+        .tf-simple-keyboard .hg-button-ctrlleft,
+        .tf-simple-keyboard .hg-button-ctrlright,
+        .tf-simple-keyboard .hg-button-altleft,
+        .tf-simple-keyboard .hg-button-altright,
+        .tf-simple-keyboard .hg-button-fn {
+          flex-basis: 58px !important;
+          width: 58px !important;
+          max-width: 58px;
+        }
+
+        .tf-simple-keyboard .hg-button-metaleft {
+          flex-basis: 78px !important;
+          width: 78px !important;
+          max-width: 78px;
+        }
+
+        .tf-simple-keyboard .hg-button-space {
+          flex-basis: 206px !important;
+          width: 206px !important;
+          max-width: 206px;
+        }
+
+        .tf-simple-keyboard .tf-key-home {
+          background: var(--tf-key-home-bg);
+          border-color: rgba(45, 212, 191, 0.28);
+          color: #eef7ff;
+          box-shadow:
+            0 12px 24px rgba(0, 0, 0, 0.52),
+            0 0 16px rgba(45, 212, 191, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18),
+            inset 0 -10px 18px rgba(0, 0, 0, 0.34);
+        }
+
+        .tf-simple-keyboard .tf-key-active {
+          transform: translateY(-1px);
+          border-color: rgba(111, 167, 255, 0.78);
+          background:
+            radial-gradient(circle at 50% -10%, rgba(111, 167, 255, 0.42), transparent 62%),
+            linear-gradient(180deg, #1b2a42 0%, #0c1422 54%, #05080e 100%);
+          color: #ffffff;
+          box-shadow:
+            0 0 0 1px rgba(111, 167, 255, 0.34),
+            0 18px 38px rgba(79, 141, 253, 0.28),
+            0 0 26px rgba(111, 167, 255, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            inset 0 -10px 18px rgba(0, 0, 0, 0.3);
         }
 
       `}</style>

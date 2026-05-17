@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, TrendingUp, Target, Zap, Award, Flame, Star, Hexagon, Crosshair, ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { ArrowRight, RotateCcw, Star } from 'lucide-react';
 import { getLevelFromXp } from '@/hooks/useStreak';
 
 interface SessionResultsProps {
@@ -21,8 +21,41 @@ interface SessionResultsProps {
   onRestart: () => void;
 }
 
-// Custom hook to animate numbers counting up
-const useCountUp = (end: number, duration: number = 1000) => {
+declare global {
+  interface Window {
+    Chart?: any;
+    __typeforgeChartLoader?: Promise<void>;
+  }
+}
+
+const easeOutExpo = (progress: number) => (progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress));
+
+const loadChartJs = () => {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (window.Chart) return Promise.resolve();
+  if (window.__typeforgeChartLoader) return window.__typeforgeChartLoader;
+
+  window.__typeforgeChartLoader = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>('script[data-typeforge-chartjs]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve());
+      existingScript.addEventListener('error', reject);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js';
+    script.async = true;
+    script.dataset.typeforgeChartjs = 'true';
+    script.onload = () => resolve();
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
+  return window.__typeforgeChartLoader;
+};
+
+const useCountUp = (end: number, duration = 1400) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -30,333 +63,682 @@ const useCountUp = (end: number, duration: number = 1000) => {
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // easeOutExpo
-      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setCount(Math.floor(easeProgress * end));
+      setCount(Math.floor(easeOutExpo(progress) * end));
       if (progress < 1) {
         window.requestAnimationFrame(step);
       } else {
         setCount(end);
       }
     };
-    window.requestAnimationFrame(step);
+
+    const frame = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(frame);
   }, [end, duration]);
 
   return count;
 };
 
-/* ── Confetti particle ── */
-function ConfettiCanvas({ active }: { active: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!active) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    const colors = ['#39FF14', '#00e87b', '#06b6d4', '#a855f7', '#f59e0b', '#fff'];
-    const particles = Array.from({ length: 150 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * -canvas.height * 0.3,
-      vx: (Math.random() - 0.5) * 6,
-      vy: Math.random() * 5 + 3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: Math.random() * 8 + 4,
-      rot: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 12,
-      alpha: 1,
-    }));
-
-    let frame = 0;
-    function animate() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
-        p.vy += 0.1; // gravity
-        if (frame > 100) p.alpha -= 0.01;
-        if (p.alpha <= 0) return;
-        ctx!.save();
-        ctx!.globalAlpha = p.alpha;
-        ctx!.translate(p.x, p.y);
-        ctx!.rotate((p.rot * Math.PI) / 180);
-        ctx!.shadowColor = p.color;
-        ctx!.shadowBlur = 10;
-        ctx!.fillStyle = p.color;
-        ctx!.fillRect(-p.size / 2, -p.size / 2, p.size, p.size / 2);
-        ctx!.restore();
-      });
-      frame++;
-      if (frame < 200) rafRef.current = requestAnimationFrame(animate);
-    }
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [active]);
-
-  if (!active) return null;
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none z-50 rounded-2xl"
-    />
-  );
+function formatDuration(elapsedMs: number) {
+  const mins = Math.floor(elapsedMs / 60000);
+  const secs = Math.floor((elapsedMs % 60000) / 1000);
+  return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 }
 
-function WpmSparkline({ data }: { data: number[] }) {
-  if (!data.length) return null;
-  const W = 400; const H = 100;
-  const min = Math.max(0, Math.min(...data) - 10);
-  const max = Math.max(...data, 10);
-  const range = max - min;
-  
-  const points = data.map((v, i) => {
-    const x = (i / Math.max(data.length - 1, 1)) * W;
-    const y = H - ((v - min) / (range || 1)) * H * 0.8;
-    return `${x},${y}`;
-  });
+function getFocusCopy(errors: number, accuracy: number, wpm: number) {
+  if (errors > 6) return 'Clean the next pass before adding speed.';
+  if (accuracy < 96) return 'Keep this pace and reduce corrections.';
+  if (wpm < 45) return 'Accuracy is stable. Tighten the rhythm.';
+  return 'Hold the rhythm and raise speed slowly.';
+}
 
-  const pathStr = points.join(' L');
-  const areaPath = `M0,${H} L${pathStr} L${W},${H} Z`;
+function createFallbackVelocity(targetWpm: number) {
+  return Array.from({ length: 97 }, (_, index) => {
+    const warmup = index / 96;
+    const baseline = Math.max(18, targetWpm || 34);
+    const curve = baseline * (0.34 + 0.72 * (1 - Math.exp(-warmup * 8)));
+    const dip = index < 10 ? (10 - index) * 1.35 : 0;
+    const noise = Math.sin(index * 0.58) * 1.3 + Math.cos(index * 0.19) * 0.9;
+    return Math.max(3, Math.round(curve - dip + noise));
+  });
+}
+
+function VelocityChart({ data, targetWpm }: { data: number[]; targetWpm: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<any>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const values = data.length > 4 ? data : createFallbackVelocity(targetWpm);
+
+    loadChartJs().then(() => {
+      if (cancelled || !canvasRef.current || !window.Chart) return;
+      chartRef.current?.destroy();
+
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      const strokeGradient = context.createLinearGradient(0, 0, canvas.clientWidth, 0);
+      strokeGradient.addColorStop(0, '#00d9be');
+      strokeGradient.addColorStop(1, '#7c3aed');
+
+      const fillGradient = context.createLinearGradient(0, 0, 0, canvas.clientHeight || 140);
+      fillGradient.addColorStop(0, 'rgba(0, 217, 190, 0.16)');
+      fillGradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
+
+      chartRef.current = new window.Chart(context, {
+        type: 'line',
+        data: {
+          labels: values.map((_, index) => index + 1),
+          datasets: [
+            {
+              data: values,
+              borderColor: strokeGradient,
+              backgroundColor: fillGradient,
+              borderWidth: 3,
+              fill: true,
+              pointHoverRadius: 4,
+              pointRadius: 0,
+              tension: 0.42,
+            },
+          ],
+        },
+        options: {
+          animation: {
+            duration: 2000,
+            easing: 'easeOutQuart',
+          },
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0b111a',
+              bodyColor: '#dde3ed',
+              borderColor: '#161e2a',
+              borderWidth: 1,
+              callbacks: {
+                title: () => '',
+                label: (item: any) => `STROKE #${item.dataIndex + 1} - ${Math.round(item.parsed.y)} WPM`,
+              },
+              displayColors: false,
+              padding: 10,
+              titleColor: '#9ba8bc',
+            },
+          },
+          responsive: true,
+          scales: {
+            x: { display: false, grid: { display: false } },
+            y: { display: false, grid: { display: false } },
+          },
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      chartRef.current?.destroy();
+      chartRef.current = null;
+    };
+  }, [data, targetWpm]);
 
   return (
-    <div className="w-full h-full relative flex items-center bg-[#030504] rounded-xl overflow-hidden border border-[#39FF14]/10 shadow-[inset_0_0_30px_rgba(57,255,20,0.05)]">
-      {/* Background Grid */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#39FF14 1px, transparent 1px), linear-gradient(90deg, #39FF14 1px, transparent 1px)', backgroundSize: '20px 20px', transform: 'scale(1.5)' }} />
-
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full relative z-10 drop-shadow-[0_0_15px_rgba(57,255,20,0.8)]" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="areaFade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#39FF14" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#39FF14" stopOpacity="0.0" />
-          </linearGradient>
-          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-             <stop offset="0%" stopColor="#00e87b" />
-             <stop offset="50%" stopColor="#39FF14" />
-             <stop offset="100%" stopColor="#06b6d4" />
-          </linearGradient>
-        </defs>
-        
-        <path d={areaPath} fill="url(#areaFade)" />
-        <path d={`M${pathStr}`} fill="none" stroke="url(#lineGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        <path d={`M${pathStr}`} fill="none" stroke="#39FF14" strokeWidth="8" className="opacity-40 blur-md" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+    <div className="tf-report-chart">
+      <canvas ref={canvasRef} aria-label="Velocity curve" />
     </div>
   );
 }
 
-/* ── Stat card ── */
-function StatCard({ label, value, sub, color, icon: Icon, isPb, delay }: {
-  label: string; value: number; sub?: string; color: string;
-  icon: any; isPb?: boolean; delay: number;
+function Stat({
+  accent,
+  children,
+  delay,
+  label,
+  sub,
+  suffix,
+  value,
+}: {
+  accent: string;
+  children?: ReactNode;
+  delay: number;
+  label: string;
+  sub: ReactNode;
+  suffix?: string;
+  value: number;
 }) {
-  const animatedValue = useCountUp(value, 1500);
+  const animatedValue = useCountUp(value);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay, type: "spring", stiffness: 100 }}
-      className="relative flex flex-col p-5 rounded-2xl overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
-      style={{
-        background: `linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.4) 100%)`,
-        border: `1px solid ${color}33`,
-        boxShadow: `0 8px 32px ${color}15, inset 0 0 0 1px ${color}10`,
-      }}
-    >
-      {/* Glow Hover Background */}
-      <div 
-        className="absolute -inset-20 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"
-        style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)` }}
-      />
-      
-      {isPb && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(255,215,0,0.5)] animate-pulse"
-          style={{ background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.5)' }}>
-          <Star className="w-3 h-3" /> PB
-        </div>
-      )}
-      
-      <div className="flex items-center gap-2 mb-2 relative z-10">
-        <div className="p-1.5 rounded-lg" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
-          <Icon className="w-4 h-4" style={{ color }} />
-        </div>
-        <span className="text-[11px] text-gray-400 uppercase tracking-[0.2em] font-bold">{label}</span>
+    <div className="tf-stat" style={{ animationDelay: `${delay}ms`, ['--accent' as string]: accent }}>
+      {children}
+      <p className="tf-label">{label}</p>
+      <div className="tf-stat-value">
+        <span>{animatedValue}</span>
+        {suffix ? <em>{suffix}</em> : null}
       </div>
-      
-      <div className="flex items-baseline gap-1 relative z-10">
-        <span className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color, textShadow: `0 0 30px ${color}60` }}>
-          {animatedValue}
-        </span>
-        {label === "Accuracy" && <span className="text-2xl font-bold" style={{ color }}>%</span>}
-        {label === "Streak" && <span className="text-2xl font-bold" style={{ color }}>🔥</span>}
-      </div>
-      
-      {sub && <span className="text-xs text-gray-500 mt-2 font-medium tracking-wide relative z-10">{sub}</span>}
-    </motion.div>
+      <p className="tf-stat-sub">{sub}</p>
+      <span className="tf-stat-line" />
+    </div>
   );
 }
 
 export default function SessionResults({
-  wpm, rawWpm, accuracy, errors, elapsedMs, mode, wpmHistory,
-  pb, newPb, streak, xp, xpEarned, onRestart,
+  wpm,
+  rawWpm,
+  accuracy,
+  errors,
+  elapsedMs,
+  mode,
+  wpmHistory,
+  pb,
+  newPb,
+  streak,
+  xp,
+  xpEarned,
+  onRestart,
 }: SessionResultsProps) {
-  const [confetti, setConfetti] = useState(false);
   const levelInfo = getLevelFromXp(xp);
-  
-  const displayWpm = Math.round(wpm);
-  const animatedXpEarned = useCountUp(xpEarned, 2000);
-
-  useEffect(() => {
-    if (newPb.wpm || newPb.accuracy || wpm >= 80) {
-      setTimeout(() => setConfetti(true), 400);
-    }
-  }, [newPb.wpm, newPb.accuracy, wpm]);
-
-  const mins = Math.floor(elapsedMs / 60000);
-  const secs = Math.floor((elapsedMs % 60000) / 1000);
-  const durationStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+  const animatedXpEarned = useCountUp(xpEarned);
+  const hasPersonalBest = newPb.wpm || newPb.accuracy || wpm > pb.wpm || accuracy > pb.accuracy;
+  const progress = Math.max(0, Math.min(100, levelInfo.progress));
+  const ringOffset = 188 - (188 * progress) / 100;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.02 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="relative w-full max-w-5xl mx-auto h-full flex flex-col justify-start items-center gap-8 p-6 overflow-y-auto custom-scrollbar"
-    >
-      <ConfettiCanvas active={confetti} />
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;500&family=DM+Sans:wght@300;600;800;900&display=swap');
 
-      {/* Main Container Glass */}
-      <div className="w-full flex-1 bg-[#0A0D0B]/80 backdrop-blur-2xl border border-white/5 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.8),_inset_0_1px_0_rgba(255,255,255,0.1)] p-8 md:p-12 relative overflow-hidden flex flex-col justify-center">
-        
-        {/* Decorative Grid */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        @keyframes tfFadeDown {
+          from { opacity: 0; transform: translateY(-14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
 
-        {/* Title Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, type: "spring" }}
-          className="text-center relative z-10 mb-8"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs uppercase tracking-widest text-gray-400 font-bold mb-4">
-            <Hexagon className="w-3.5 h-3.5 text-[#39FF14]" /> {mode} • {durationStr}
+        @keyframes tfSlideUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes tfRingDraw {
+          from { stroke-dashoffset: 188; }
+          to { stroke-dashoffset: var(--ring-offset); }
+        }
+
+        @keyframes tfMiniRingDraw {
+          from { stroke-dashoffset: 88; }
+          to { stroke-dashoffset: 0.88; }
+        }
+
+        @keyframes tfProgressGrow {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+
+        @keyframes tfShimmer {
+          from { transform: translateX(-120%); }
+          to { transform: translateX(220%); }
+        }
+
+        @keyframes tfSparklePulse {
+          0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+          50% { transform: scale(1.28) rotate(18deg); opacity: 1; }
+        }
+
+        .tf-report {
+          --bg: #060a10;
+          --primary: #dde3ed;
+          --muted: #556070;
+          --body: #9ba8bc;
+          --line: #161e2a;
+          --cyan: #00d9be;
+          --purple: #7c3aed;
+          --gold: #e9a43a;
+          --red: #e05252;
+          background: var(--bg);
+          color: var(--primary);
+          font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .tf-label {
+          color: #3d4a5c;
+          font-family: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          line-height: 1;
+          text-transform: uppercase;
+        }
+
+        .tf-top {
+          animation: tfFadeDown 0.6s ease-out both;
+        }
+
+        .tf-kicker {
+          align-items: center;
+          color: #3d4a5c;
+          display: inline-flex;
+          font-family: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.65rem;
+          font-weight: 700;
+          gap: 0.6rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+
+        .tf-kicker::before {
+          background: var(--cyan);
+          border-radius: 999px;
+          box-shadow: 0 0 16px rgba(0, 217, 190, 0.74);
+          content: "";
+          height: 4px;
+          width: 4px;
+        }
+
+        .tf-title {
+          font-size: clamp(2.55rem, 5.6vw, 4.8rem);
+          font-weight: 900;
+          letter-spacing: -0.065em;
+          line-height: 0.9;
+        }
+
+        .tf-gradient-text {
+          background: linear-gradient(120deg, #00d9be 0%, #7c3aed 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+
+        .tf-copy {
+          color: var(--body);
+          font-size: 0.9rem;
+          font-weight: 300;
+        }
+
+        .tf-level-number {
+          background: linear-gradient(120deg, #00d9be 0%, #7c3aed 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          font-family: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+          font-size: clamp(2.2rem, 3.4vw, 3.4rem);
+          font-weight: 500;
+          letter-spacing: -0.08em;
+          line-height: 1;
+        }
+
+        .tf-level-ring {
+          --ring-offset: 90;
+          inset: -10px;
+          position: absolute;
+        }
+
+        .tf-level-ring circle:last-child {
+          animation: tfRingDraw 1.4s ease-out both;
+          stroke-dasharray: 188;
+          stroke-dashoffset: var(--ring-offset);
+        }
+
+        .tf-stats {
+          border-bottom: 1px solid var(--line);
+          border-top: 1px solid var(--line);
+          margin-top: clamp(1.45rem, 4dvh, 2.2rem);
+        }
+
+        .tf-stat {
+          animation: tfSlideUp 0.55s ease-out both;
+          min-width: 0;
+          padding: 0.95rem 1.45rem 1.05rem;
+          position: relative;
+        }
+
+        .tf-stat + .tf-stat {
+          border-left: 1px solid var(--line);
+        }
+
+        .tf-stat-value {
+          align-items: flex-end;
+          display: flex;
+          gap: 0.2rem;
+          margin-top: 0.7rem;
+        }
+
+        .tf-stat-value span {
+          color: var(--primary);
+          font-family: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+          font-size: clamp(2.15rem, 3.35vw, 3.3rem);
+          font-weight: 500;
+          letter-spacing: -0.04em;
+          line-height: 0.92;
+        }
+
+        .tf-stat-value em {
+          color: var(--accent);
+          font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+          font-size: 1rem;
+          font-style: normal;
+          font-weight: 900;
+          margin-bottom: 0.28rem;
+        }
+
+        .tf-stat-sub {
+          color: var(--muted);
+          font-family: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.72rem;
+          margin-top: 0.62rem;
+        }
+
+        .tf-stat-line {
+          background: linear-gradient(90deg, var(--accent), transparent);
+          bottom: 0;
+          height: 1px;
+          left: 1.5rem;
+          opacity: 0.9;
+          position: absolute;
+          right: 1.5rem;
+        }
+
+        .tf-mini-ring {
+          position: absolute;
+          right: 1.5rem;
+          top: 0.85rem;
+        }
+
+        .tf-mini-ring circle:last-child {
+          animation: tfMiniRingDraw 1.6s ease-out both;
+          stroke-dasharray: 88;
+          stroke-dashoffset: 0.88;
+        }
+
+        .tf-dim-fire {
+          filter: grayscale(1);
+          opacity: 0.15;
+        }
+
+        .tf-sparkle {
+          animation: tfSparklePulse 3s ease-in-out infinite;
+          color: var(--gold);
+          display: inline-block;
+          font-size: 1.15rem;
+          position: absolute;
+          right: 1.5rem;
+          top: 0.85rem;
+        }
+
+        .tf-velocity {
+          flex: 1 1 auto;
+          margin-top: clamp(1.45rem, 4dvh, 2.15rem);
+          min-height: 0;
+        }
+
+        .tf-section-head {
+          align-items: center;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .tf-divider {
+          background: linear-gradient(90deg, transparent, #233044 12%, #233044 88%, transparent);
+          height: 1px;
+          margin-top: 0.75rem;
+          width: 100%;
+        }
+
+        .tf-report-chart {
+          height: clamp(104px, 19dvh, 132px);
+          margin-top: clamp(0.85rem, 2dvh, 1.1rem);
+          width: 100%;
+        }
+
+        .tf-report-chart canvas {
+          height: 100% !important;
+          width: 100% !important;
+        }
+
+        .tf-bottom {
+          align-items: end;
+          display: grid;
+          gap: clamp(1.25rem, 3dvh, 2rem);
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto;
+          margin-top: clamp(1.25rem, 3.2dvh, 2rem);
+        }
+
+        .tf-progress-line {
+          height: 4px;
+          overflow: hidden;
+          position: relative;
+          transform-origin: left;
+          width: min(23rem, 100%);
+        }
+
+        .tf-progress-fill {
+          animation: tfProgressGrow 1.6s ease-out 1.2s both;
+          background: linear-gradient(120deg, #00d9be 0%, #7c3aed 100%);
+          box-shadow: 0 0 18px rgba(0, 217, 190, 0.34);
+          height: 100%;
+          overflow: hidden;
+          position: relative;
+          transform-origin: left;
+        }
+
+        .tf-progress-fill::after {
+          animation: tfShimmer 2.2s ease-in-out infinite;
+          background: linear-gradient(90deg, transparent, rgba(221, 227, 237, 0.5), transparent);
+          content: "";
+          inset: 0;
+          position: absolute;
+          width: 42%;
+        }
+
+        .tf-action-icon {
+          align-items: center;
+          color: var(--body);
+          display: inline-flex;
+          height: 2.75rem;
+          justify-content: center;
+          transition: border-color 0.2s ease, color 0.2s ease;
+          width: 2.75rem;
+        }
+
+        .tf-actions {
+          display: flex;
+          gap: 0.7rem;
+          justify-content: flex-end;
+        }
+
+        .tf-action-icon:hover {
+          border: 1px solid #263245;
+          border-radius: 999px;
+          color: var(--primary);
+        }
+
+        .tf-action-icon:hover svg {
+          transform: rotate(360deg);
+        }
+
+        .tf-action-icon svg {
+          transition: transform 0.5s ease;
+        }
+
+        .tf-next {
+          background: linear-gradient(120deg, #00d9be 0%, #7c3aed 100%);
+          border-radius: 999px;
+          color: #071016;
+          font-size: 0.78rem;
+          font-weight: 900;
+          height: 2.75rem;
+          letter-spacing: 0.04em;
+          overflow: hidden;
+          padding: 0 1.35rem;
+          position: relative;
+          transition: transform 0.2s ease;
+        }
+
+        .tf-next::after {
+          background: linear-gradient(90deg, transparent, rgba(221, 227, 237, 0.38), transparent);
+          content: "";
+          inset: 0;
+          position: absolute;
+          transform: translateX(-130%);
+          transition: transform 0.65s ease;
+          width: 55%;
+        }
+
+        .tf-next:hover {
+          transform: scale(1.04);
+        }
+
+        .tf-next:hover::after {
+          transform: translateX(230%);
+        }
+
+        @media (max-width: 760px) {
+          .tf-title {
+            font-size: clamp(2.35rem, 12vw, 3.6rem);
+          }
+
+          .tf-stat:nth-child(odd) {
+            border-left: 0;
+          }
+
+          .tf-stat:nth-child(n + 3) {
+            border-top: 1px solid var(--line);
+          }
+
+          .tf-bottom {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-height: 660px) {
+          .tf-title {
+            font-size: clamp(2.35rem, 5vw, 4.05rem);
+          }
+
+          .tf-copy {
+            font-size: 0.84rem;
+          }
+
+          .tf-stat {
+            padding-bottom: 0.85rem;
+            padding-top: 0.78rem;
+          }
+
+          .tf-report-chart {
+            height: clamp(92px, 17dvh, 116px);
+          }
+
+          .tf-progress-line {
+            margin-top: 0.8rem !important;
+          }
+        }
+      `}</style>
+
+      <div className="tf-report mx-auto flex h-full min-h-0 w-full max-w-[1090px] flex-col overflow-hidden px-5 py-5 sm:px-6">
+        <header className="tf-top flex shrink-0 items-start justify-between gap-8">
+          <div className="min-w-0">
+            <p className="tf-kicker">{mode} - {formatDuration(elapsedMs)}</p>
+            <h1 className="tf-title mt-3">
+              <span>Precision</span> <span className="tf-gradient-text">Report</span>
+            </h1>
+            <p className="tf-copy mt-3">A clean readout of your pace, accuracy, rhythm, and next move.</p>
           </div>
-          <h2 className="text-6xl md:text-7xl font-black tracking-tighter"
-            style={{
-              background: 'linear-gradient(135deg, #FFF 0%, #39FF14 50%, #00e87b 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              filter: 'drop-shadow(0 0 30px rgba(57,255,20,0.3))'
-            }}>
-            {wpm >= 100 ? 'GODLIKE' : wpm >= 80 ? 'INCREDIBLE' : wpm >= 50 ? 'GREAT JOB' : 'SESSION COMPLETE'}
-          </h2>
-        </motion.div>
 
-        {/* Core Stats Grid */}
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative z-10 mb-8">
-          <StatCard label="WPM" value={displayWpm} sub={`Raw WPM: ${rawWpm}`} color="#39FF14" icon={Zap} isPb={newPb.wpm} delay={0.2} />
-          <StatCard label="Accuracy" value={accuracy} sub={`Errors: ${errors}`} color="#06b6d4" icon={Crosshair} isPb={newPb.accuracy} delay={0.3} />
-          <StatCard label="Streak" value={streak} sub="Consecutive Days" color="#f59e0b" icon={Flame} delay={0.4} />
-          <StatCard label="XP Earned" value={xpEarned} sub={`Total XP: ${xp}`} color="#a855f7" icon={Award} delay={0.5} />
-        </div>
+          <div className="relative hidden min-w-[5.8rem] text-center sm:block">
+            <svg className="tf-level-ring" viewBox="0 0 72 72" style={{ ['--ring-offset' as string]: ringOffset }}>
+              <circle cx="36" cy="36" fill="none" r="30" stroke="#161e2a" strokeWidth="2" />
+              <circle
+                cx="36"
+                cy="36"
+                fill="none"
+                r="30"
+                stroke="url(#tfLevelGradient)"
+                strokeLinecap="round"
+                strokeWidth="3"
+                transform="rotate(-90 36 36)"
+              />
+              <defs>
+                <linearGradient id="tfLevelGradient" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#00d9be" />
+                  <stop offset="100%" stopColor="#7c3aed" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <p className="tf-label">Level</p>
+            <p className="tf-level-number mt-3">{levelInfo.level}</p>
+          </div>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 mb-10 w-full flex-1 min-h-[200px]">
-          {/* WPM Sparkline (Takes 2 columns) */}
-          {wpmHistory.length > 2 ? (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}
-              className="lg:col-span-2 w-full h-full rounded-2xl p-6 flex flex-col border border-white/5 bg-black/40 backdrop-blur-md shadow-[inset_0_4px_20px_rgba(0,0,0,0.5)]"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#39FF14]" />
-                  <span className="text-[11px] text-gray-400 uppercase tracking-widest font-bold">Velocity Over Time</span>
-                </div>
-              </div>
-              <div className="flex-1 w-full relative">
-                <WpmSparkline data={wpmHistory} />
-              </div>
-            </motion.div>
-          ) : <div className="lg:col-span-2"></div>}
-
-          {/* Level / XP Progress Box */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}
-            className="w-full h-full rounded-2xl p-6 flex flex-col justify-center border border-purple-500/20 bg-purple-950/10 backdrop-blur-md shadow-[inset_0_0_40px_rgba(168,85,247,0.05)] relative overflow-hidden group"
+        <section className="tf-stats grid shrink-0 grid-cols-2 sm:grid-cols-4">
+          <Stat accent="#00d9be" delay={80} label="WPM" value={Math.round(wpm)} sub={`Raw ${Math.round(rawWpm)} WPM`} />
+          <Stat
+            accent="#00d9be"
+            delay={180}
+            label="Accuracy"
+            value={accuracy}
+            suffix="%"
+            sub={<span className={errors > 0 ? 'text-[#e05252]' : ''}>{errors === 1 ? '1 error' : `${errors} errors`}</span>}
           >
-            {/* Glowing orb behind */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-500/20 blur-[50px] rounded-full pointer-events-none group-hover:bg-purple-500/30 transition-colors duration-500" />
-            
-            <div className="relative z-10 text-center mb-6">
-              <Award className="w-12 h-12 text-purple-400 mx-auto mb-3 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]" />
-              <div className="text-4xl font-black text-white">{levelInfo.level}</div>
-              <div className="text-[10px] uppercase tracking-widest text-purple-400 font-bold mt-1">Current Tier</div>
-            </div>
+            <svg className="tf-mini-ring" height="32" viewBox="0 0 32 32" width="32">
+              <circle cx="16" cy="16" fill="none" r="14" stroke="#161e2a" strokeWidth="2" />
+              <circle cx="16" cy="16" fill="none" r="14" stroke="#00d9be" strokeLinecap="round" strokeWidth="2" transform="rotate(-90 16 16)" />
+            </svg>
+          </Stat>
+          <Stat
+            accent="#3d4a5c"
+            delay={280}
+            label="Streak"
+            value={streak}
+            sub="Consecutive days"
+          >
+            <span className="tf-dim-fire absolute right-6 top-4">🔥</span>
+          </Stat>
+          <Stat accent="#e9a43a" delay={380} label="XP" value={xpEarned} sub={`Total ${xp} XP`}>
+            <span className="tf-sparkle">✦</span>
+          </Stat>
+        </section>
 
-            <div className="relative z-10 w-full mb-3">
-              <div className="flex justify-between text-xs text-gray-400 font-medium mb-2">
-                <span>{levelInfo.xp} XP</span>
-                <span>{levelInfo.nextLevelXp} XP</span>
-              </div>
-              <div className="w-full h-3 rounded-full bg-black/60 border border-white/5 overflow-hidden shadow-inner">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${levelInfo.progress}%` }}
-                  transition={{ duration: 1.5, delay: 0.8, type: 'spring' }}
-                  className="h-full rounded-full relative"
-                  style={{ background: 'linear-gradient(90deg, #9333ea, #d8b4fe)' }}
-                >
-                  <div className="absolute inset-0 bg-[linear-gradient(-45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[slide_1s_linear_infinite]" />
-                </motion.div>
-              </div>
-            </div>
-            
-            <div className="text-center relative z-10">
-              <div className="inline-flex border border-purple-500/30 bg-purple-900/30 px-3 py-1 rounded-full text-purple-300 text-xs font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-                +{animatedXpEarned} XP Earned
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        <section className="tf-velocity min-h-0">
+          <div className="tf-section-head">
+            <p className="tf-label">Velocity curve</p>
+            <p className="tf-label">{wpmHistory.length || 97} strokes</p>
+          </div>
+          <div className="tf-divider" />
+          <VelocityChart data={wpmHistory} targetWpm={Math.round(wpm)} />
+        </section>
 
-        {/* Actions Bottom Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
-          className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-10"
-        >
-           {/* Personal Best message */}
-          <div className="flex-1">
-            <AnimatePresence>
-              {(newPb.wpm || newPb.accuracy) && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                  className="inline-flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-bold shadow-[0_0_30px_rgba(255,215,0,0.15)]"
-                  style={{ background: 'linear-gradient(90deg, rgba(255,215,0,0.1) 0%, transparent 100%)', borderLeft: '3px solid #FFD700', color: '#FFF' }}
-                >
-                  <Star className="w-5 h-5 text-[#FFD700] fill-[#FFD700]" />
-                  Mighty effort! You smashed a personal best.
-                </motion.div>
-              )}
-            </AnimatePresence>
+        <section className="tf-bottom shrink-0">
+          <div>
+            <p className="tf-label">Tier progress</p>
+            <div className="tf-progress-line mt-5">
+              <div className="tf-progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <p className="mt-4 font-mono text-[0.72rem] text-[#556070]">
+              Level {levelInfo.level} - +{animatedXpEarned} XP earned
+            </p>
           </div>
 
-          <button
-            onClick={onRestart}
-            className="group relative flex items-center gap-3 px-8 py-4 rounded-xl font-bold transition-all active:scale-95 overflow-hidden"
-            style={{ background: '#39FF14' }}
-          >
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-            <span className="text-black uppercase tracking-widest text-sm relative z-10">Next Session</span>
-            <ArrowRight className="w-5 h-5 text-black relative z-10 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </motion.div>
+          <div>
+            <p className="tf-label" style={{ color: '#00d9be' }}>Next focus</p>
+            <p className="mt-3 max-w-md text-[clamp(1.1rem,2.1vw,1.55rem)] font-black leading-tight tracking-[-0.03em] text-[#dde3ed]">
+              {getFocusCopy(errors, accuracy, wpm)}
+            </p>
+            {hasPersonalBest ? (
+              <p className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-[#e9a43a]">
+                <Star className="h-4 w-4 fill-[#e9a43a]" />
+                Personal best
+              </p>
+            ) : null}
+          </div>
 
+          <div className="tf-actions">
+            <button className="tf-action-icon" onClick={onRestart} aria-label="Retry session">
+              <RotateCcw className="h-4 w-4" />
+            </button>
+            <button className="tf-next inline-flex items-center gap-2" onClick={onRestart}>
+              <span className="relative z-10">Next</span>
+              <ArrowRight className="relative z-10 h-4 w-4" />
+            </button>
+          </div>
+        </section>
       </div>
-    </motion.div>
+    </>
   );
 }

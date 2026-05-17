@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import SessionMetrics from '@/components/SessionMetrics';
+import SessionResults from '@/components/SessionResults';
 import TypingArea from '@/components/TypingArea';
-import { Button } from '@/components/ui/button';
 import { useTypingEngine } from '@/hooks/useTypingEngine';
 
 import VirtualKeyboard from '@/components/VirtualKeyboard';
@@ -12,6 +11,11 @@ import { RotateCcw, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+  SUPPORTED_LANGUAGES,
+  normalizeLanguageCode,
+  type SupportedLanguageCode,
+} from '@/lib/languages';
 
 type PracticeClientProps = {
   text: string;
@@ -19,11 +23,15 @@ type PracticeClientProps = {
   title: string;
   description: string;
   timeLimitSeconds?: number;
+  initialLanguage?: string | null;
 };
 
-export default function PracticeClient({ text, mode, title, description, timeLimitSeconds }: PracticeClientProps) {
+export default function PracticeClient({ text, mode, title, description, timeLimitSeconds, initialLanguage }: PracticeClientProps) {
   const router = useRouter();
   const [selectedFont, setSelectedFont] = useState('code');
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguageCode>(
+    normalizeLanguageCode(initialLanguage)
+  );
 
   const {
     finished,
@@ -32,6 +40,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
     errors,
     wpm,
     rawWpm,
+    wpmHistory,
     accuracy,
     progress,
     timeLeft,
@@ -40,6 +49,19 @@ export default function PracticeClient({ text, mode, title, description, timeLim
     elapsedMs,
     getTelemetrySnapshot,
   } = useTypingEngine(text, timeLimitSeconds ? timeLimitSeconds * 1000 : undefined);
+
+  useEffect(() => {
+    const storedLanguage = window.localStorage.getItem('preferredLang');
+    if (storedLanguage) {
+      setSelectedLanguage(normalizeLanguageCode(storedLanguage));
+    }
+  }, []);
+
+  const handleLanguageChange = (value: string) => {
+    const nextLanguage = normalizeLanguageCode(value);
+    setSelectedLanguage(nextLanguage);
+    window.localStorage.setItem('preferredLang', nextLanguage);
+  };
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -101,11 +123,15 @@ export default function PracticeClient({ text, mode, title, description, timeLim
   const lastTypedChar = typed.length > 0 ? typed[typed.length - 1] : null;
   const lastExpectedChar = typed.length > 0 ? text[typed.length - 1] : null;
   const lastStatus = !lastTypedChar ? 'idle' : lastTypedChar === lastExpectedChar ? 'correct' : 'wrong';
+  const xpEarned = Math.max(10, Math.round(wpm * (accuracy / 100)) + Math.max(0, 100 - errors * 2));
 
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-60px)]">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
       {/* ── TOP HEADER / HUD ── */}
-      <div className="w-full flex sm:flex-row flex-col gap-2 justify-between items-center mb-2 text-gray-400 shrink-0">
+      <div
+        className="mb-2 flex w-full shrink-0 flex-col items-center justify-between gap-2 text-gray-400 sm:flex-row"
+        data-nav-reveal-blocker
+      >
         
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {/* Back Button */}
@@ -127,7 +153,7 @@ export default function PracticeClient({ text, mode, title, description, timeLim
                 router.push(`/practice/${e.target.value}`);
               }
             }}
-            className="appearance-none h-8 flex items-center bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] transition-colors rounded-full px-4 pr-8 text-[12px] font-semibold text-gray-200 outline-none cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] backdrop-blur-md"
+            className="h-8 appearance-none rounded-full border border-white/[0.06] bg-white/[0.03] px-4 pr-8 text-[12px] font-semibold text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] outline-none backdrop-blur-md transition-colors hover:border-white/[0.12] hover:bg-white/[0.08]"
           >
             <option value="" disabled className="bg-[#090C0B] text-gray-500">── Core Drills ──</option>
             <option value="words" className="bg-[#090C0B] text-gray-300">Random Words</option>
@@ -213,6 +239,31 @@ export default function PracticeClient({ text, mode, title, description, timeLim
             
             <div className="w-px h-3 bg-white/[0.08]" />
 
+            {/* Language Selector */}
+            <div className="relative group flex items-center">
+              <select
+                value={selectedLanguage}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                aria-label="Practice language"
+                className="appearance-none bg-transparent py-1 pl-1 pr-6 text-[10px] font-bold uppercase tracking-widest text-gray-300 outline-none transition-colors hover:text-white focus:text-accent-300"
+              >
+                {SUPPORTED_LANGUAGES.map((language) => (
+                  <option
+                    key={language.code}
+                    value={language.code}
+                    className="bg-[#090C0B] text-gray-300"
+                  >
+                    {language.shortLabel} · {language.nativeLabel}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-1 opacity-50 text-white transition-opacity group-hover:opacity-100">
+                <ChevronDown className="w-3 h-3" />
+              </div>
+            </div>
+
+            <div className="w-px h-3 bg-white/[0.08]" />
+
             {/* Font Selector */}
             <div className="relative group flex items-center">
               <select
@@ -243,20 +294,38 @@ export default function PracticeClient({ text, mode, title, description, timeLim
         </div>
       </div>
 
-      {/* ── TYPING AREA ── */}
-      <div className="w-full flex-1 min-h-0 flex flex-col items-center gap-3">
-        <div className="w-full flex-1 min-h-0 flex flex-col justify-center relative bg-[#090C0B]/40 backdrop-blur-xl border border-white/[0.04] px-6 py-4 sm:px-10 sm:py-6 lg:px-14 lg:py-8 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.02)]">
-          <TypingArea
-            text={text}
-            typed={typed}
-            currentIndex={currentIndex}
-            finished={finished}
-            fontClass={selectedFont}
+      {finished ? (
+        <div className="min-h-0 w-full flex-1 overflow-hidden">
+          <SessionResults
+            wpm={wpm}
+            rawWpm={rawWpm}
+            accuracy={accuracy}
+            errors={errors}
+            elapsedMs={elapsedMs}
+            mode={title || mode}
+            wpmHistory={wpmHistory}
+            pb={{ wpm, accuracy }}
+            newPb={{ wpm: false, accuracy: false }}
+            streak={0}
+            xp={xpEarned}
+            xpEarned={xpEarned}
+            onRestart={restart}
           />
         </div>
+      ) : (
+        /* ── TYPING AREA ── */
+        <div className="w-full flex-1 min-h-0 flex flex-col items-center gap-3">
+          <div className="w-full flex-1 min-h-0 flex flex-col justify-center relative bg-[#090C0B]/40 backdrop-blur-xl border border-white/[0.04] px-6 py-4 sm:px-10 sm:py-6 lg:px-14 lg:py-8 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.02)]">
+            <TypingArea
+              text={text}
+              typed={typed}
+              currentIndex={currentIndex}
+              finished={finished}
+              fontClass={selectedFont}
+            />
+          </div>
 
-        {/* ── VIRTUAL KEYBOARD ── */}
-        {!finished && (
+          {/* ── VIRTUAL KEYBOARD ── */}
           <div className="w-full shrink-0">
             <VirtualKeyboard 
               targetChar={targetChar} 
@@ -264,8 +333,8 @@ export default function PracticeClient({ text, mode, title, description, timeLim
               lastTypedChar={lastTypedChar}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

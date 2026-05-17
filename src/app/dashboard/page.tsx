@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { getDisplayName, getResolvedAvatarUrl } from '@/lib/profile';
 import { aggregateHeatmapFromTelemetry, parseTypingTelemetry } from '@/lib/typingTelemetry';
 import DashboardExperience, { type DashboardPayload } from './DashboardExperience';
-import DashboardV2 from '@/components/dashboard/DashboardV2';
+import DashboardV2, { type DashboardV2Props } from '@/components/dashboard/DashboardV2';
 
 export const metadata = {
   title: 'Dashboard – TypeForge',
@@ -256,7 +256,7 @@ export default async function DashboardPage() {
   };
 
   // Transform data for DashboardV2
-  const dashboardV2Data = {
+  const dashboardV2Data: DashboardV2Props = {
     progress: {
       streakDays: payload.stats.currentStreak,
       streakLabel: "DAY STREAK",
@@ -269,9 +269,9 @@ export default async function DashboardPage() {
     },
     analytics: {
       accuracy: payload.stats.avgAccuracy,
-      accuracyChange: `+${Math.max(0, payload.stats.trendAccuracy.toFixed(1))}%`,
+      accuracyChange: `+${Math.max(0, payload.stats.trendAccuracy).toFixed(1)}%`,
       avgSpeed: Math.round(payload.stats.avgWpm),
-      speedChange: `+${Math.max(0, payload.stats.trendWpm.toFixed(0))} WPM`,
+      speedChange: `+${Math.max(0, payload.stats.trendWpm).toFixed(0)} WPM`,
       weakKeys: weakKeys.slice(0, 3).map(k => k.key.slice(0, 1)),
     },
     lessons: {

@@ -22,6 +22,12 @@ import { SettingsSection } from '@/components/ui/settings-section'
 import { ToggleSwitch } from '@/components/ui/toggle-switch'
 import { useTheme } from '@/components/ThemeProvider'
 import {
+  SUPPORTED_LANGUAGE_CODES,
+  SUPPORTED_LANGUAGES,
+  normalizeLanguageCode,
+  type SupportedLanguageCode,
+} from '@/lib/languages'
+import {
   PROFILE_HANDLE_MAX_LENGTH,
   PROFILE_NICKNAME_MAX_LENGTH,
   getDisplayName,
@@ -38,7 +44,7 @@ const settingsSchema = z.object({
   dailyGoal: z.number().int().min(1).max(50),
   fontFamily: z.string().min(1),
   fontSize: z.number().int().min(12).max(28),
-  language: z.enum(['en', 'hi', 'es']),
+  language: z.enum(SUPPORTED_LANGUAGE_CODES),
   leaderboardVisible: z.boolean(),
   notificationsEnabled: z.boolean(),
   preferredDuration: z.enum([
@@ -119,11 +125,12 @@ const fontOptions: FontOption[] = [
   },
 ]
 
-const languageOptions: ChoiceOption<SettingsValues['language']>[] = [
-  { label: 'English', value: 'en' },
-  { label: 'हिन्दी', value: 'hi' },
-  { label: 'Español', value: 'es' },
-]
+const languageOptions: ChoiceOption<SupportedLanguageCode>[] =
+  SUPPORTED_LANGUAGES.map((language) => ({
+    description: language.label,
+    label: language.nativeLabel,
+    value: language.code,
+  }))
 
 const durationOptions: DiscreteSliderOption<
   SettingsValues['preferredDuration']
@@ -146,10 +153,7 @@ function getSettingsDefaults(settings: UserSettings): SettingsValues {
     dailyGoal: settings.dailyGoal ?? 5,
     fontFamily: settings.fontFamily ?? 'Inter',
     fontSize: settings.fontSize ?? 16,
-    language:
-      settings.language === 'hi' || settings.language === 'es'
-        ? settings.language
-        : 'en',
+    language: normalizeLanguageCode(settings.language),
     leaderboardVisible: settings.leaderboardVisible,
     notificationsEnabled: settings.notificationsEnabled ?? true,
     preferredDuration: settings.preferredDuration ?? 'S60',

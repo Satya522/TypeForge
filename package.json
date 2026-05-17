@@ -49,6 +49,7 @@
     "react-activity-calendar": "^3.2.0",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.45.1",
+    "react-simple-keyboard": "^3.8.206",
     "recharts": "^2.7.2",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",

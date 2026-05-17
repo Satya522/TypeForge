@@ -69,8 +69,9 @@ export default function Navbar() {
   const { data: session } = useSession()
   const pathname = usePathname() ?? '/'
   const prefersReducedMotion = useReducedMotion()
+  const isImmersivePracticeRoute = pathname.startsWith('/practice/')
 
-  const [navHidden, setNavHidden] = useState(false)
+  const [navHidden, setNavHidden] = useState(isImmersivePracticeRoute)
   const [isScrolled, setIsScrolled] = useState(false)
   const lastScrollYRef = useRef(0)
   const tickingRef = useRef(false)
@@ -89,9 +90,9 @@ export default function Navbar() {
   const AUTO_HIDE_PATHS = ['/learn', '/practice', '/roadmap', '/games', '/analytics']
   const shouldApplyAutoHide = AUTO_HIDE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 
-  const isIdleRef = useRef(false)
+  const isIdleRef = useRef(isImmersivePracticeRoute)
   const idleTimerRef = useRef<number | null>(null)
-  const [isIdle, setIsIdle] = useState(false)
+  const [isIdle, setIsIdle] = useState(isImmersivePracticeRoute)
 
   // Interaction tracking for auto-hide paths
   useEffect(() => {
@@ -99,6 +100,27 @@ export default function Navbar() {
       setIsIdle(false)
       isIdleRef.current = false
       return
+    }
+
+    const isControlInteraction = (target: EventTarget | null) => {
+      const activeElement = document.activeElement
+      if (
+        activeElement instanceof HTMLElement &&
+        activeElement.closest(
+          'select, option, input, textarea, [role="combobox"], [data-nav-reveal-blocker]'
+        )
+      ) {
+        return true
+      }
+
+      return (
+        target instanceof Element &&
+        Boolean(
+          target.closest(
+            'select, option, input, textarea, [role="combobox"], [data-nav-reveal-blocker]'
+          )
+        )
+      )
     }
 
     const resetIdle = (options?: { forceReveal?: boolean }) => {
@@ -114,29 +136,46 @@ export default function Navbar() {
       }, 3000)
     }
 
-    resetIdle()
+    if (isImmersivePracticeRoute) {
+      setNavHidden(true)
+      setIsIdle(true)
+      isIdleRef.current = true
+    } else {
+      resetIdle()
+    }
 
     const onMouseMove = (e: MouseEvent) => {
-      if (e.clientY <= 80) {
+      const revealBand = isImmersivePracticeRoute ? 12 : 80
+
+      if (e.clientY <= revealBand && !isControlInteraction(e.target)) {
         resetIdle({ forceReveal: true })
-      } else if (!isIdleRef.current) {
+      } else if (!isIdleRef.current && !isControlInteraction(e.target)) {
         resetIdle()
       }
     }
 
-    const onKeyDown = () => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isImmersivePracticeRoute && event.key !== 'Escape') return
       resetIdle({ forceReveal: true })
     }
 
-    const onClick = () => {
+    const onClick = (event: MouseEvent) => {
+      if (isImmersivePracticeRoute || isControlInteraction(event.target)) return
       resetIdle({ forceReveal: true })
     }
 
     const onScroll = () => {
+      if (isImmersivePracticeRoute) {
+        setNavHidden(true)
+        setIsIdle(true)
+        isIdleRef.current = true
+        return
+      }
       resetIdle()
     }
 
-    const onFocusIn = () => {
+    const onFocusIn = (event: FocusEvent) => {
+      if (isImmersivePracticeRoute || isControlInteraction(event.target)) return
       resetIdle({ forceReveal: true })
     }
 
@@ -154,7 +193,20 @@ export default function Navbar() {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('focusin', onFocusIn)
     }
-  }, [shouldApplyAutoHide])
+  }, [isImmersivePracticeRoute, shouldApplyAutoHide])
+
+  useEffect(() => {
+    if (isImmersivePracticeRoute) {
+      setNavHidden(true)
+      setIsIdle(true)
+      isIdleRef.current = true
+      setIsBrowseMenuOpen(false)
+      return
+    }
+
+    setIsIdle(false)
+    isIdleRef.current = false
+  }, [isImmersivePracticeRoute, pathname])
 
   const handleSignOut = useCallback(() => {
     void signOut({ callbackUrl: '/login' })

@@ -1,4 +1,4 @@
-import DashboardV2 from '@/components/dashboard/DashboardV2';
+import DashboardV2, { type DashboardV2Props } from '@/components/dashboard/DashboardV2';
 
 export const metadata = {
   title: 'Dashboard V2 Preview – TypeForge',
@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default function DashboardPreviewPage() {
-  const mockData = {
+  const mockData: DashboardV2Props = {
     progress: {
       streakDays: 12,
       streakLabel: "DAY STREAK",
