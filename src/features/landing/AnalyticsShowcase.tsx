@@ -136,7 +136,7 @@ export default function AnalyticsShowcase() {
   }, []);
 
   return (
-    <section ref={sectionRef} data-motion-skip className="relative py-14 sm:py-16 lg:py-20">
+    <section ref={sectionRef} data-motion-skip className="relative py-6 sm:py-8 lg:py-10">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 

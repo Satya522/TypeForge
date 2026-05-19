@@ -33,7 +33,7 @@ const trainingSignals = [
 
 export default function HomeCTA() {
   return (
-    <section data-motion-skip className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+    <section data-motion-skip className="relative overflow-hidden py-8 sm:py-10 lg:py-12">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 

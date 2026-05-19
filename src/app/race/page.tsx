@@ -22,7 +22,7 @@ export default function RacePage() {
         prev.map((p) => ({
           ...p,
           progress: Math.min(p.progress + Math.random() * 5, 100),
-          wpm: p.wpm + Math.random() * 1 - 0.5,
+          wpm: Math.max(0, p.wpm === 0 ? 60 + Math.random() * 20 : p.wpm + Math.random() * 4 - 2),
         })),
       );
     }, 1000);

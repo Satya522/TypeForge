@@ -2,21 +2,31 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { ArrowRight, Zap, Target, Flame, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, Target, Flame, ChevronRight, Keyboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import KeyboardHeatmap from '@/components/ui/KeyboardHeatmap';
 import KineticHeadline from '@/components/hero/KineticHeadline';
 import AnimatedHeroSubtitle from '@/components/hero/AnimatedHeroSubtitle';
 
-const SimpleKeyboard = dynamic(() => import('react-simple-keyboard'), { ssr: false });
-
 /* ── Typing simulation text ── */
 const typingLines = [
-  "const speed = keyboard.measure('wpm');",
-  "if (speed > 90) unlock('advanced');",
-  "focus.set('home-row', precision);",
-  "streak.push({ day: 14, acc: 98 });",
+  "import { engine } from '@typeforge/core';",
+  "const session = engine.init('practice');",
+  "",
+  "session.on('keystroke', (event) => {",
+  "  const speed = keyboard.measure('wpm');",
+  "  if (speed > 90) unlock('advanced_mode');",
+  "  ",
+  "  focus.set('home-row', precision);",
+  "  streak.push({ day: 14, acc: 98 });",
+  "  ",
+  "  if (event.isCombo) {",
+  "    multiplier.increase(1.5);",
+  "  }",
+  "});",
+  "",
+  "session.start({ strict: true });"
 ];
 
 const floatingStats = [
@@ -55,19 +65,36 @@ const heroKeyboardDisplay = {
 const heroKeyboardDemoKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'A', 'S', 'D', 'F', 'J', 'K', 'L', '1', '2', '3', '7', '8', '9'];
 
 function renderCodeLine(line: string) {
-  const tokens = line.split(/('(?:[^']*)'?|\bconst\b|\bif\b|\bunlock\b|\bmeasure\b|\bset\b|\bpush\b|\bkeyboard\b|\bfocus\b|\bstreak\b|\bspeed\b|\bday\b|\bacc\b|\bwpm\b|\bprecision\b|\badvanced\b|\d+)/g).filter(Boolean);
+  const tokens = line.split(/('(?:[^']*)'?|\bimport\b|\bfrom\b|\bconst\b|\bif\b|\bunlock\b|\bmeasure\b|\bset\b|\bpush\b|\binit\b|\bon\b|\bincrease\b|\bstart\b|\bkeyboard\b|\bfocus\b|\bstreak\b|\bspeed\b|\bday\b|\bacc\b|\bwpm\b|\bprecision\b|\badvanced_mode\b|\bengine\b|\bsession\b|\bevent\b|\bisCombo\b|\bmultiplier\b|\bstrict\b|\btrue\b|\d+(?:\.\d+)?)/g).filter(Boolean);
 
   return tokens.map((token, index) => {
-    let color = 'text-[#e2e8f0]';
+    let color = 'text-[#64748b]';
+    let glow = '';
 
-    if (token === 'const' || token === 'if') color = 'text-[#f43f5e] font-semibold drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]';
-    else if (token.startsWith("'")) color = 'text-[#2dd4bf] drop-shadow-[0_0_8px_rgba(45,212,191,0.3)]';
-    else if (['unlock', 'measure', 'set', 'push'].includes(token)) color = 'text-[#38bdf8] drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]';
-    else if (['keyboard', 'focus', 'streak', 'speed', 'day', 'acc', 'wpm', 'precision', 'advanced'].includes(token)) color = 'text-[#f8fafc] drop-shadow-[0_0_10px_rgba(255,255,255,0.15)]';
-    else if (/^\d+$/.test(token)) color = 'text-[#c084fc] drop-shadow-[0_0_8px_rgba(192,132,252,0.3)]';
+    if (['import', 'from', 'const', 'if'].includes(token)) {
+      color = 'text-[#c084fc]';
+      glow = 'drop-shadow-[0_0_8px_rgba(192,132,252,0.4)]';
+    } else if (token === 'true') {
+      color = 'text-[#f472b6]';
+      glow = 'drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]';
+    } else if (token.startsWith("'")) {
+      color = 'text-[#2dd4bf]';
+      glow = 'drop-shadow-[0_0_8px_rgba(45,212,191,0.4)]';
+    } else if (['unlock', 'measure', 'set', 'push', 'init', 'on', 'increase', 'start'].includes(token)) {
+      color = 'text-[#60a5fa]';
+      glow = 'drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]';
+    } else if (['keyboard', 'focus', 'streak', 'engine', 'session', 'event', 'multiplier'].includes(token)) {
+      color = 'text-[#e2e8f0]';
+      glow = 'drop-shadow-[0_0_8px_rgba(226,232,240,0.3)]';
+    } else if (['speed', 'day', 'acc', 'wpm', 'precision', 'advanced_mode', 'isCombo', 'strict'].includes(token)) {
+      color = 'text-[#94a3b8]';
+    } else if (/^\d+(?:\.\d+)?$/.test(token)) {
+      color = 'text-[#fbbf24]';
+      glow = 'drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]';
+    }
 
     return (
-      <span key={`${token}-${index}`} className={color}>
+      <span key={`${token}-${index}`} className={`${color} ${glow}`.trim()}>
         {token}
       </span>
     );
@@ -114,7 +141,7 @@ function TypingSimulator() {
       return () => clearTimeout(timeout);
     } else {
       const timeout = setTimeout(() => {
-        setDisplayedLines(prev => [...prev.slice(-2), currentText]);
+        setDisplayedLines(prev => [...prev.slice(-6), currentText]);
         setCurrentText('');
         setCharIndex(0);
         setLineIndex(prev => (prev + 1) % typingLines.length);
@@ -124,20 +151,23 @@ function TypingSimulator() {
   }, [charIndex, lineIndex, isTyping, currentText]);
 
   return (
-    <div className="font-code text-[13.5px] font-medium leading-[1.85] tracking-normal sm:text-[14.5px]">
+    <div 
+      className="text-[0.85rem] font-medium leading-[2] tracking-normal h-full w-[380px] max-w-full overflow-hidden whitespace-pre"
+      style={{ fontFamily: 'var(--font-code), "JetBrains Mono", monospace' }}
+    >
       {displayedLines.map((line, i) => (
-        <div key={i} className="text-[#94a3b8]/70 opacity-80 transition-colors duration-500">
-          <span className="mr-5 inline-block w-4 select-none text-right text-[0.92em] font-medium tabular-nums text-[#334155]">{i + 1}</span>
+        <div key={i} className="flex items-baseline text-[#94a3b8]/70 opacity-70 transition-colors duration-500 py-0.5">
+          <span className="mr-3 select-none text-[#4a5d74]/60">❯</span>
           {renderCodeLine(line)}
         </div>
       ))}
-      <div className="text-[#f8fafc]">
-        <span className="mr-5 inline-block w-4 select-none text-right text-[0.92em] font-semibold tabular-nums text-[#38bdf8]/90 drop-shadow-[0_0_6px_rgba(56,189,248,0.4)]">{displayedLines.length + 1}</span>
+      <div className="-ml-3 flex items-baseline rounded-r-lg border-l-2 border-[#2dd4bf] bg-gradient-to-r from-[#2dd4bf]/[0.08] to-transparent py-0.5 pl-3 text-[#dde4f0] shadow-[-8px_0_16px_rgba(45,212,191,0.1)] relative">
+        <span className="mr-3 select-none text-[#2dd4bf] drop-shadow-[0_0_6px_rgba(45,212,191,0.5)]">❯</span>
         {renderCodeLine(currentText)}
         <motion.span
-          animate={{ opacity: [1, 0] }}
-          transition={{ duration: 0.7, repeat: Infinity, ease: 'linear' }}
-          className="ml-1 inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]"
+          className="ml-1.5 inline-block h-[15px] w-[6px] align-middle rounded-[1px] bg-[#2dd4bf] drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]"
+          animate={{ opacity: [1, 0.2] }}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
     </div>
@@ -286,7 +316,7 @@ export default function Hero() {
         </div>
 
         {/* ── Bottom: interactive showcase ── */}
-        <div className="mx-auto mt-12 max-w-5xl">
+        <div className="mx-auto mt-12 max-w-6xl">
           {/* Stats row − clean, no boxes */}
           <motion.div
             variants={statsContainerVariants}
@@ -331,105 +361,120 @@ export default function Hero() {
             variants={showcaseVariants}
             initial="hidden"
             animate="visible"
-            className="grid items-center gap-6 lg:grid-cols-[1.04fr_1fr]"
+            className="grid items-stretch gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-8"
           >
             {/* Terminal */}
             <Link
               href="/code-practice"
-              className="group block h-full rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
+              className="group block min-w-0 h-full w-full rounded-[28px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70"
             >
               <motion.div
-                className="relative flex h-full min-h-[344px] flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#080d19]/88 shadow-[0_32px_100px_rgba(0,0,0,0.54),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
-                whileHover={{ boxShadow: '0 0 0 1px rgba(111,167,255,0.16), 0 34px 110px rgba(0,0,0,0.64)' }}
+                className="relative flex h-full w-full flex-col overflow-hidden rounded-[16px] border border-white/[0.065] bg-[#000000] shadow-[0_20px_60px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-2xl before:absolute before:inset-x-0 before:top-0 before:z-20 before:h-px before:bg-gradient-to-r before:from-transparent before:via-[#00d4b8]/25 before:to-transparent before:content-['']"
+                whileHover={{ boxShadow: '0 28px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)' }}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(111,167,255,0.16),transparent_30%),linear-gradient(145deg,rgba(255,255,255,0.045),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38bdf8]/40 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(0,212,184,0.08),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.035),transparent_58%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
 
                 {/* Terminal header */}
-                <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-[#030711]/50 px-6 py-4 backdrop-blur-md">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] shadow-[0_0_8px_rgba(255,95,87,0.4)]" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] shadow-[0_0_8px_rgba(254,188,46,0.4)]" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] shadow-[0_0_8px_rgba(40,200,64,0.4)]" />
+                <div className="relative z-10 flex h-[38px] items-center justify-between border-b border-white/[0.04] bg-black/25 px-[14px] backdrop-blur-md">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f56] transition-transform duration-150 group-hover:scale-[1.15]" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e] transition-transform duration-150 group-hover:scale-[1.15]" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-[#27c93f] transition-transform duration-150 group-hover:scale-[1.15]" />
                   </div>
-                  <div className="absolute left-1/2 flex -translate-x-1/2 items-center">
-                    <span className="font-code bg-gradient-to-b from-[#f8fafc] to-[#94a3b8] bg-clip-text text-[11px] font-bold tracking-normal text-transparent">
-                      typeforge://session
+                  <div className="absolute left-1/2 flex -translate-x-1/2 items-center" style={{ fontFamily: 'var(--font-code), "JetBrains Mono", monospace' }}>
+                    <span className="bg-gradient-to-r from-[#00d4b8] to-[#7c3aed] bg-clip-text text-[0.72rem] font-medium tracking-normal text-transparent">
+                      typeforge://
                     </span>
+                    <span className="bg-gradient-to-r from-[#7c3aed] to-[#f472b6] bg-clip-text text-[0.72rem] font-medium tracking-normal text-transparent">
+                      session
+                    </span>
+                  </div>
+                  <div className="flex h-4 items-center gap-[2px]" aria-hidden="true">
+                    {[0, 1, 2].map((bar) => (
+                      <motion.span
+                        key={bar}
+                        className="w-[3px] rounded-full bg-[#00d4b8]"
+                        animate={{ height: bar === 0 ? [8, 14, 6] : bar === 1 ? [14, 6, 10] : [6, 10, 14] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: bar * 0.2 }}
+                      />
+                    ))}
                   </div>
                 </div>
 
                 {/* Terminal body */}
-                <div className="font-code relative flex flex-1 items-start bg-transparent p-5 pt-7 sm:p-6 sm:pt-8">
+                <div className="relative z-10 flex flex-1 items-start bg-transparent p-5 pt-6 sm:p-6 sm:pt-7">
                   <TypingSimulator />
                 </div>
 
                 {/* Bottom status bar */}
-                <div className="font-code mt-auto flex items-center justify-between border-t border-white/[0.06] bg-[#030711]/50 px-6 py-3.5 text-[10px] font-bold uppercase tracking-normal text-[#64748b] backdrop-blur-md">
+                <div 
+                  className="relative z-10 mt-auto flex h-6 items-center gap-4 border-t border-white/[0.04] bg-black/30 px-3 text-[0.6rem] text-[#4a5d74] backdrop-blur-md"
+                  style={{ fontFamily: 'var(--font-code), "JetBrains Mono", monospace' }}
+                >
                   <span>UTF-8</span>
-                  <span className="flex items-center gap-2 text-[#2dd4bf]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
+                  <span>·</span>
+                  <span className="flex items-center gap-2">
+                    <motion.span
+                      className="h-[5px] w-[5px] rounded-full bg-[#2dd4a0]"
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        boxShadow: [
+                          '0 0 6px rgba(45,212,160,0.5)',
+                          '0 0 14px rgba(45,212,160,0.9)',
+                          '0 0 6px rgba(45,212,160,0.5)',
+                        ],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
                     LIVE
                   </span>
+                  <span>·</span>
                   <span>LN 1, COL 1</span>
+                  <span className="ml-auto bg-gradient-to-r from-[#00d4b8] to-[#7c3aed] bg-clip-text text-[0.6rem] text-transparent">
+                    TypeForge
+                  </span>
                 </div>
               </motion.div>
             </Link>
 
             {/* Keyboard visualization */}
-            <Link href="/practice/home-row" className="relative mx-auto block w-full max-w-[760px] rounded-[18px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70">
+            <Link href="/practice/home-row" className="relative block min-w-0 w-full h-full rounded-[18px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/70">
               <div
-                className="group relative flex min-h-[336px] flex-col overflow-hidden rounded-[18px] border border-white/[0.065] bg-[#020306] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.66),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:p-6 lg:min-h-[350px]"
+                className="group relative flex h-full flex-col overflow-hidden rounded-[16px] border border-white/[0.055] bg-[#000000] shadow-[0_28px_90px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-2xl before:absolute before:inset-x-0 before:top-0 before:z-20 before:h-px before:bg-gradient-to-r before:from-transparent before:via-[#7c3aed]/25 before:to-transparent before:content-['']"
               >
                 {/* Background glowing orb inside container */}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.026),transparent_45%,rgba(255,255,255,0.012))]" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/14 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_76%_18%,rgba(124,58,237,0.055),transparent_42%),radial-gradient(ellipse_at_18%_82%,rgba(0,212,184,0.045),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.018),rgba(0,0,0,0.28))]" />
                 <motion.div
-                  className="pointer-events-none absolute inset-x-10 top-16 h-40 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(111,167,255,0.16),rgba(45,212,191,0.055)_42%,transparent_70%)] blur-2xl"
-                  animate={{ opacity: [0.18, 0.34, 0.18], scale: [0.96, 1.04, 0.96] }}
-                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                  className="pointer-events-none absolute inset-x-10 top-16 h-40 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(0,212,184,0.10),rgba(124,58,237,0.055)_48%,transparent_72%)] blur-2xl"
+                  animate={{ opacity: [0.12, 0.28, 0.12], scale: [0.94, 1.06, 0.94] }}
+                  transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
                 />
 
-                <div className="relative z-10 mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-white/[0.06] border border-white/[0.1] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                      <svg className="h-4 w-4 text-[#e2e8f0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e2e8f0] drop-shadow-md">
-                      Heatmap
+                <div className="relative z-10 flex h-11 items-center justify-between px-4 pt-2">
+                  <div className="flex items-center">
+                    <Keyboard size={14} strokeWidth={1.5} className="text-[#4a5d74]" />
+                    <span className="ml-2 bg-gradient-to-r from-[#00d4b8] to-[#7c3aed] bg-clip-text text-[0.65rem] font-bold uppercase tracking-[0.14em] text-transparent">
+                      HEATMAP
                     </span>
                   </div>
-                  <span className="flex items-center gap-1.5 rounded-full border border-[#38bdf8]/30 bg-[#38bdf8]/10 px-2.5 py-1 text-[10px] font-bold tracking-wider text-[#38bdf8] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#38bdf8] opacity-75"></span>
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#38bdf8]"></span>
-                    </span>
-                    Live
+                  <span className="flex items-center rounded-full border border-[#2dd4a0]/20 bg-[#2dd4a0]/[0.08] px-2.5 py-0.5">
+                    <motion.span
+                      className="h-1.5 w-1.5 rounded-full bg-[#2dd4a0]"
+                      animate={{ scale: [1, 1.45, 1], opacity: [0.65, 1, 0.65] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    <span className="ml-1 text-[0.7rem] font-semibold text-[#2dd4a0]">Live</span>
                   </span>
                 </div>
 
                 <motion.div
-                  className="tf-keyboard-stage relative z-10 flex flex-1 items-center rounded-[14px] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012)_38%,rgba(0,0,0,0.08))] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-4"
+                  className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-6 pb-6"
                   initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
                   whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   viewport={{ once: true, margin: '-10% 0px' }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{ y: -2 }}
                 >
-                  <SimpleKeyboard
-                    layout={heroKeyboardLayout}
-                    layoutName="default"
-                    display={heroKeyboardDisplay}
-                    theme="hg-theme-default tf-simple-keyboard"
-                    buttonTheme={[
-                      { class: 'tf-key-home', buttons: 'A S D F J K L ;' },
-                      ...(activeKey ? [{ class: 'tf-key-active', buttons: activeKey }] : []),
-                    ]}
-                    physicalKeyboardHighlight={false}
-                    disableButtonHold
-                  />
+                  <KeyboardHeatmap activeKey={activeKey ?? undefined} className="w-full" />
                 </motion.div>
               </div>
             </Link>
@@ -470,235 +515,6 @@ export default function Hero() {
           background: radial-gradient(circle, rgba(111, 167, 255, 0.12), rgba(45, 212, 191, 0.05) 42%, transparent 68%);
           filter: blur(28px);
         }
-
-        .tf-hero-keyboard {
-          --tf-key-bg:
-            linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.035) 16%, transparent 17%),
-            linear-gradient(180deg, #121821 0%, #080c12 48%, #030509 100%);
-          --tf-key-home-bg:
-            linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 16%, transparent 17%),
-            linear-gradient(180deg, #142027 0%, #081016 50%, #030609 100%);
-          --tf-key-border: rgba(154, 171, 195, 0.2);
-          --tf-key-text: #d0d7e2;
-          min-width: 0;
-        }
-
-        .tf-keyboard-stage::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          padding: 1px;
-          background: linear-gradient(120deg, transparent, rgba(111,167,255,0.24), rgba(45,212,191,0.12), transparent);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          opacity: 0.62;
-          pointer-events: none;
-        }
-
-        .tf-keyboard-stage::after {
-          content: '';
-          position: absolute;
-          inset: 8px 12px auto;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
-          opacity: 0.72;
-          pointer-events: none;
-        }
-
-        .tf-simple-keyboard.simple-keyboard {
-          width: 100%;
-          background: transparent;
-          padding: 0;
-          font-family: var(--font-code), 'JetBrains Mono', 'Cascadia Code', monospace;
-          user-select: none;
-        }
-
-        .tf-simple-keyboard .hg-rows {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .tf-simple-keyboard .hg-row {
-          display: flex;
-          justify-content: center;
-          gap: 8px;
-          margin: 0;
-        }
-
-        .tf-simple-keyboard .hg-button {
-          position: relative;
-          isolation: isolate;
-          flex: 0 0 38px !important;
-          width: 38px !important;
-          max-width: 38px;
-          height: 38px;
-          min-width: 38px;
-          border: 1px solid var(--tf-key-border);
-          border-radius: 3px;
-          background: var(--tf-key-bg);
-          box-shadow:
-            0 10px 20px rgba(0, 0, 0, 0.54),
-            0 1px 0 rgba(255, 255, 255, 0.035),
-            inset 0 1px 0 rgba(255, 255, 255, 0.18),
-            inset 0 -10px 18px rgba(0, 0, 0, 0.46);
-          color: var(--tf-key-text);
-          overflow: hidden;
-          font-size: 12px;
-          font-weight: 800;
-          line-height: 1;
-          text-shadow: 0 1px 7px rgba(255, 255, 255, 0.08);
-          transition:
-            transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
-            border-color 160ms ease,
-            background 160ms ease,
-            box-shadow 160ms ease,
-            color 160ms ease;
-        }
-
-        .tf-simple-keyboard .hg-button::before {
-          content: '';
-          position: absolute;
-          inset: 1px 1px auto;
-          z-index: -1;
-          height: 46%;
-          border-radius: 2px 2px 1px 1px;
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04)),
-            linear-gradient(90deg, transparent, rgba(111,167,255,0.12), transparent);
-          opacity: 0.86;
-          pointer-events: none;
-        }
-
-        .tf-simple-keyboard .hg-button::after {
-          content: '';
-          position: absolute;
-          inset: -24px auto -24px -58%;
-          z-index: 0;
-          width: 46%;
-          transform: skewX(-18deg);
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        .tf-simple-keyboard .hg-button:hover::after,
-        .tf-simple-keyboard .tf-key-active::after {
-          animation: tf-key-shine 1050ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes tf-key-shine {
-          0% {
-            transform: translateX(0) skewX(-18deg);
-            opacity: 0;
-          }
-          22% {
-            opacity: 0.72;
-          }
-          100% {
-            transform: translateX(310%) skewX(-18deg);
-            opacity: 0;
-          }
-        }
-
-        .tf-simple-keyboard .hg-button span {
-          position: relative;
-          z-index: 1;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          white-space: normal;
-        }
-
-        .tf-simple-keyboard .hg-functionBtn {
-          color: #aeb8c8;
-          font-size: 9px;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-        }
-
-        .tf-simple-keyboard .hg-button-bksp {
-          flex-basis: 88px !important;
-          width: 88px !important;
-          max-width: 88px;
-        }
-
-        .tf-simple-keyboard .hg-button-tab {
-          flex-basis: 58px !important;
-          width: 58px !important;
-          max-width: 58px;
-        }
-
-        .tf-simple-keyboard .hg-button-lock {
-          flex-basis: 86px !important;
-          width: 86px !important;
-          max-width: 86px;
-        }
-
-        .tf-simple-keyboard .hg-button-enter {
-          flex-basis: 82px !important;
-          width: 82px !important;
-          max-width: 82px;
-        }
-
-        .tf-simple-keyboard .hg-button-shiftleft,
-        .tf-simple-keyboard .hg-button-shiftright {
-          flex-basis: 82px !important;
-          width: 82px !important;
-          max-width: 82px;
-        }
-
-        .tf-simple-keyboard .hg-button-ctrlleft,
-        .tf-simple-keyboard .hg-button-ctrlright,
-        .tf-simple-keyboard .hg-button-altleft,
-        .tf-simple-keyboard .hg-button-altright,
-        .tf-simple-keyboard .hg-button-fn {
-          flex-basis: 58px !important;
-          width: 58px !important;
-          max-width: 58px;
-        }
-
-        .tf-simple-keyboard .hg-button-metaleft {
-          flex-basis: 78px !important;
-          width: 78px !important;
-          max-width: 78px;
-        }
-
-        .tf-simple-keyboard .hg-button-space {
-          flex-basis: 206px !important;
-          width: 206px !important;
-          max-width: 206px;
-        }
-
-        .tf-simple-keyboard .tf-key-home {
-          background: var(--tf-key-home-bg);
-          border-color: rgba(45, 212, 191, 0.28);
-          color: #eef7ff;
-          box-shadow:
-            0 12px 24px rgba(0, 0, 0, 0.52),
-            0 0 16px rgba(45, 212, 191, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.18),
-            inset 0 -10px 18px rgba(0, 0, 0, 0.34);
-        }
-
-        .tf-simple-keyboard .tf-key-active {
-          transform: translateY(-1px);
-          border-color: rgba(111, 167, 255, 0.78);
-          background:
-            radial-gradient(circle at 50% -10%, rgba(111, 167, 255, 0.42), transparent 62%),
-            linear-gradient(180deg, #1b2a42 0%, #0c1422 54%, #05080e 100%);
-          color: #ffffff;
-          box-shadow:
-            0 0 0 1px rgba(111, 167, 255, 0.34),
-            0 18px 38px rgba(79, 141, 253, 0.28),
-            0 0 26px rgba(111, 167, 255, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2),
-            inset 0 -10px 18px rgba(0, 0, 0, 0.3);
-        }
-
       `}</style>
     </section>
   );

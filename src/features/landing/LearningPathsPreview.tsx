@@ -110,7 +110,7 @@ export default function LearningPathsPreview() {
   }, []);
 
   return (
-    <section ref={sectionRef} data-motion-skip className="relative py-14 sm:py-16 lg:py-20">
+    <section ref={sectionRef} data-motion-skip className="relative py-6 sm:py-8 lg:py-10">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[#02050b]" />
 
       <div className="section-shell">
@@ -127,7 +127,7 @@ export default function LearningPathsPreview() {
             <span className="text-xs font-black uppercase tracking-normal text-[#b7d5ff]">Learning Paths</span>
           </div>
           <h2 className="mx-auto max-w-6xl text-[clamp(2.75rem,8.6vw,7.35rem)] font-black uppercase leading-[0.86] tracking-normal text-white">
-            <span className="block">No messy typing.</span>
+            <span className="block">No sloppy typing.</span>
             <span className="block">Pick your</span>
             <span className="block py-[0.08em]">
               <span className="route-pop relative mx-1 inline-block -rotate-1 rounded-[0.22em] px-[0.16em] pb-[0.02em] text-[#02050b]">

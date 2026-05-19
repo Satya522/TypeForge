@@ -282,7 +282,7 @@ function FloatingDoodles({ reduced }: { reduced: boolean }) {
 
       <motion.span
         {...float(1.1, 8)}
-        className="absolute left-4 top-1/2 sm:left-8 lg:left-20 hidden rotate-[-4deg] rounded-full border border-[#3ee6b5]/45 bg-[#3ee6b5]/12 px-3 py-1.5 font-mono text-[0.62rem] font-black uppercase tracking-[0.18em] text-[#9ff8de] shadow-[0_8px_24px_rgba(62,230,181,0.12)] md:inline-flex"
+        className="absolute -left-2 top-[55%] sm:left-0 lg:left-4 hidden rotate-[-4deg] rounded-full border border-[#3ee6b5]/45 bg-[#3ee6b5]/12 px-3 py-1.5 font-mono text-[0.62rem] font-black uppercase tracking-[0.18em] text-[#9ff8de] shadow-[0_8px_24px_rgba(62,230,181,0.12)] md:inline-flex"
       >
         92 WPM
       </motion.span>

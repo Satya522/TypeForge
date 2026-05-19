@@ -117,16 +117,16 @@ export default function PremiumFeatureSection() {
       ref={sectionRef}
       data-testid="premium-feature-showreel"
       data-motion-skip
-      className="relative isolate bg-[#02050b]"
+      className="relative isolate bg-[#000000]"
       style={{ height: `${sectionHeight}px` }}
     >
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#02050b_0%,#050916_48%,#02050b_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#000000_0%,#050916_48%,#000000_100%)]" />
         <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:72px_72px]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#4f8dfd]/40 to-transparent" />
+        {/* Top glowing line removed */}
 
         <motion.div
-          className="absolute inset-x-0 top-4 z-20 mx-auto flex max-w-6xl flex-col items-center px-4 text-center sm:top-6 lg:top-8"
+          className="absolute inset-x-0 top-0 z-20 mx-auto flex max-w-6xl flex-col items-center px-4 text-center sm:top-2 lg:top-4"
           style={{ opacity: headingOpacity, y: headingY }}
         >
           <span className="inline-flex rounded-full border border-[#6fa7ff]/35 bg-[#07142c]/75 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.34em] text-[#9fcbff] shadow-[0_0_32px_rgba(79,141,253,0.18)] backdrop-blur-xl sm:px-4 sm:py-2">

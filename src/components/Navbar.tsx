@@ -431,7 +431,7 @@ export default function Navbar() {
         initial="hidden"
         animate={(fullNavIsHidden && !isDesktopIdle) ? 'visible' : 'hidden'}
         style={{ pointerEvents: (fullNavIsHidden && !isDesktopIdle) ? 'auto' : 'none' }}
-        className="nav-noise fixed left-5 top-4 z-50 hidden items-center rounded-full border border-white/[0.1] bg-gradient-to-b from-[#111827]/95 to-[#0a1120]/95 px-3 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl lg:flex"
+        className="fixed left-5 top-4 z-50 hidden items-center lg:flex"
       >
         <NavBrand pathname={pathname} compact />
       </motion.div>
