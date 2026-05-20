@@ -3,6 +3,7 @@
 import { useMotionTemplate, useMotionValue, motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Terminal, Layers, Trophy, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /* ── Types ── */
 export interface LessonPathData {
@@ -24,7 +25,7 @@ function getPathKey(title: string) {
 /* ══════════════════════════════════════════════
  *  Spotlight Card Base
  * ══════════════════════════════════════════════ */
-function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "rgba(255,255,255,0.08)" }: { children: React.ReactNode, pathSlug?: string, delay: number, glowColor?: string }) {
+export function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "rgba(255,255,255,0.08)", onClick }: { children: React.ReactNode, pathSlug?: string, delay: number, glowColor?: string, onClick?: () => void }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -35,7 +36,9 @@ function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "rgba(255
   }
 
   const Wrapper = pathSlug ? Link : "div";
-  const wrapperProps = pathSlug ? { href: `/learn/${pathSlug}`, className: "block h-full outline-none" } : { className: "block h-full" };
+  const wrapperProps = pathSlug 
+    ? { href: `/learn/${pathSlug}`, className: "block h-full outline-none", onClick } 
+    : { className: "block h-full cursor-pointer", onClick };
 
   return (
     <motion.div
@@ -44,7 +47,7 @@ function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "rgba(255
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
       className="h-full"
     >
-      <Wrapper {...wrapperProps as any} className="group relative flex h-full w-full mx-auto flex-col rounded-2xl border border-white/[0.04] bg-[#050505] overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/[0.1] hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)]" onMouseMove={handleMouseMove}>
+      <Wrapper {...wrapperProps as any} className={cn("group relative flex h-full w-full mx-auto flex-col rounded-2xl border border-white/[0.04] bg-[#050505] overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/[0.1] hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)]", !pathSlug && "cursor-pointer")} onMouseMove={handleMouseMove}>
         
         {/* Spotlight Border Mask overlay */}
         <motion.div

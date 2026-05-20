@@ -109,7 +109,7 @@ export default function NavPrimaryLinks({
               {isPillTarget && (
                 <motion.span
                   layoutId="nav-hover-pill"
-                  className="absolute inset-0 rounded-full bg-black"
+                  className="absolute inset-0 rounded-full bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] border border-white/[0.02]"
                   transition={pillSpring}
                 />
               )}
@@ -143,7 +143,7 @@ export default function NavPrimaryLinks({
             {isPillTarget && (
               <motion.span
                 layoutId="nav-hover-pill"
-                className="absolute inset-0 rounded-full bg-black"
+                className="absolute inset-0 rounded-full bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] border border-white/[0.02]"
                 transition={pillSpring}
               />
             )}
