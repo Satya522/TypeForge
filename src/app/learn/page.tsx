@@ -1,7 +1,6 @@
 import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import LearnPathCards from './LearnPathCards';
-import UniqueSkillsSection from './UniqueSkillsSection';
 import { Outfit } from 'next/font/google';
 
 const outfit = Outfit({ subsets: ['latin'] });
@@ -74,9 +73,6 @@ export default async function LearnPage() {
           ) : (
             <LearnPathCards paths={serializedPaths} />
           )}
-
-          {/* New Evolution Unique Skills Section */}
-          <UniqueSkillsSection />
         </div>
       </main>
       <Footer />

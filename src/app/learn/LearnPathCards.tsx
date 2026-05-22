@@ -23,7 +23,7 @@ function getPathKey(title: string) {
 }
 
 /* ══════════════════════════════════════════════
- *  Spotlight Card Base
+ *  Spotlight Card Base (Consistent with EvolutionRealmOverlay)
  * ══════════════════════════════════════════════ */
 export function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "rgba(255,255,255,0.08)", onClick }: { children: React.ReactNode, pathSlug?: string, delay: number, glowColor?: string, onClick?: () => void }) {
   const mouseX = useMotionValue(0);
@@ -47,30 +47,34 @@ export function PremiumSpotlightCard({ children, pathSlug, delay, glowColor = "r
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
       className="h-full"
     >
-      <Wrapper {...wrapperProps as any} className={cn("group relative flex h-full w-full mx-auto flex-col rounded-2xl border border-white/[0.04] bg-[#050505] overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/[0.1] hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)]", !pathSlug && "cursor-pointer")} onMouseMove={handleMouseMove}>
+      <Wrapper {...wrapperProps as any} className={cn("group relative flex h-full w-full mx-auto flex-col rounded-3xl border border-white/[0.04] bg-[#020202]/90 backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/[0.1] hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)]", !pathSlug && "cursor-pointer")} onMouseMove={handleMouseMove}>
         
         {/* Spotlight Border Mask overlay */}
         <motion.div
-          className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition duration-500 group-hover:opacity-100"
+          className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition duration-500 group-hover:opacity-100 z-0"
           style={{
             background: useMotionTemplate`
               radial-gradient(
-                400px circle at ${mouseX}px ${mouseY}px,
+                600px circle at ${mouseX}px ${mouseY}px,
                 ${glowColor},
                 transparent 80%
               )
             `
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
 
         {/* Inner Content Container */}
-        <div className="relative z-10 flex h-full flex-col p-6 sm:p-8 bg-[#0a0a0a]/90 backdrop-blur-xl transition-colors duration-500 group-hover:bg-[#0a0a0a]/40 m-[1px] rounded-[15px]">
+        <div className="relative z-10 flex h-full flex-col p-6 sm:p-8 bg-[#050505]/95 backdrop-blur-xl transition-colors duration-500 group-hover:bg-black/40 m-[1px] rounded-[23px]">
            {children}
         </div>
       </Wrapper>
     </motion.div>
   );
 }
+
+import { useState, useEffect } from 'react';
+import EvolutionRealmOverlay from './EvolutionRealmOverlay';
 
 /* ══════════════════════════════════════════════
  *  Main Export
@@ -80,13 +84,37 @@ export default function LearnPathCards({ paths }: { paths: LessonPathData[] }) {
   const medium = paths.find(p => getPathKey(p.title) === 'medium');
   const advanced = paths.find(p => getPathKey(p.title) === 'advanced');
 
+  const [isEvolutionRealmOpen, setIsEvolutionRealmOpen] = useState(() => {
+    // Check hash on first render so overlay opens immediately (no flash)
+    if (typeof window !== 'undefined') {
+      return window.location.hash === '#evolution';
+    }
+    return false;
+  });
+
+  // Listen for browser back/forward navigation hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      setIsEvolutionRealmOpen(window.location.hash === '#evolution');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   return (
-    <div className="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      {beginner && <PathCard path={beginner} icon={<Terminal className="w-4 h-4 text-zinc-300" />} delay={0} />}
-      {medium && <PathCard path={medium} icon={<Layers className="w-4 h-4 text-zinc-300" />} delay={0.1} />}
-      {advanced && <PathCard path={advanced} icon={<Trophy className="w-4 h-4 text-zinc-300" />} delay={0.2} />}
-      <BeelzebubCard delay={0.3} />
-    </div>
+    <>
+      <div className="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        {beginner && <PathCard path={beginner} icon={<Terminal className="w-4 h-4 text-zinc-300" />} delay={0} />}
+        {medium && <PathCard path={medium} icon={<Layers className="w-4 h-4 text-zinc-300" />} delay={0.1} />}
+        {advanced && <PathCard path={advanced} icon={<Trophy className="w-4 h-4 text-zinc-300" />} delay={0.2} />}
+        <EvolutionCard delay={0.3} onClick={() => setIsEvolutionRealmOpen(true)} />
+      </div>
+
+      <EvolutionRealmOverlay 
+        isOpen={isEvolutionRealmOpen} 
+        onClose={() => setIsEvolutionRealmOpen(false)} 
+      />
+    </>
   );
 }
 
@@ -118,40 +146,32 @@ function PathCard({ path, icon, delay }: { path: LessonPathData; icon: React.Rea
 }
 
 /* ══════════════════════════════════════════════════════════════
- *  Unique Skill Beelzebub Card
+ *  Evolution / Unique Skills Card
  * ══════════════════════════════════════════════════════════════ */
-function BeelzebubCard({ delay }: { delay: number }) {
+function EvolutionCard({ delay, onClick }: { delay: number; onClick: () => void }) {
   return (
-    <PremiumSpotlightCard delay={delay} glowColor="rgba(99,102,241,0.25)">
+    <PremiumSpotlightCard delay={delay} glowColor="rgba(99,102,241,0.25)" onClick={onClick}>
       <div className="mb-5 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shadow-[inset_0_1px_0_rgba(99,102,241,0.2)] group-hover:scale-105 transition-transform duration-500">
         <Sparkles className="w-4 h-4 text-indigo-400" />
       </div>
       
       <h3 className="text-[20px] font-semibold tracking-tight text-white mb-1">
-        Unique Skill: Beelzebub
+        Evolution / Unique Skills
       </h3>
       <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400/80 mb-6">
-        Lord of Gluttony (Tensura)
+        Hidden Mastery Realm
       </p>
       
-      <ul className="space-y-3 mt-auto mb-2">
-        <li className="text-[12px] leading-relaxed flex items-start gap-2.5">
-           <span className="w-1 h-1 rounded-full bg-indigo-500 mt-[7px] shrink-0 shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
-           <span className="text-zinc-500"><span className="text-zinc-300 font-medium">Predation:</span> Absorbs the target.</span>
-        </li>
-        <li className="text-[12px] leading-relaxed flex items-start gap-2.5">
-           <span className="w-1 h-1 rounded-full bg-indigo-500 mt-[7px] shrink-0 shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
-           <span className="text-zinc-500"><span className="text-zinc-300 font-medium">Stomach:</span> Stores & isolates harmful matter.</span>
-        </li>
-        <li className="text-[12px] leading-relaxed flex items-start gap-2.5">
-           <span className="w-1 h-1 rounded-full bg-indigo-500 mt-[7px] shrink-0 shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
-           <span className="text-zinc-500"><span className="text-zinc-300 font-medium">Mimicry:</span> Replicates forms & skills.</span>
-        </li>
-        <li className="text-[12px] leading-relaxed flex items-start gap-2.5">
-           <span className="w-1 h-1 rounded-full bg-indigo-500 mt-[7px] shrink-0 shadow-[0_0_5px_rgba(99,102,241,0.8)]" />
-           <span className="text-zinc-500"><span className="text-zinc-300 font-medium">Soul Consumption:</span> Bypasses defenses.</span>
-        </li>
-      </ul>
+      <p className="text-[13px] leading-relaxed text-zinc-400 mb-8 max-w-[90%]">
+        Unlock legendary typing abilities. Enter the hidden realm where only elite typists can forge impossible keyboard mastery.
+      </p>
+
+      <div className="mt-auto flex items-center justify-between border-t border-indigo-500/10 pt-5">
+        <span className="text-[11px] font-bold tracking-widest text-indigo-500/60">10 LEGENDARY SKILLS</span>
+        <span className="flex items-center gap-1.5 text-[12px] font-semibold tracking-wide text-indigo-300 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+          ENTER REALM <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" />
+        </span>
+      </div>
     </PremiumSpotlightCard>
   );
 }

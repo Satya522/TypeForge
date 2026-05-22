@@ -20,13 +20,16 @@ export type ChallengeMode =
 interface ChallengeEngineProps {
   mode: ChallengeMode;
   onMastered?: () => void;
+  isGlobalManaged?: boolean;
+  isActive?: boolean;
+  forcedText?: string | null;
+  onComplete?: (stats: { accuracy: number, mistakes: number, totalChars: number }) => void;
 }
 
+
+
 const TEXT_POOLS: Record<ChallengeMode, string[]> = {
-  parallel_processing: [
-    'async function sync() { await Promise.all([task1, task2]); }',
-    'Thread-1: active | Thread-2: waiting | Thread-3: resolving...',
-  ],
+  parallel_processing: [], // Handled dynamically
   devour_engine: [
     'Absorb this quickly before it fades into the void.',
     'Speed is everything. Do not let the text vanish.',
@@ -65,12 +68,13 @@ const TEXT_POOLS: Record<ChallengeMode, string[]> = {
   ]
 };
 
-export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
-  const [status, setStatus] = useState<'idle' | 'typing' | 'failed' | 'mastered'>('idle');
+export default function ChallengeEngine({ mode, isGlobalManaged, isActive = true, forcedText, onComplete }: ChallengeEngineProps) {
+  const [status, setStatus] = useState<'idle' | 'typing' | 'failed' | 'mastered' | 'finished'>('idle');
   const [textToType, setTextToType] = useState('');
   const [input, setInput] = useState('');
   const [mistakes, setMistakes] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Mode specific states
@@ -79,12 +83,29 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
   const [chaosOffset, setChaosOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    resetChallenge();
-  }, [mode]);
+    if (isGlobalManaged) {
+      if (isActive && forcedText) {
+        setTextToType(forcedText);
+        setInput('');
+        setMistakes(0);
+        setStatus('idle');
+        setTimeout(() => inputRef.current?.focus(), 10);
+      } else if (!isActive) {
+        setTextToType('');
+        setInput('');
+        setMistakes(0);
+        setStatus('idle');
+      }
+    } else {
+      resetChallenge();
+    }
+  }, [mode, isActive, forcedText, isGlobalManaged]);
 
   const resetChallenge = () => {
     const pool = TEXT_POOLS[mode] || TEXT_POOLS.flow_state;
-    setTextToType(pool[Math.floor(Math.random() * pool.length)]);
+    const newText = pool[Math.floor(Math.random() * pool.length)] || '';
+    
+    setTextToType(newText);
     setInput('');
     setMistakes(0);
     setStatus('idle');
@@ -103,13 +124,20 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
   // Strict Fail Condition
   useEffect(() => {
     if (status === 'typing') {
-      if (input.length > 5 && accuracy < 97) setStatus('failed');
+      if (!isGlobalManaged && input.length > 5 && accuracy < 97) {
+        setStatus('failed');
+      }
       if (input.length === textToType.length) {
-        if (accuracy >= 97) setStatus('mastered');
-        else setStatus('failed');
+        if (isGlobalManaged) {
+          setStatus('finished');
+          onComplete?.({ accuracy, mistakes, totalChars: textToType.length });
+        } else {
+          if (accuracy >= 97) setStatus('mastered');
+          else setStatus('failed');
+        }
       }
     }
-  }, [input, accuracy, status, textToType]);
+  }, [input, accuracy, status, textToType, isGlobalManaged]); // Excluded mistakes/onComplete to avoid refiring
 
   // Special Mechanics Timers
   useEffect(() => {
@@ -140,7 +168,7 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
   }, [timeElapsed, mode, status]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (status === 'failed' || status === 'mastered') return;
+    if (status === 'failed' || status === 'mastered' || status === 'finished') return;
     
     const val = e.target.value;
     if (status === 'idle' && val.length > 0) setStatus('typing');
@@ -157,29 +185,52 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
     setInput(val);
   };
 
+  if (isGlobalManaged && !isActive) {
+    return (
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.02] bg-[#0a0a0c]/20 transition-all duration-300 min-h-[160px] flex flex-col items-center justify-center pointer-events-none">
+        <span className="text-zinc-600 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">WAITING FOR THREAD...</span>
+      </div>
+    );
+  }
+
   return (
     <div 
       onClick={() => inputRef.current?.focus()}
       className={cn(
         "relative overflow-hidden rounded-xl border p-6 transition-all duration-300 min-h-[160px] flex flex-col justify-center",
-        status === 'idle' && "border-white/[0.08] bg-[#0a0a0c]/80",
-        status === 'typing' && "border-indigo-500/30 bg-indigo-500/5 shadow-[0_0_20px_rgba(99,102,241,0.1)]",
+        (status === 'idle' || status === 'typing') && "border-white/[0.08] bg-[#0a0a0c]/80",
         status === 'failed' && "border-red-500/50 bg-red-950/30 grayscale",
         status === 'mastered' && "border-amber-400/50 bg-amber-400/10 shadow-[0_0_30px_rgba(251,191,36,0.2)]"
       )}
     >
       {/* Visual Tracking UI */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
-          {mode.replace('_', ' ')} <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-        </span>
-        <div className="flex gap-4">
-          <span className={cn("text-[11px] font-mono font-bold tracking-widest", accuracy < 97 ? "text-red-400" : "text-emerald-400")}>
-            {accuracy.toFixed(1)}% ACC
-          </span>
-          <span className="text-[11px] font-mono font-bold tracking-widest text-zinc-500">
-            {mistakes} ERR
-          </span>
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-end pointer-events-none z-20">
+        <div className="flex items-center gap-3 bg-black/60 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+          <motion.div 
+            key={`acc-${accuracy}`}
+            initial={{ scale: 1.15, filter: 'brightness(1.5)' }}
+            animate={{ scale: 1, filter: 'brightness(1)', color: accuracy < 97 ? '#f87171' : '#34d399' }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="flex items-center gap-1.5"
+          >
+            <span className="text-[9px] font-medium text-zinc-500 uppercase tracking-widest">ACC</span>
+            <span className="text-[11px] font-mono font-bold tabular-nums">
+              {accuracy.toFixed(1)}%
+            </span>
+          </motion.div>
+          <div className="w-[1px] h-3 bg-white/15" />
+          <motion.div 
+            key={`err-${mistakes}`}
+            initial={mistakes > 0 ? { scale: 1.3, color: '#f87171', filter: 'brightness(2)' } : false}
+            animate={{ scale: 1, color: mistakes > 0 ? '#f87171' : '#71717a', filter: 'brightness(1)' }}
+            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+            className="flex items-center gap-1.5"
+          >
+            <span className="text-[9px] font-medium text-zinc-500 uppercase tracking-widest">ERR</span>
+            <span className="text-[11px] font-mono font-bold tabular-nums">
+              {mistakes}
+            </span>
+          </motion.div>
         </div>
       </div>
 
@@ -188,9 +239,17 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
         type="text" 
         value={input}
         onChange={handleInputChange}
-        className="absolute opacity-0 -z-10"
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className="fixed -top-[1000px] left-0 opacity-0 pointer-events-none w-px h-px"
         autoComplete="off"
-        spellCheck="false"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-gramm="false"
+        data-gramm_editor="false"
+        data-enable-grammarly="false"
+        list="autocompleteOff"
       />
 
       {/* Typing Text Display */}
@@ -214,10 +273,17 @@ export default function ChallengeEngine({ mode }: ChallengeEngineProps) {
                 state === 'pending' && (isHidden ? "opacity-0" : "text-zinc-600"),
                 state === 'correct' && (status === 'mastered' ? "text-amber-300 drop-shadow-md" : "text-zinc-200"),
                 state === 'incorrect' && "text-red-500 bg-red-500/20 rounded-sm",
-                i === input.length && status !== 'failed' && status !== 'mastered' && "border-l-2 border-indigo-400 animate-pulse bg-indigo-500/20"
+                i === input.length && status !== 'failed' && status !== 'mastered' && status !== 'finished' && (
+                  isFocused 
+                    ? "border-l-2 border-indigo-400 animate-pulse bg-indigo-500/20" 
+                    : "border-l-2 border-zinc-700"
+                )
               )}
             >
-              {mode === 'keyboard_instinct' && state === 'pending' && i !== input.length ? '*' : char}
+              {mode === 'keyboard_instinct' && state === 'pending' && i !== input.length 
+                ? '*' 
+                : (char === ' ' ? '\u00A0' : char)
+              }
             </span>
           );
         })}
