@@ -66,7 +66,8 @@ const compactVariants: Variants = {
 }
 
 export default function Navbar() {
-  const { data: session } = useSession()
+  const sessionResult = useSession()
+  const session = sessionResult?.data
   const pathname = usePathname() ?? '/'
   const prefersReducedMotion = useReducedMotion()
   const isImmersivePracticeRoute = pathname.startsWith('/practice/')

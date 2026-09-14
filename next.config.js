@@ -68,14 +68,17 @@ const nextConfig = {
   },
 };
 
-// Wrap with Sentry only if SENTRY_AUTH_TOKEN is available (CI/CD or production)
+// Source-map uploads are opt-in so local builds do not require Sentry credentials.
+const shouldUploadSourcemaps = process.env.SENTRY_UPLOAD_SOURCE_MAPS === 'true';
+
 const sentryConfig = {
   // Sentry org and project from env
   org: process.env.SENTRY_ORG || 'typeforge',
   project: process.env.SENTRY_PROJECT || 'typeforge',
   
   // Only upload source maps in CI with auth token
-  silent: !process.env.SENTRY_AUTH_TOKEN,
+  silent: !shouldUploadSourcemaps,
+  disableSentryWebpackPlugin: !shouldUploadSourcemaps,
   
 
   
@@ -91,4 +94,6 @@ const sentryConfig = {
 
 };
 
-export default withSentryConfig(nextConfig, sentryConfig);
+export default shouldUploadSourcemaps
+  ? withSentryConfig(nextConfig, sentryConfig)
+  : nextConfig;
