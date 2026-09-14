@@ -5,16 +5,15 @@
 <h1 align="center">TypeForge</h1>
 
 <p align="center">
-  <strong>The open-source typing intelligence platform that turns raw keystrokes into measurable skill.</strong>
+  <strong>A full-stack typing practice platform for deliberate, measurable improvement.</strong>
 </p>
 
 <p align="center">
-  <a href="#features"><img src="https://img.shields.io/badge/Features-40%2B-blueviolet?style=for-the-badge" alt="Features" /></a>
+  <a href="#features"><img src="https://img.shields.io/badge/Features-40%2B-2563eb?style=for-the-badge" alt="Features" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma" alt="Prisma" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" /></a>
 </p>
 
 <p align="center">
@@ -28,13 +27,13 @@
 
 ---
 
-## Why TypeForge?
+## Overview
 
 Most typing tools measure speed. **TypeForge measures intelligence.**
 
 It doesn't just track WPM — it reconstructs your entire session into a live performance fingerprint: burst patterns, recovery speed, focus drift, pressure response, weak-zone mapping, and rhythm stability. The analytics engine alone runs 1,500+ lines of pure typing science.
 
-Whether you're a developer drilling code snippets, a student mastering touch typing, or a competitive typist chasing leaderboard ranks — TypeForge adapts to you.
+TypeForge combines guided lessons, focused drills, game-based practice, performance analytics, and real-time community features in one Next.js application. It is designed as a serious full-stack project with authentication, persistence, API routes, and a responsive interface.
 
 ---
 
@@ -48,7 +47,7 @@ Whether you're a developer drilling code snippets, a student mastering touch typ
 | **Practice Modes** | Speed Test, Accuracy Drill, Timed Challenge, Custom Text |
 | **Code Practice** | Language-specific code typing with syntax highlighting (JS, Python, Rust, etc.) |
 | **Custom Practice** | Paste any text and practice with full metrics tracking |
-| **AI Practice** | AI-generated passages tailored to your weak zones |
+| **AI Practice** | Optional generated passages tailored to a user's weak zones |
 | **Dictation Mode** | Speech-to-text practice using Web Speech API |
 
 ### 🎮 Typing Games Arcade
@@ -236,21 +235,23 @@ User Input → Typing Engine → Session Telemetry → Analytics Model → Intel
 
 ### Prerequisites
 
-- **Node.js** ≥ 18.x
+- **Node.js** ≥ 20.9
 - **PostgreSQL** running locally or a hosted instance
-- **pnpm** (recommended) or npm
+- **npm** 10+ (or another npm-compatible package manager)
 
 ### 1. Clone & Install
 
 ```bash
 git clone https://github.com/Satya522/TypeForge.git
 cd TypeForge
-pnpm install
+npm install
 ```
 
 ### 2. Environment Setup
 
 Create a `.env.local` file in the project root:
+
+Start from [`.env.example`](.env.example) and replace each placeholder with a local value.
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/typeforge_db"
@@ -266,15 +267,15 @@ GITHUB_CLIENT_SECRET="your_github_client_secret"
 ### 3. Database Setup
 
 ```bash
-npx prisma generate
-npx prisma migrate dev --name init
-pnpm prisma:seed
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
 ```
 
 ### 4. Launch
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) — you're live.
@@ -284,7 +285,7 @@ Open [http://localhost:3000](http://localhost:3000) — you're live.
 To enable real-time chat:
 
 ```bash
-pnpm relay
+npm run relay
 ```
 
 ---
@@ -300,7 +301,7 @@ pnpm relay
 
 ### Other Platforms
 
-TypeForge runs on any platform that supports Node.js 18+ and PostgreSQL:
+TypeForge runs on any platform that supports Node.js 20.9+ and PostgreSQL:
 
 - **Railway** — One-click Postgres + Node.js deployment
 - **Render** — Free tier available with managed Postgres
@@ -328,13 +329,13 @@ TypeForge runs on any platform that supports Node.js 18+ and PostgreSQL:
 ## Scripts
 
 ```bash
-pnpm dev              # Start development server (Turbopack)
-pnpm build            # Create optimized production build
-pnpm start            # Start production server
-pnpm relay            # Start WebSocket community relay server
-pnpm prisma:migrate   # Run Prisma migrations
-pnpm prisma:generate  # Generate Prisma client
-pnpm prisma:seed      # Seed database with starter content
+npm run dev              # Start development server
+npm run build            # Create optimized production build
+npm run start            # Start the production server
+npm run relay            # Start the WebSocket community relay server
+npm run prisma:migrate   # Run Prisma migrations
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:seed      # Seed the database with starter content
 ```
 
 ---
@@ -351,9 +352,9 @@ Contributions are welcome. Whether it's a bug fix, new feature, or documentation
 
 ---
 
-## License
+## Project Status
 
-This project is open source and available under the [MIT License](LICENSE).
+TypeForge is an active portfolio project. The core application is functional locally; production integrations such as OAuth providers, email delivery, Redis rate limiting, and Sentry require their corresponding environment variables.
 
 ---
 
