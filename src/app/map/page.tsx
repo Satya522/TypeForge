@@ -22,7 +22,24 @@ export const dynamic = 'force-dynamic';
 export default async function MapPage() {
   const session = await getServerAuthSession();
   if (!session?.user?.id) {
-    redirect('/login?callbackUrl=/map');
+    return (
+      <>
+        <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-8 xl:px-12 pt-24 pb-20 sm:pt-32">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold tracking-widest uppercase">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              Roadmap
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Your Typing Journey</h1>
+            <p className="text-lg text-gray-400 max-w-xl mb-8">Sign in to unlock your personalized roadmap, track your progress across learning paths, and see your XP and streaks.</p>
+            <a href="/login?callbackUrl=/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all duration-200 shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)]">
+              Sign in to view Roadmap
+            </a>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
   }
 
   const userId = session.user.id;

@@ -1,5 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerAuthSession } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-security';
+import { cache } from '@/lib/upstash';
 
 // Auto-seed function to ensure data exists
 async function ensureSeed() {
@@ -96,24 +100,61 @@ async function ensureSeed() {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Auth Guard — Require login
+    const session = await getServerAuthSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate Limit — 10 requests per minute per user
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`extreme:${session.user.id}:${ip}`, 10, 60_000);
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: 'Too many requests. Please wait.' }, { status: 429 });
+    }
+
     await ensureSeed();
 
-    const allTexts = await prisma.practiceContent.findMany({
-      where: {
-        difficulty: 'HARD',
-        type: 'TEXT',
-        category: {
-          slug: {
-            in: ['pro-developer', 'pro-accountant', 'pro-writer', 'pro-typist', 'pro-everyday']
-          }
-        }
-      },
-      select: { content: true }
-    });
+    // 1. Try to get from Cache
+    const cachedTexts = await cache.get<any[]>('extreme-challenges:all');
+    let allTexts = cachedTexts;
 
-    if (allTexts.length === 0) {
+    if (!allTexts) {
+      // 2. Cache miss — query DB
+      allTexts = await prisma.practiceContent.findMany({
+        where: {
+          categoryId: {
+            in: [
+              'cat-extreme-code',
+              'cat-extreme-quotes',
+              'cat-extreme-speed',
+              'cat-extreme-numbers',
+              'cat-extreme-chaos',
+              'cat-extreme-memory',
+              'cat-extreme-boss',
+              'cat-extreme-blind',
+              'cat-extreme-precision',
+              'cat-extreme-endurance',
+            ]
+          }
+        },
+        select: {
+          id: true,
+          content: true,
+          difficulty: true,
+          category: { select: { slug: true } }
+        }
+      });
+
+      // 3. Set Cache (TTL: 1 hour)
+      if (allTexts.length > 0) {
+        await cache.set('extreme-challenges:all', allTexts, 3600);
+      }
+    }
+
+    if (!allTexts || allTexts.length === 0) {
       return NextResponse.json({ error: 'No extreme texts found' }, { status: 404 });
     }
 

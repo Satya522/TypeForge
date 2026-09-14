@@ -47,8 +47,17 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'TypeForge',
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://typeforge.com'),
+  title: {
+    default: 'TypeForge – Master Typing with Precision',
+    template: '%s | TypeForge',
+  },
   description: 'TypeForge is a premium typing practice platform for guided learning, focused drills, and clear progress tracking.',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   icons: {
     icon: [
       { url: '/logo.png', sizes: '192x192', type: 'image/png' },
@@ -58,6 +67,7 @@ export const metadata: Metadata = {
     shortcut: '/logo.png',
   },
 };
+
 
 interface RootLayoutProps {
   children: ReactNode;

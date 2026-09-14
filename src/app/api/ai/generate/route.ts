@@ -32,12 +32,34 @@ const passages: Record<string, string[]> = {
   ],
 };
 
+import { getServerAuthSession } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-security';
+
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const categoryParam = url.searchParams.get('category') || 'sci‑fi';
-  // normalise the key by lowercasing and removing spaces/dashes
-  const key = categoryParam.toLowerCase().replace(/\s+/g, '').replace(/–/g, '-');
-  const list = passages[key] || passages['sci‑fi'];
-  const index = Math.floor(Math.random() * list.length);
-  return NextResponse.json({ text: list[index] });
+  try {
+    // Auth Guard
+    const session = await getServerAuthSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate Limit — 5 requests per minute per user for AI gen
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`ai-gen:${session.user.id}:${ip}`, 5, 60_000);
+    if (!rateLimit.ok) {
+      return NextResponse.json({ error: 'Too many requests. Please wait.' }, { status: 429 });
+    }
+
+    const url = new URL(req.url);
+    const categoryParam = url.searchParams.get('category') || 'sci‑fi';
+    const key = categoryParam.toLowerCase().replace(/\s+/g, '').replace(/–/g, '-');
+    const list = passages[key] || passages['sci‑fi'];
+    const index = Math.floor(Math.random() * list.length);
+    
+    return NextResponse.json({ text: list[index] });
+  } catch (error) {
+    console.error('[AI Generate] Error:', error);
+    return NextResponse.json({ error: 'Failed to generate content' }, { status: 500 });
+  }
 }

@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from './AnalyticsDashboard';
-import { redirect } from 'next/navigation';
 import { aggregateHeatmapFromTelemetry, parseTypingTelemetry } from '@/lib/typingTelemetry';
 
 export const metadata = {
@@ -16,7 +15,24 @@ export const dynamic = 'force-dynamic';
 export default async function AnalyticsPage() {
   const session = await getServerAuthSession();
   if (!session?.user?.id) {
-    redirect('/login?callbackUrl=/analytics');
+    return (
+      <>
+        <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-8 xl:px-12 pt-24 pb-20 sm:pt-32">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-bold tracking-widest uppercase">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Analytics
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Your Typing Analytics</h1>
+            <p className="text-lg text-gray-400 max-w-xl mb-8">Sign in to view detailed charts of your typing speed, accuracy trends, heatmaps, and session history.</p>
+            <a href="/login?callbackUrl=/analytics" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all duration-200 shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.4)]">
+              Sign in to view Analytics
+            </a>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
   }
   const userId = session.user.id;
 
@@ -114,35 +130,10 @@ export default async function AnalyticsPage() {
     }));
 
   const fallbackHeatmapData: Record<string, number> = {
-    a: 1,
-    c: 2,
-    e: 2,
-    i: 1,
-    k: 3,
-    m: 5,
-    n: 4,
-    o: 2,
-    p: 7,
-    q: 6,
-    r: 2,
-    s: 1,
-    t: 2,
-    u: 3,
-    v: 3,
-    w: 2,
-    x: 5,
-    y: 2,
-    z: 6,
-    '1': 4,
-    '7': 2,
-    '8': 3,
-    '9': 5,
-    '0': 6,
-    ';': 4,
-    ',': 2,
-    '.': 3,
-    '/': 4,
-    ' ': 3,
+    a: 1, c: 2, e: 2, i: 1, k: 3, m: 5, n: 4, o: 2,
+    p: 7, q: 6, r: 2, s: 1, t: 2, u: 3, v: 3, w: 2,
+    x: 5, y: 2, z: 6, '1': 4, '7': 2, '8': 3, '9': 5,
+    '0': 6, ';': 4, ',': 2, '.': 3, '/': 4, ' ': 3,
   };
   const liveHeatmapData = aggregateHeatmapFromTelemetry(
     sessions.map((practiceSession) => practiceSession.typingTelemetry),

@@ -83,7 +83,7 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
   return (
     <>
-      
+
       <main className="pt-24 pb-12 px-6 mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold text-gray-100 mb-6">Leaderboard</h1>
         <div className="mb-4 flex gap-4">

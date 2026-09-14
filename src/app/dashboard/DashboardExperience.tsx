@@ -16,6 +16,7 @@ import {
   Trophy,
   Zap,
 } from "lucide-react";
+import Footer from "@/components/Footer";
 
 type TrendPoint = {
   accuracy: number;
@@ -431,7 +432,7 @@ export default function DashboardExperience({ payload }: { payload: DashboardPay
         </section>
 
         <p className="dash-footer-quote dash-animate" style={{ "--dash-delay": "0.6s" } as CSSProperties}>
-          Consistency beats perfection. — keep typing, {name}.
+          Consistency beats perfection. — keep typing, {name}. 🚀
         </p>
       </div>
 
@@ -1480,6 +1481,7 @@ export default function DashboardExperience({ payload }: { payload: DashboardPay
           }
         }
       `}</style>
+      <Footer />
     </main>
   );
 }

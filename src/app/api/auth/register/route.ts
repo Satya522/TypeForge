@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { createUsernameSeed } from '@/lib/profile';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getClientIp, normalizeEmail, normalizeName } from '@/lib/request-security';
+import { sendEmail } from '@/lib/resend';
+import { WelcomeEmail } from '@/lib/email-templates';
 
 const bodySchema = z.object({
   name: z.string().min(1).max(50),
@@ -57,6 +59,14 @@ export async function POST(req: NextRequest) {
         username,
       },
     });
+
+    // Fire-and-forget welcome email — don't block registration on email failure
+    sendEmail({
+      to: email,
+      subject: 'Welcome to TypeForge! 🎉',
+      react: WelcomeEmail({ name }),
+    }).catch((err) => console.error('[Register] Welcome email failed:', err));
+
     return NextResponse.json({ message: 'User created successfully', userId: user.id });
   } catch (error) {
     console.error('[Auth:Register] Failed:', error);

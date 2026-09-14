@@ -1,5 +1,4 @@
 export { PremiumMotionProvider } from './PremiumMotionProvider'
-export { RouteTransitionShell } from './RouteTransitionShell'
 export { ScrollProgressChrome } from './ScrollProgressChrome'
 export {
   motionCssVariables,

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Medal,
@@ -663,7 +662,6 @@ function createTone(type: "enter" | "error" | "key" | "success", profile: SoundP
 }
 
 export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
-  const router = useRouter();
   const [lines, setLines] = useState<Line[]>([]);
   const [input, setInput] = useState("");
   const [stage, setStage] = useState<Stage>("boot");
@@ -855,9 +853,15 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
     markMission("dashboard");
     setStage("done");
     await typeLines([{ text: "> Redirecting to dashboard...", type: "info" }], 16);
-    router.push(DASHBOARD_PATH);
-    router.refresh();
-  }, [markMission, router, typeLines]);
+    
+    // Hard navigation ensures the new session cookie (set by signIn) is
+    // properly read by the server. Client-side router.push + router.refresh
+    // creates a race condition where the server component re-renders before
+    // the JWT cookie is fully propagated, causing the redirect to fail.
+    setTimeout(() => {
+      window.location.href = DASHBOARD_PATH;
+    }, 300);
+  }, [markMission, typeLines]);
 
   const processCommand = useCallback(
     async (command: string) => {
@@ -910,7 +914,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
               { text: "> Checking secure provider handshake...", type: "dim" },
               { text: "> Redirect issued. Keep speed command ready for your baseline.", type: "success" },
             ],
-            14,
+            2,
           );
           playSound("success");
           signIn("google", { callbackUrl: DASHBOARD_PATH });
@@ -926,7 +930,7 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
               { text: "> Checking secure provider handshake...", type: "dim" },
               { text: "> Redirect issued. Keep speed command ready for your baseline.", type: "success" },
             ],
-            14,
+            2,
           );
           playSound("success");
           signIn("github", { callbackUrl: DASHBOARD_PATH });
@@ -1542,19 +1546,43 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           ],
           14,
         );
-        const result = await signIn("credentials", {
-          callbackUrl: DASHBOARD_PATH,
-          email: formData.current.email,
-          password: formData.current.password,
-          redirect: false,
-        });
 
-        if (result?.error) {
+        // signIn with redirect:false can throw an AbortError on Next.js 16 / NextAuth v5
+        // due to internal fetch cancellation. We catch it and verify the session instead.
+        let signInResult: { error?: string | null } | undefined;
+        try {
+          signInResult = await signIn("credentials", {
+            callbackUrl: DASHBOARD_PATH,
+            email: formData.current.email,
+            password: formData.current.password,
+            redirect: false,
+          });
+        } catch {
+          // AbortError from internal fetch — check session below
+        }
+
+        // If signIn reported an explicit error, show it
+        if (signInResult?.error) {
           playSound("error");
           registerError();
           await typeLines([{ text: "> Authentication failed. Check email/password.", type: "error" }, { text: "> Type login to try again, or google/github.", type: "dim" }, ...recoveryHint(), { text: "", type: "dim" }], 16);
           setStage("idle");
           return;
+        }
+
+        // Verify session was actually established (handles the AbortError case)
+        try {
+          const sessionRes = await fetch("/api/auth/session");
+          const session = await sessionRes.json();
+          if (!session?.user) {
+            playSound("error");
+            registerError();
+            await typeLines([{ text: "> Authentication failed. Check email/password.", type: "error" }, { text: "> Type login to try again, or google/github.", type: "dim" }, ...recoveryHint(), { text: "", type: "dim" }], 16);
+            setStage("idle");
+            return;
+          }
+        } catch {
+          // Session check failed — proceed anyway, openDashboard will handle it
         }
 
         const stats = getAuthStats();
@@ -1567,12 +1595,12 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
           [
             { text: `> Authentication successful in terminal mode.`, type: "success" },
             { text: `> Login pace: ${stats.wpm} WPM @ ${stats.accuracy}% input accuracy.`, type: "info" },
-            { text: '> Type "go" to enter your dashboard.', type: "system" },
+            { text: '> Initiating auto-redirect...', type: "system" },
             { text: "", type: "dim" },
           ],
-          16,
+          2,
         );
-        setStage("await_go");
+        setTimeout(() => openDashboard(), 300);
         return;
       }
 
@@ -1655,12 +1683,19 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
             return;
           }
 
-          const loginResult = await signIn("credentials", {
-            callbackUrl: DASHBOARD_PATH,
-            email: formData.current.email,
-            password: formData.current.password,
-            redirect: false,
-          });
+          const loginResult = await (async () => {
+            try {
+              return await signIn("credentials", {
+                callbackUrl: DASHBOARD_PATH,
+                email: formData.current.email,
+                password: formData.current.password,
+                redirect: false,
+              });
+            } catch {
+              // AbortError from internal fetch — verify session below
+              return undefined;
+            }
+          })();
 
           if (loginResult?.error) {
             playSound("error");
@@ -1668,6 +1703,21 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
             await typeLines([{ text: "> Account created, but auto-login failed. Type login.", type: "error" }, ...recoveryHint(), { text: "", type: "dim" }], 16);
             setStage("idle");
             return;
+          }
+
+          // Verify session was actually established
+          try {
+            const sessionRes = await fetch("/api/auth/session");
+            const session = await sessionRes.json();
+            if (!session?.user) {
+              playSound("error");
+              registerError();
+              await typeLines([{ text: "> Account created, but auto-login failed. Type login.", type: "error" }, ...recoveryHint(), { text: "", type: "dim" }], 16);
+              setStage("idle");
+              return;
+            }
+          } catch {
+            // Session check failed — proceed anyway
           }
 
           const archetype = stats.wpm >= 80 ? "Speed Demon" : stats.wpm >= 52 ? "Swift Starter" : "Steady Builder";
@@ -1684,12 +1734,12 @@ export default function TerminalAuth({ mode }: { mode: "login" | "register" }) {
               { text: `  Accuracy  ${stats.accuracy}%`, type: "success" },
               { text: `  Archetype ${archetype}`, type: "success" },
               { text: "", type: "dim" },
-              { text: '> Type "go" to enter your dashboard.', type: "system" },
+              { text: '> Initiating auto-redirect...', type: "system" },
               { text: "", type: "dim" },
             ],
-            16,
+            2,
           );
-          setStage("await_go");
+          setTimeout(() => openDashboard(), 500);
         } catch {
           playSound("error");
           registerError();

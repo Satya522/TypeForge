@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block private/internal paths
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard-preview/
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://typeforge.com/sitemap.xml

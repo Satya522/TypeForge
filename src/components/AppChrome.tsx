@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { RouteTransitionShell } from "@/components/motion";
 
 interface AppChromeProps {
   children: ReactNode;
@@ -18,7 +17,7 @@ export default function AppChrome({ children }: AppChromeProps) {
   return (
     <>
       {!isAuthRoute && <Navbar />}
-      <RouteTransitionShell>{children}</RouteTransitionShell>
+      {children}
     </>
   );
 }

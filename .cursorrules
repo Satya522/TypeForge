@@ -1,9 +1,0 @@
-# Cursor / AI Agent Rules for TypeForge
-
-Always read the `.ai/project-overview.md` file before starting any new task to understand the tech stack, project structure, and design philosophy of this project.
-
-- Project Name: TypeForge
-- Framework: Next.js (App Router), TypeScript, TailwindCSS, Prisma, NextAuth.
-- Core Vibe: Premium, high-fidelity, "beast-level" animations (GSAP/Framer Motion), dark theme.
-
-See `.ai/project-overview.md` for full context.

@@ -130,10 +130,11 @@ export default function Navbar() {
         setNavHidden(false)
       }
       if (idleTimerRef.current) window.clearTimeout(idleTimerRef.current)
+      const idleDelay = isImmersivePracticeRoute ? 3000 : 8000
       idleTimerRef.current = window.setTimeout(() => {
         setIsIdle(true)
         isIdleRef.current = true
-      }, 3000)
+      }, idleDelay)
     }
 
     if (isImmersivePracticeRoute) {
@@ -358,7 +359,7 @@ export default function Navbar() {
         variants={prefersReducedMotion ? undefined : fullHeaderVariants}
         initial="visible"
         animate={fullNavIsHidden || isDesktopIdle ? 'hidden' : 'visible'}
-        style={{ pointerEvents: fullNavIsHidden || isDesktopIdle ? 'none' : 'auto' }}
+        style={{ pointerEvents: fullNavIsHidden || (isDesktopIdle && isImmersivePracticeRoute) ? 'none' : 'auto' }}
         className="fixed top-0 left-0 right-0 z-50 hidden pt-3.5 lg:block"
       >
         <div className="mx-auto flex w-[min(calc(100%-32px),1240px)] items-center justify-center">

@@ -14,7 +14,12 @@ import jwt from "jsonwebtoken";
 import Redis from "ioredis";
 import { createAdapter } from "@socket.io/redis-adapter";
 
-const prisma = new PrismaClient();
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 const PORT = 3001;
 const httpServer = createServer(handleRelayHttpRequest);
