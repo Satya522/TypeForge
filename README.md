@@ -10,9 +10,9 @@
 <br/><br/>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=FFFFFF&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
-  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=000000&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
-  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=000000&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion" alt="tagline"/>
+  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com/?font=Montserrat&weight=600&size=22&duration=2600&pause=900&color=7DE2D1&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
+  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com/?font=Montserrat&weight=600&size=22&duration=2600&pause=900&color=0F766E&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
+  <img src="https://readme-typing-svg.demolab.com/?font=Montserrat&weight=600&size=22&duration=2600&pause=900&color=0F766E&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion" alt="tagline"/>
 +</picture>
 
 <br/><br/>
