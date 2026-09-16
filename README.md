@@ -19,15 +19,12 @@
 
 [![Build status](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml/badge.svg)](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml)
 
-<br/>
-
-<sub><b>BUILT WITH</b></sub><br/>
-<img src="https://img.shields.io/badge/Next.js-16-111827?style=flat-square&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-19-0891B2?style=flat-square&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-5.9-2563EB?style=flat-square&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-ORM-7C3AED?style=flat-square&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-DB-0F766E?style=flat-square&logo=postgresql&logoColor=white"/>
-
-<br/><br/>
-
-<sub><b>PROJECT SIGNALS</b></sub><br/>
-<img src="https://img.shields.io/github/stars/Satya522/TypeForge?style=flat-square&color=F59E0B&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/forks/Satya522/TypeForge?style=flat-square&color=14B8A6&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/last-commit/Satya522/TypeForge?style=flat-square&color=6366F1&labelColor=111827&logo=git&logoColor=white"/> <img src="https://img.shields.io/github/issues-pr/Satya522/TypeForge?style=flat-square&color=F97316&labelColor=111827&logo=github&logoColor=white"/>
+<p>
+  <img src="https://img.shields.io/badge/Next.js-16-111827?style=flat-square&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-19-0891B2?style=flat-square&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-5.9-2563EB?style=flat-square&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-ORM-7C3AED?style=flat-square&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-DB-0F766E?style=flat-square&logo=postgresql&logoColor=white"/>
+</p>
+<p>
+  <img src="https://img.shields.io/github/stars/Satya522/TypeForge?style=flat-square&color=F59E0B&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/forks/Satya522/TypeForge?style=flat-square&color=14B8A6&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/last-commit/Satya522/TypeForge?style=flat-square&color=6366F1&labelColor=111827&logo=git&logoColor=white"/> <img src="https://img.shields.io/github/issues-pr/Satya522/TypeForge?style=flat-square&color=F97316&labelColor=111827&logo=github&logoColor=white"/>
+</p>
 
 <br/><br/>
 
