@@ -1,46 +1,70 @@
-<p align="center">
-  <img src="docs/typeforge-banner.svg" alt="TypeForge - deliberate typing practice" />
-</p>
+<div align="center">
 
-<p align="center">
-  <strong>A full-stack typing practice platform for deliberate, measurable improvement.</strong>
-</p>
+<a href="https://github.com/Satya522/TypeForge">
+  <img src="https://github.com/Satya522/TypeForge/raw/master/docs/typeforge-banner.svg" alt="TypeForge banner" width="100%"/>
+</a>
 
-<p align="center">
-  <a href="#features"><img src="https://img.shields.io/badge/Features-40%2B-2563eb?style=for-the-badge" alt="Features" /></a>
-  <a href="https://github.com/Satya522/TypeForge/actions/workflows/validate.yml"><img src="https://github.com/Satya522/TypeForge/actions/workflows/validate.yml/badge.svg" alt="Build status" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma" alt="Prisma" /></a>
-</p>
+<br/><br/>
 
-<p align="center">
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#features">Features</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#deployment">Deployment</a> •
-  <a href="#contributing">Contributing</a>
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=FFFFFF&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
+  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=000000&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion">
+  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&size=22&duration=2600&pause=900&color=000000&center=true&vCenter=true&width=760&height=40&lines=A+typing+performance+lab%2C+not+just+a+WPM+counter;25%2B+modules+%C2%B7+10+arcade+games+%C2%B7+1%2C500%2B+texts;1%2C500%2B+lines+of+pure+typing+science;Built+with+Next.js+16%2C+Prisma+%26+Framer+Motion" alt="tagline"/>
++</picture>
 
----
+<br/><br/>
 
-## Overview
+[![Build status](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml/badge.svg)](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml)
+<img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-19-000000?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-5.9-000000?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-ORM-000000?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-DB-000000?style=for-the-badge&logo=postgresql&logoColor=white"/>
+
+<img src="https://img.shields.io/github/stars/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/forks/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/last-commit/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=git&logoColor=white"/> <img src="https://img.shields.io/github/issues-pr/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/>
+
+<br/><br/>
+
+<b>
+<a href="#-overview">Overview</a> •
+<a href="#-at-a-glance">At a Glance</a> •
+<a href="#-features">Features</a> •
+<a href="#-architecture">Architecture</a> •
+<a href="#-tech-stack">Tech Stack</a> •
+<a href="#-quick-start">Quick Start</a> •
+<a href="#-deployment">Deployment</a> •
+<a href="#-contributing">Contributing</a>
+</b>
+
+</div>
+
+<br/>
+
+## 📖 Overview
 
 Most typing tools measure speed. **TypeForge measures intelligence.**
 
 It doesn't just track WPM — it reconstructs your entire session into a live performance fingerprint: burst patterns, recovery speed, focus drift, pressure response, weak-zone mapping, and rhythm stability. The analytics engine alone runs 1,500+ lines of pure typing science.
 
-TypeForge combines guided lessons, focused drills, game-based practice, performance analytics, and real-time community features in one Next.js application. It is designed as a serious full-stack project with authentication, persistence, API routes, and a responsive interface.
+TypeForge combines guided lessons, focused drills, game-based practice, performance analytics, and real-time community features in one Next.js application — built as a serious full-stack project with authentication, persistence, API routes, and a responsive interface.
 
 > **Portfolio note:** TypeForge is an actively developed portfolio project. The application is designed to run locally with PostgreSQL; production integrations are documented below and are intentionally disabled until their credentials are configured.
 
----
+<br/>
 
-## Features
+## 📌 At a Glance
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/Practice_Modules-25%2B-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Arcade_Games-10-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Practice_Texts-1%2C500%2B-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Analytics_Engine-1%2C500%2B_LOC-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/App_Routes-35%2B-000000?style=for-the-badge"/>
+
+</div>
+
+<br/>
+
+## ✨ Features
 
 ### ⌨️ Core Typing Engine
+
+<details>
+<summary><b>Guided lessons, drills, code practice, dictation, and AI-generated passages</b></summary>
+<br/>
 
 | Module | Description |
 |---|---|
@@ -49,11 +73,15 @@ TypeForge combines guided lessons, focused drills, game-based practice, performa
 | **Code Practice** | Language-specific code typing with syntax highlighting (JS, Python, Rust, etc.) |
 | **Custom Practice** | Paste any text and practice with full metrics tracking |
 | **AI Practice** | Optional generated passages tailored to a user's weak zones |
-| **Dictation Mode** | Speech-to-text practice using Web Speech API |
+| **Dictation Mode** | Speech-to-text practice using the Web Speech API |
+
+</details>
 
 ### 🎮 Typing Games Arcade
 
-Ten fully-built browser games — not demos, not placeholders — real games with scoring, progression, and visual effects:
+<details>
+<summary><b>Ten fully-built browser games — not demos, real games with scoring & progression</b></summary>
+<br/>
 
 | Game | Mechanic |
 |---|---|
@@ -68,9 +96,15 @@ Ten fully-built browser games — not demos, not placeholders — real games wit
 | **Rhythm Typer** | Music-synced typing where rhythm and accuracy both matter |
 | **Zen Garden** | Calm, meditative typing with ambient soundscapes and no timer |
 
+</details>
+
 ### 📊 Analytics Intelligence Engine
 
-The analytics dashboard is not a simple chart page. It's a **typing performance lab** built on a custom 1,500+ line analytics model that produces:
+<details open>
+<summary><b>A typing performance lab, not a chart page</b></summary>
+<br/>
+
+Built on a custom **1,500+ line analytics model** that produces:
 
 - **Typing DNA Profile** — Archetype classification (Rhythm Architect, Aggressive Starter, Flow Keeper, etc.)
 - **Skill Radar** — 6-axis radar chart: Speed, Accuracy, Consistency, Control, Endurance, Recovery
@@ -83,12 +117,17 @@ The analytics dashboard is not a simple chart page. It's a **typing performance 
 - **Training Command Center** — Consistency heatmap, session load dots, momentum tracking, and AI coach insights
 - **Session Replay** — Compressed session signature showing launch burst, correction spike, recovery, and finish quality
 
-### 🗺️ Learning Roadmap
+</details>
 
-Interactive, scroll-animated roadmap with glassmorphic milestone cards, cinematic hero section, and editorial scroll-reveal animations.
+### 🗺️ Learning Roadmap & 👥 Community Hub
 
-### 👥 Community Hub
+<details>
+<summary><b>Cinematic roadmap + real-time community features</b></summary>
+<br/>
 
+**Learning Roadmap** — Interactive, scroll-animated roadmap with glassmorphic milestone cards, a cinematic hero section, and editorial scroll-reveal animations.
+
+**Community Hub**
 - Real-time chat with WebSocket relay server
 - Emoji picker (emoji-mart) with GIF search integration
 - Channel-based messaging with user identity cards
@@ -96,7 +135,13 @@ Interactive, scroll-animated roadmap with glassmorphic milestone cards, cinemati
 - Daily pulse and notification center
 - Command palette for power users
 
-### 🏆 Competitive Features
+</details>
+
+### 🏆 Competitive & 🧑‍💼 Platform Features
+
+<details>
+<summary><b>Leaderboards, tournaments, profiles, admin & teacher tooling</b></summary>
+<br/>
 
 | Feature | Description |
 |---|---|
@@ -105,11 +150,6 @@ Interactive, scroll-animated roadmap with glassmorphic milestone cards, cinemati
 | **Race Mode** | Real-time multiplayer typing races with progress bars |
 | **Achievements** | Unlockable badges based on performance milestones |
 | **Streak Tracking** | Quality-weighted streak system (not just day-counting) |
-
-### 🧑‍💼 Platform Features
-
-| Feature | Description |
-|---|---|
 | **User Profiles** | Public profiles with hover cards, custom avatars, and photo upload |
 | **Settings** | Premium settings panel with theme, font, sound, and notification controls |
 | **Onboarding** | Guided first-run experience with skill assessment |
@@ -118,9 +158,11 @@ Interactive, scroll-animated roadmap with glassmorphic milestone cards, cinemati
 | **Teacher Dashboard** | Classroom management and student progress tracking |
 | **Subscription Tiers** | Free and Premium tier comparison with payment flow |
 
----
+</details>
 
-## Architecture
+<br/>
+
+## 🏗️ Architecture
 
 ```
 typeforge/
@@ -148,8 +190,8 @@ typeforge/
 │   │   ├── community/         # Chat, channels, commands, notifications
 │   │   ├── motion/            # Framer Motion primitives & providers
 │   │   ├── navigation/        # Navbar, mega menu, mobile drawer
-│   │   ├── premium/           # Aurora, glow, grain, shimmer effects
-│   │   ├── profile/           # Hover cards, photo dialog, settings form
+│   │   ├── premium/            # Aurora, glow, grain, shimmer effects
+│   │   ├── profile/            # Hover cards, photo dialog, settings form
 │   │   ├── ui/                # Radix-based primitive components
 │   │   └── ...                # Game components, keyboard, metrics
 │   ├── features/
@@ -167,74 +209,59 @@ typeforge/
 
 ### Data Flow
 
+```mermaid
+flowchart LR
+    A[User Input] --> B[Typing Engine]
+    B --> C[Session Telemetry]
+    C --> D[Analytics Model]
+    C --> P[(PostgreSQL via Prisma)]
+    D --> E[Intelligence Surface]
+    P --> G[Growth Series]
+    G --> R[Recommendations]
+    R --> I[Coach Insights]
 ```
-User Input → Typing Engine → Session Telemetry → Analytics Model → Intelligence Surface
-                                    ↓
-                              PostgreSQL (Prisma)
-                                    ↓
-                        Growth Series → Recommendations → Coach Insights
-```
 
----
+<br/>
 
-## Tech Stack
+## 🧰 Tech Stack
 
-### Core Framework
+<div align="center">
 
-| Technology | Version | Purpose |
+<img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-000000?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-000000?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-000000?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=postgresql&logoColor=white"/> <img src="https://img.shields.io/badge/NextAuth.js-000000?style=for-the-badge&logo=auth0&logoColor=white"/> <img src="https://img.shields.io/badge/Tailwind_CSS-000000?style=for-the-badge&logo=tailwindcss&logoColor=white"/> <img src="https://img.shields.io/badge/Framer_Motion-000000?style=for-the-badge&logo=framer&logoColor=white"/> <img src="https://img.shields.io/badge/GSAP-000000?style=for-the-badge&logo=greensock&logoColor=white"/> <img src="https://img.shields.io/badge/Radix_UI-000000?style=for-the-badge&logo=radixui&logoColor=white"/> <img src="https://img.shields.io/badge/Socket.io-000000?style=for-the-badge&logo=socketdotio&logoColor=white"/> <img src="https://img.shields.io/badge/Zustand-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/TanStack_Query-000000?style=for-the-badge&logo=reactquery&logoColor=white"/>
+
+</div>
+
+<br/>
+
+| Layer | Technology | Purpose |
 |---|---|---|
-| [Next.js](https://nextjs.org) | 16.2 | App Router, SSR, API routes, Turbopack |
-| [React](https://react.dev) | 19.2 | UI rendering with concurrent features |
-| [TypeScript](https://typescriptlang.org) | 5.9 | End-to-end type safety |
+| **Core** | [Next.js](https://nextjs.org) 16.2 | App Router, SSR, API routes, Turbopack |
+| **Core** | [React](https://react.dev) 19.2 | UI rendering with concurrent features |
+| **Core** | [TypeScript](https://typescriptlang.org) 5.9 | End-to-end type safety |
+| **Data** | [Prisma](https://prisma.io) | Type-safe ORM with migrations |
+| **Data** | [PostgreSQL](https://postgresql.org) | Primary database |
+| **Data** | [NextAuth.js](https://next-auth.js.org) | Authentication (Google, GitHub, Credentials) |
+| **Data** | [Zod](https://zod.dev) | Runtime schema validation |
+| **UI** | [Tailwind CSS](https://tailwindcss.com) | Utility-first styling with dark mode |
+| **UI** | [Framer Motion](https://framer.com/motion) | Physics-based animations and transitions |
+| **UI** | [GSAP](https://gsap.com) | High-performance scroll animations |
+| **UI** | [Radix UI](https://radix-ui.com) | Accessible headless UI primitives |
+| **UI** | [Lucide](https://lucide.dev) | Icon system |
+| **UI** | [Lenis](https://lenis.darkroom.engineering) | Smooth scroll engine |
+| **Viz** | [Recharts](https://recharts.org) | Composable chart components |
+| **Viz** | [Tremor](https://tremor.so) | Dashboard-grade visualization blocks |
+| **Viz** | [react-activity-calendar](https://github.com/grubersjoe/react-activity-calendar) | GitHub-style contribution heatmaps |
+| **Real-time** | [Socket.io](https://socket.io) | WebSocket server + client for community chat |
+| **State** | [Zustand](https://zustand-demo.pmnd.rs) | Lightweight global state management |
+| **State** | [TanStack Query](https://tanstack.com/query) | Server state, caching, and synchronization |
+| **State** | [React Hook Form](https://react-hook-form.com) | Performant form handling |
+| **DX** | [Turbopack](https://turbo.build) | Next.js dev server bundler |
+| **DX** | [ESLint](https://eslint.org) | Code quality enforcement |
+| **DX** | [PostCSS](https://postcss.org) | CSS transformation pipeline |
 
-### Data Layer
+<br/>
 
-| Technology | Purpose |
-|---|---|
-| [Prisma](https://prisma.io) | Type-safe ORM with migrations |
-| [PostgreSQL](https://postgresql.org) | Primary database |
-| [NextAuth.js](https://next-auth.js.org) | Authentication (Google, GitHub, Credentials) |
-| [Zod](https://zod.dev) | Runtime schema validation |
-
-### UI & Design
-
-| Technology | Purpose |
-|---|---|
-| [Tailwind CSS](https://tailwindcss.com) | Utility-first styling with dark mode |
-| [Framer Motion](https://framer.com/motion) | Physics-based animations and transitions |
-| [GSAP](https://gsap.com) | High-performance scroll animations |
-| [Radix UI](https://radix-ui.com) | Accessible headless UI primitives |
-| [Lucide](https://lucide.dev) | Icon system |
-| [Lenis](https://lenis.darkroom.engineering) | Smooth scroll engine |
-
-### Data Visualization
-
-| Technology | Purpose |
-|---|---|
-| [Recharts](https://recharts.org) | Composable chart components |
-| [Tremor](https://tremor.so) | Dashboard-grade visualization blocks |
-| [react-activity-calendar](https://github.com/grubersjoe/react-activity-calendar) | GitHub-style contribution heatmaps |
-
-### Real-time & State
-
-| Technology | Purpose |
-|---|---|
-| [Socket.io](https://socket.io) | WebSocket server + client for community chat |
-| [Zustand](https://zustand-demo.pmnd.rs) | Lightweight global state management |
-| [TanStack Query](https://tanstack.com/query) | Server state, caching, and synchronization |
-| [React Hook Form](https://react-hook-form.com) | Performant form handling |
-
-### DX & Tooling
-
-| Technology | Purpose |
-|---|---|
-| [Turbopack](https://turbo.build) | Next.js dev server bundler |
-| [ESLint](https://eslint.org) | Code quality enforcement |
-| [PostCSS](https://postcss.org) | CSS transformation pipeline |
-
----
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -242,7 +269,7 @@ User Input → Typing Engine → Session Telemetry → Analytics Model → Intel
 - **PostgreSQL** running locally or a hosted instance
 - **npm** 10+ (or another npm-compatible package manager)
 
-### 1. Clone & Install
+### 1 · Clone & Install
 
 ```bash
 git clone https://github.com/Satya522/TypeForge.git
@@ -250,13 +277,11 @@ cd TypeForge
 npm install
 ```
 
-### 2. Environment Setup
+### 2 · Environment Setup
 
-Create a `.env.local` file in the project root:
+Create a `.env.local` file in the project root, starting from [`.env.example`](https://github.com/Satya522/TypeForge/blob/master/.env.example):
 
-Start from [`.env.example`](.env.example) and replace each placeholder with a local value.
-
-```env
+```bash
 DATABASE_URL="postgresql://postgres:password@localhost:5432/typeforge_db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your_random_secret_here"
@@ -267,7 +292,7 @@ GITHUB_CLIENT_ID="your_github_client_id"
 GITHUB_CLIENT_SECRET="your_github_client_secret"
 ```
 
-### 3. Database Setup
+### 3 · Database Setup
 
 ```bash
 npm run prisma:generate
@@ -275,17 +300,15 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-### 4. Launch
+### 4 · Launch
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — you're live.
+Open <http://localhost:3000> — you're live.
 
-### 5. Community Server (Optional)
-
-To enable real-time chat:
+### 5 · Community Server (Optional)
 
 ```bash
 npm run relay
@@ -300,32 +323,31 @@ npm run build
 
 Every push and pull request targeting `master` runs the same typecheck and production build in GitHub Actions.
 
----
+<br/>
 
-## Deployment
+## ☁️ Deployment
 
-### Vercel (Recommended)
-
+**Vercel (Recommended)**
 1. Push your repo to GitHub
 2. Import the project on [vercel.com](https://vercel.com)
 3. Add environment variables in the Vercel dashboard
 4. Deploy — Vercel auto-detects Next.js and handles the rest
 
-### Other Platforms
+**Other Platforms** — TypeForge runs on any platform that supports Node.js 20.9+ and PostgreSQL:
 
-TypeForge runs on any platform that supports Node.js 20.9+ and PostgreSQL:
+| Platform | Notes |
+|---|---|
+| **Railway** | One-click Postgres + Node.js deployment |
+| **Render** | Free tier available with managed Postgres |
+| **Docker** | Containerize with the included Next.js standalone output |
+| **AWS / GCP** | Deploy to ECS, Cloud Run, or any container service |
 
-- **Railway** — One-click Postgres + Node.js deployment
-- **Render** — Free tier available with managed Postgres
-- **Docker** — Containerize with the included Next.js standalone output
-- **AWS / GCP** — Deploy to ECS, Cloud Run, or any container service
+<br/>
 
----
-
-## Environment Variables
+## 🔑 Environment Variables
 
 | Variable | Required | Description |
-|---|---|---|
+|---|:---:|---|
 | `DATABASE_URL` | ✅ | PostgreSQL connection string |
 | `NEXTAUTH_URL` | ✅ | App base URL (`http://localhost:3000` for dev) |
 | `NEXTAUTH_SECRET` | ✅ | Random string for JWT encryption |
@@ -336,42 +358,48 @@ TypeForge runs on any platform that supports Node.js 20.9+ and PostgreSQL:
 | `ALLOWED_ORIGINS` | ⬜ | CORS origins for WebSocket relay |
 | `REDIS_URL` | ⬜ | Redis URL for Socket.io adapter |
 
----
+<br/>
 
-## Scripts
+## 📜 Scripts
 
-```bash
-npm run dev              # Start development server
-npm run build            # Create optimized production build
-npm run start            # Start the production server
-npm run relay            # Start the WebSocket community relay server
-npm run prisma:migrate   # Run Prisma migrations
-npm run prisma:generate  # Generate Prisma client
-npm run prisma:seed      # Seed the database with starter content
-```
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run typecheck` | Run the TypeScript compiler without emitting files |
+| `npm run build` | Create an optimized production build |
+| `npm run start` | Start the production server |
+| `npm run relay` | Start the WebSocket community relay server |
+| `npm run prisma:migrate` | Run Prisma migrations |
+| `npm run prisma:generate` | Generate the Prisma client |
+| `npm run prisma:seed` | Seed the database with starter content |
 
----
+<br/>
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome. Whether it's a bug fix, new feature, or documentation improvement — open an issue or submit a PR.
+Contributions are welcome — a bug fix, a new feature, or a documentation improvement. Open an issue or submit a PR.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feat/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feat/amazing-feature`)
+2. Create your feature branch — `git checkout -b feat/amazing-feature`
+3. Commit your changes — `git commit -m 'feat: add amazing feature'`
+4. Push to the branch — `git push origin feat/amazing-feature`
 5. Open a Pull Request
 
----
+<br/>
 
-## Project Status
+## 📈 Project Status
 
 TypeForge is an active portfolio project. The core application is functional locally; production integrations such as OAuth providers, email delivery, Redis rate limiting, and Sentry require their corresponding environment variables.
 
----
+<br/>
 
-<p align="center">
-  <strong>Built with obsessive attention to detail.</strong>
-  <br />
-  <sub>If TypeForge helped you, consider giving it a ⭐</sub>
-</p>
+<div align="center">
+
+**Built with obsessive attention to detail.**
+If TypeForge helped you, consider giving it a ⭐
+
+<br/><br/>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&height=120&color=000000&section=footer" width="100%"/>
+
+</div>
