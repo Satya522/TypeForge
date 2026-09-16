@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible problem in TypeForge
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and the behavior you expected.
+    validations:
+      required: true
+  - type: input
+    id: route
+    attributes:
+      label: Affected route or module
+      placeholder: /practice, analytics, community
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      placeholder: "1. Open ...\n2. Click ...\n3. Observe ..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and environment
+      placeholder: Chrome 128, Windows 11, local development

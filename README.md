@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="public/icon-512.png" width="120" alt="TypeForge Logo" />
+  <img src="docs/typeforge-banner.svg" alt="TypeForge - deliberate typing practice" />
 </p>
-
-<h1 align="center">TypeForge</h1>
 
 <p align="center">
   <strong>A full-stack typing practice platform for deliberate, measurable improvement.</strong>
@@ -10,6 +8,7 @@
 
 <p align="center">
   <a href="#features"><img src="https://img.shields.io/badge/Features-40%2B-2563eb?style=for-the-badge" alt="Features" /></a>
+  <a href="https://github.com/Satya522/TypeForge/actions/workflows/validate.yml"><img src="https://github.com/Satya522/TypeForge/actions/workflows/validate.yml/badge.svg" alt="Build status" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
@@ -34,6 +33,8 @@ Most typing tools measure speed. **TypeForge measures intelligence.**
 It doesn't just track WPM — it reconstructs your entire session into a live performance fingerprint: burst patterns, recovery speed, focus drift, pressure response, weak-zone mapping, and rhythm stability. The analytics engine alone runs 1,500+ lines of pure typing science.
 
 TypeForge combines guided lessons, focused drills, game-based practice, performance analytics, and real-time community features in one Next.js application. It is designed as a serious full-stack project with authentication, persistence, API routes, and a responsive interface.
+
+> **Portfolio note:** TypeForge is an actively developed portfolio project. The application is designed to run locally with PostgreSQL; production integrations are documented below and are intentionally disabled until their credentials are configured.
 
 ---
 
@@ -157,6 +158,8 @@ typeforge/
 │   ├── lib/                   # Auth, Prisma, utilities, telemetry
 │   └── types/                 # TypeScript declarations
 ├── server.js                  # WebSocket relay server (Socket.io)
+├── docs/                      # Repository branding assets
+├── .github/                   # CI, issue forms, and contribution controls
 ├── next.config.js
 ├── tailwind.config.js
 └── tsconfig.json
@@ -287,6 +290,15 @@ To enable real-time chat:
 ```bash
 npm run relay
 ```
+
+### Validation
+
+```bash
+npm run typecheck
+npm run build
+```
+
+Every push and pull request targeting `master` runs the same typecheck and production build in GitHub Actions.
 
 ---
 
