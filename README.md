@@ -1,7 +1,10 @@
 <div align="center">
 
 <a href="https://github.com/Satya522/TypeForge">
-  <img src="https://github.com/Satya522/TypeForge/raw/master/docs/typeforge-banner.svg" alt="TypeForge banner" width="100%"/>
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/Satya522/TypeForge/raw/master/docs/typeforge-banner-light.svg"/>
+    <img src="https://github.com/Satya522/TypeForge/raw/master/docs/typeforge-banner.svg" alt="TypeForge banner" width="100%"/>
+  </picture>
 </a>
 
 <br/><br/>
@@ -15,9 +18,9 @@
 <br/><br/>
 
 [![Build status](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml/badge.svg)](https://github.com/Satya522/TypeForge/actions/workflows/validate.yml)
-<img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-19-000000?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-5.9-000000?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-ORM-000000?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-DB-000000?style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img src="https://img.shields.io/badge/Next.js-16-111827?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-19-0891B2?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-5.9-2563EB?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-ORM-7C3AED?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-DB-0F766E?style=for-the-badge&logo=postgresql&logoColor=white"/>
 
-<img src="https://img.shields.io/github/stars/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/forks/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/last-commit/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=git&logoColor=white"/> <img src="https://img.shields.io/github/issues-pr/Satya522/TypeForge?style=for-the-badge&color=000000&labelColor=000000&logo=github&logoColor=white"/>
+<img src="https://img.shields.io/github/stars/Satya522/TypeForge?style=for-the-badge&color=F59E0B&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/forks/Satya522/TypeForge?style=for-the-badge&color=14B8A6&labelColor=111827&logo=github&logoColor=white"/> <img src="https://img.shields.io/github/last-commit/Satya522/TypeForge?style=for-the-badge&color=6366F1&labelColor=111827&logo=git&logoColor=white"/> <img src="https://img.shields.io/github/issues-pr/Satya522/TypeForge?style=for-the-badge&color=F97316&labelColor=111827&logo=github&logoColor=white"/>
 
 <br/><br/>
 
@@ -52,7 +55,7 @@ TypeForge combines guided lessons, focused drills, game-based practice, performa
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/Practice_Modules-25%2B-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Arcade_Games-10-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Practice_Texts-1%2C500%2B-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/Analytics_Engine-1%2C500%2B_LOC-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/App_Routes-35%2B-000000?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Practice_Modules-25%2B-0F766E?style=for-the-badge&logo=target&logoColor=white"/> <img src="https://img.shields.io/badge/Arcade_Games-10-DB2777?style=for-the-badge&logo=gamepad&logoColor=white"/> <img src="https://img.shields.io/badge/Practice_Texts-1%2C500%2B-2563EB?style=for-the-badge&logo=bookstack&logoColor=white"/> <img src="https://img.shields.io/badge/Analytics_Engine-1%2C500%2B_LOC-7C3AED?style=for-the-badge&logo=chartdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/App_Routes-35%2B-D97706?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
 
 </div>
 
@@ -227,7 +230,7 @@ flowchart LR
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-000000?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-000000?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-000000?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=postgresql&logoColor=white"/> <img src="https://img.shields.io/badge/NextAuth.js-000000?style=for-the-badge&logo=auth0&logoColor=white"/> <img src="https://img.shields.io/badge/Tailwind_CSS-000000?style=for-the-badge&logo=tailwindcss&logoColor=white"/> <img src="https://img.shields.io/badge/Framer_Motion-000000?style=for-the-badge&logo=framer&logoColor=white"/> <img src="https://img.shields.io/badge/GSAP-000000?style=for-the-badge&logo=greensock&logoColor=white"/> <img src="https://img.shields.io/badge/Radix_UI-000000?style=for-the-badge&logo=radixui&logoColor=white"/> <img src="https://img.shields.io/badge/Socket.io-000000?style=for-the-badge&logo=socketdotio&logoColor=white"/> <img src="https://img.shields.io/badge/Zustand-000000?style=for-the-badge"/> <img src="https://img.shields.io/badge/TanStack_Query-000000?style=for-the-badge&logo=reactquery&logoColor=white"/>
+<img src="https://img.shields.io/badge/Next.js-111827?style=for-the-badge&logo=nextdotjs&logoColor=white"/> <img src="https://img.shields.io/badge/React-0891B2?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-2563EB?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Prisma-7C3AED?style=for-the-badge&logo=prisma&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-0F766E?style=for-the-badge&logo=postgresql&logoColor=white"/> <img src="https://img.shields.io/badge/NextAuth.js-DB2777?style=for-the-badge&logo=auth0&logoColor=white"/> <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/> <img src="https://img.shields.io/badge/Framer_Motion-F97316?style=for-the-badge&logo=framer&logoColor=white"/> <img src="https://img.shields.io/badge/GSAP-65A30D?style=for-the-badge&logo=greensock&logoColor=white"/> <img src="https://img.shields.io/badge/Radix_UI-9333EA?style=for-the-badge&logo=radixui&logoColor=white"/> <img src="https://img.shields.io/badge/Socket.io-E11D48?style=for-the-badge&logo=socketdotio&logoColor=white"/> <img src="https://img.shields.io/badge/Zustand-CA8A04?style=for-the-badge"/> <img src="https://img.shields.io/badge/TanStack_Query-0284C7?style=for-the-badge&logo=reactquery&logoColor=white"/>
 
 </div>
 

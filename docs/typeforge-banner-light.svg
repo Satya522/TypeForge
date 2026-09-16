@@ -1,0 +1,30 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="0.55" stop-color="#E0F2FE"/>
+      <stop offset="1" stop-color="#ECFDF5"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="250" y1="50" x2="900" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#0F172A" stroke-opacity="0.08"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="300" rx="18" fill="url(#bg)"/>
+  <rect width="1200" height="300" rx="18" fill="url(#grid)"/>
+  <circle cx="1030" cy="-20" r="190" fill="#0F766E" fill-opacity="0.08" filter="url(#glow)"/>
+  <circle cx="1030" cy="-20" r="125" stroke="#0F766E" stroke-opacity="0.3"/>
+  <circle cx="1030" cy="-20" r="72" stroke="#D97706" stroke-opacity="0.42"/>
+  <path d="M88 212C250 165 346 184 492 145C648 104 773 124 918 74" stroke="url(#accent)" stroke-width="2" stroke-opacity="0.9"/>
+  <path d="M88 224C250 177 346 196 492 157C648 116 773 136 918 86" stroke="#0F766E" stroke-opacity="0.22"/>
+  <text x="88" y="122" fill="#0F172A" font-family="Poppins, Montserrat, Georgia, serif" font-size="72" font-weight="700" letter-spacing="1">TypeForge</text>
+  <text x="94" y="164" fill="#0F766E" font-family="Poppins, Montserrat, Arial, sans-serif" font-size="20" letter-spacing="4">DELIBERATE TYPING PRACTICE</text>
+  <text x="94" y="252" fill="#334155" font-family="Poppins, Montserrat, Arial, sans-serif" font-size="16">Lessons  /  Games  /  Analytics  /  Community</text>
+</svg>
